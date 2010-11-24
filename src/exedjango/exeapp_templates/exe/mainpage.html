@@ -1,0 +1,324 @@
+        <!-- CSS -->
+        <link rel="stylesheet" type="text/css" href="/exeapp/static/css/superfish.css" />
+        <link rel="stylesheet" type="text/css" href="/exeapp/static/css/exe.css" />
+        <link rel="stylesheet" type="text/css" href="/exeapp/static/css/ui-lightness/jquery-ui-1.8.4.custom.css" />
+        <link rel="stylesheet" type="text/css" href="/exeapp/static/css/jquery.treeview.css" />
+        <!-- SCRIPTS -->
+        <script n:render="liveid"></script>
+        <script type="text/javascript" src="/exeapp/static/scripts/jquery.min.js"></script>
+        <script type="text/javascript" src="/exeapp/static/scripts/jquery-ui.custom.min.js"></script>
+        <script type="text/javascript" src="/exeapp/static/scripts/common.js"></script>
+        <script type="text/javascript" src="/exeapp/static/scripts/mainpage.js"></script>
+        <script type="text/javascript" src="/exeapp/static/scripts/superfish.js"></script>
+        <script type="text/javascript" src="/exeapp/static/scripts/jquery.treeview.js"></script>
+        <script type="text/javascript" src="/exeapp/static/scripts/nevow_glue.js"></script>
+        <script type="text/javascript" src="/exeapp/static/scripts/jquery.confirm.js"></script>
+        <script type="text/javascript" src="/exeapp/static/scripts/jquery.alerts.js"></script>
+        <script type="text/javascript" src="/exeapp/static/scripts/jquery.blockUI.js"></script>
+        <script type="text/javascript">
+            jQuery(document).ready(function() {
+                $("#filemenu").superfish();
+                $("a.bigButton, a.smallButton").button();
+                $("#outlineTree").treeview({
+                    persist: "location",
+                    collapsed: false});
+                $("#ideviceTree").treeview({
+                    persist: "location",
+                    collapsed: false});
+                $("#authoringIFrame1").attr('src',
+                    document.location.pathname + "/authoring");
+                $("#propertiesIFrame").attr('src',
+                    document.location.pathname + "/properties");
+                //bind actions to outline
+                $(".outlineNode").each(function(index) {
+                    bindOutlineClicked(this);
+                });
+                $("#btnRename").click(function() {
+                    renameNode();
+                    });
+                //bind action to buttons
+                $(".bigButton:not(#btnRename), .smallButton").each(function(index) {
+                    bindButtonClicked(this);
+                });
+                $("#btnRemove").confirm({msg: "Are you sure you want to delete this node?"});
+                //bind action to idevice items
+                $(".ideviceItem").each(function(index) {
+                    $(this).click(function() {
+                        addIdevice($(this).attr("ideviceId"));
+                        });
+                    });
+                $("#middle").tabs();
+                updateTitle();
+            });
+        </script>
+        <div id="wrap">
+        <table><tr><td>
+        <ul class="sf-menu sf-vertical" label="root">
+        
+        <li>
+            <a href="#" id="file-menu">
+                File
+            </a>
+            <ul label="File ul">
+                
+                <li>
+                    <a href="javascript:fileNew()">
+                        New
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:tabNew()">
+                        New Tab
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:fileOpen()">
+                        Open
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="recent-projects-menu">
+                        Recent Projects...
+                    </a>
+                    <!-- Recent Projects will be rendered here -->
+                    {{ recent_projects.render }}
+                </li>
+                <li>
+                    <a href="javascript:fileSave()">
+                        Save
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:fileSaveAs()">
+                        Save As...
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:filePrint()">
+                        Print
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:handoutPrint()">
+                        Print Handout
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:">
+                        
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="export-menu">
+                        Export
+                    </a>
+                    <ul label="Export ul">
+                        
+                        <li>
+                            <a href="javascript:exportPackage('commoncartridge','','')">
+                                Common Cartridge
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:exportPackage('scorm','','')">
+                                SCORM 1.2
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:exportPackage('ims','','')">
+                                IMS Content Package
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" id="website">
+                                Web Site
+                            </a>
+                            <ul label="Web Site ul">
+                                
+                                <li>
+                                    <a href="javascript:exportPackage('webSite','','')">
+                                        Self-contained Folder
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:exportPackage('zipFile','','')">
+                                        Zip File
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:exportPackage('presentation', '', '')">
+                                        DOM Presentation
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="javascript:exportPackage('singlePage','','')">
+                                Single Page
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:exportPackage('textFile','','')">
+                                Text File
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:exportPackage('ipod', '', '')">
+                                iPod Notes
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" id="merging-menu">
+                        Merging
+                    </a>
+                    <ul label="Merging ul">
+                        
+                        <li>
+                            <a href="javascript:insertPackage()">
+                                Insert Package
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:extractPackage()">
+                                Extract Package
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="javascript:fileQuit()">
+                        Quit
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" id="tools-menu">
+                Tools
+            </a>
+            <ul label="Tools ul">
+                
+                <li>
+                    <a href="javascript:toolsEditor()">
+                        iDevice Editor
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:testFunc()">
+                        TEST!
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:toolsPreferences()">
+                        Preferences
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:importPDF()">
+                        Import PDF
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:setEditorsWidth()">
+                        Set Editor's width
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:">
+                        
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:window.location = window.location">
+                        Refresh Display
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" id="styles-menu">
+                Styles
+            </a>
+            {{ style_pane.render }}
+        </li>
+        <li>
+            <a href="#" id="help-menu">
+                Help
+            </a>
+            <ul label="Help ul">
+                
+                <li>
+                    <a href="javascript:fileOpenTutorial()">
+                        eXe Tutorial
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:browseURL('file://%s/docs/manual/Online_manual.html')">
+                        eXe Manual
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:browseURL('file://%t')">
+                        Release Notes
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:browseURL('http://exelearning.org/')">
+                        eXe Web Site
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:browseURL('http://exelearning.org/issue.php')">
+                        Report an Issue
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:browseURL('http://exelearning.org/irc.php')">
+                        eXe Live Chat
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:aboutPage()">
+                        About eXe
+                    </a>
+                </li>
+            </ul>
+        </li>
+        </ul>
+
+        </td></tr></table>
+        
+        <div id="sidebar">
+            <div id="outlinecontroll">
+                <a id="btnAdd" class="bigButton" action="AddChild">Add</a>
+                <a id="btnRemove" class="bigButton" action="DelNode">Remove</a>
+                <a id="btnRename" class="bigButton" action="RenameNode">Rename</a>
+                <a id="btnDuplicate" class="bigButton" action="DblNode">Duplicate</a>
+            </div>
+            <div id="outlinemove">
+                <a id="btnPromote" class="fg-button smallButton" action="Promote">Promote</a>
+                <a id="btnDemote" class="fg-button smallButton" action="Demote">Demote</a>
+                <a id="btnUp" class="fg-button smallButton" action="Up">Up</a>
+                <a id="btnDown" class="fg-button smallButton" action="Down">Down</a>
+            </div>
+        {{ outline_pane.render }}
+            
+        {{ idevice_pane.render }}
+
+        </div>
+        <div id="middle">
+            <ul>
+                <li><a href="#authoring">Authoring</a></li>
+                <li><a href="#properties">Properties</a></li>
+            </ul>
+            <div id="authoring">
+                <iframe id="authoringIFrame1" ></iframe>
+            </div>
+            <!--Properties pane will be rendered here-->
+            <div id="properties">
+                <iframe id="propertiesIFrame"></iframe>
+            </div>
+        </div>
+        </div>

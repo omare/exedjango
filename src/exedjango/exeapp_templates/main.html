@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Main Page{% endblock %}
+{% block content %} 
+<h1>Main Page</h1>
+<ul>
+  {% for package in package_list %}
+  <li class='package'><a href='/exeapp/package/{{ package.id }}/'>{{ package.title }}</a></li>
+  {% endfor %}
+</ul>
+<div id='createPackage'>
+  <h2>Create new Package</h2>
+  <form action='createpackage/' method='post'>{% csrf_token %}
+    {{ create_package_form.as_p }}
+    <p><input type='submit' value='Create' /></p>
+  </form>
+</div>
+{% endblock %}
