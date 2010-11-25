@@ -2,9 +2,17 @@
 
 import os
 
+def _get_folder_from_root(folder_name):
+    return os.path.join(os.path.dirname(__file__), folder_name).replace('\\', '/')
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+import logging
+logging.basicConfig(
+            level = DEBUG and logging.DEBUG or logging.INFO,
+            format = '%(asctime)s %(levelname)s %(message)s',
+            )
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -48,8 +56,7 @@ USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os.path.join(os.path.dirname(__file__), 'exeapp_media').\
-                    replace('\\', '/')
+MEDIA_ROOT = _get_folder_from_root('exeapp_media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -82,10 +89,8 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'exedjango.urls'
 
-TEMPLATE_DIRS = (
-                os.path.join(os.path.dirname(__file__), 'exeapp_templates').\
-                    replace('\\', '/')
-)
+TEMPLATE_DIRS = (_get_folder_from_root('exeapp_templates'),
+                 )
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -99,14 +104,5 @@ INSTALLED_APPS = (
     'exeapp',
 )
 
-STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'exeapp_static').\
-                    replace('\\', '/')
-                    
-# Configure logging
-
-import logging
-logging.basicConfig(
-            level = DEBUG and logging.DEBUG or logging.INFO,
-            format = '%(asctime)s %(levelname)s %(message)s',
-            )
+STATIC_ROOT = _get_folder_from_root('exeapp_static')
 

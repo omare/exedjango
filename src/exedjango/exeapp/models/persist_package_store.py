@@ -12,4 +12,4 @@ class PackageStore(dict):
         else:
             dict.__setitem__(self, id, package)
 
-package_store = PackageStore()
+package_storage = PackageStore()

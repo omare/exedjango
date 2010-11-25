@@ -1,6 +1,6 @@
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
+from django.template import RequestContext
 
 from exeapp.models import Package, User
 from exeapp.forms import CreatePackageForm
@@ -11,7 +11,9 @@ def main(request):
     user = User.objects.get(username=request.user.username)
     package_list = Package.objects.filter(user=user)
     create_package_form = CreatePackageForm()
-    return render_to_response('main.html', locals())
+    
+    c = RequestContext(request, locals())
+    return render_to_response('main.html', context_instance=c)
 
 def create_package(request):
     if request.method == 'POST':

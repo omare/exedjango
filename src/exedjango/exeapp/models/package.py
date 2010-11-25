@@ -4,7 +4,7 @@ from django.core.files.storage import default_storage
 from django.core.files import File
 
 from exeapp.models.persistent_package import Package as persist_Package
-from exeapp.models import package_store
+from exeapp.models import package_storage
 
 import tempfile
 import logging
@@ -19,7 +19,7 @@ class PackageManager(models.Manager):
         p = Package(title=title, user=user)
         p.save()
         package_id = p.id
-        package_store[package_id] = persist_Package(package_id, title)
+        package_storage[package_id] = persist_Package(package_id, title)
         #file = tempfile.NamedTemporaryFile(mode='w')
         #file.close()
         #package = persist_Package(package_id, title, file.name)
@@ -37,15 +37,15 @@ class Package(models.Model):
     objects = PackageManager()
     
     def get_persist_package(self):
-        if self.id not in package_store:
+        if self.id not in package_storage:
             log.debug("Loading from %s" % self.persist_file)
             persistent_package = persist_Package.load(self.persist_file.file)
-            package_store[self.id] = persistent_package
-        return package_store[self.id]
+            package_storage[self.id] = persistent_package
+        return package_storage[self.id]
     
     def save_persist(self):
-        if self.id in package_store:
-            persistent_package = package_store[self.id]
+        if self.id in package_storage:
+            persistent_package = package_storage[self.id]
             file = tempfile.NamedTemporaryFile(mode="w")
             persistent_package.doSave(file)
             self.persist_file.save("Package %s" % self.id, 

@@ -24,7 +24,7 @@ IdevicePane is responsible for creating the XHTML for iDevice links
 import logging
 from collections import defaultdict
 
-from exedjango.utils.shortcuts import render_to_unicode
+from django.template.loader import render_to_string
 
 from exeapp.renderables.renderable import Renderable
 from exeapp.models   import idevice_storage
@@ -92,7 +92,7 @@ class IdevicePane(Renderable):
                 groups[Idevice.Unknown] += prototype
         # used to perserve the group order
         group_order = sorted(groups.keys())
-        return render_to_unicode('exe/idevicepane.html', locals())
+        return render_to_string('exe/idevicepane.html', locals())
 
 
     def __renderPrototype(self, prototype):

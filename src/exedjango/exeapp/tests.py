@@ -14,7 +14,7 @@ from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseForbidden
 
 from exeapp.models import User, Package
-from exeapp.models.persist_package_store import package_store
+from exeapp.models.persist_package_store import package_storage
 from exeapp.templatetags.tests import IdeviceTagTestCase
 from BeautifulSoup import BeautifulSoup
 
@@ -32,8 +32,10 @@ def _create_basic_database():
     '''Creates 2 users (admin, user) with 5 packages each for testing'''
     admin = User.objects.create_superuser(username='admin', email='admin@exe.org', 
                                           password='admin')
+    admin.save()
     user = User.objects.create_user(username='user', email='admin@exe.org',
                                           password='user')
+    user.save()
     _create_packages(admin)
     _create_packages(user)
     
@@ -42,7 +44,7 @@ def _clean_up_database_and_store():
         shutil.rmtree(os.path.join(settings.MEDIA_ROOT, 'packages'))
     except:
         pass
-    package_store.clear()
+    package_storage.clear()
     
 def _converted_soap(buffer):
     '''Conviniece funtion for creation of BeautifulSoap objects with unescaped
@@ -115,6 +117,11 @@ class PackagesPageTestCase(TestCase):
         response = self.c.get(self.PAGE_URL % PACKAGE_ID)
         self.assertContains(response, "outlinePane")
         
+    def test_idevice_pane(self):
+        PACKAGE_ID = 1
+        response = self.c.get(self.PAGE_URL % PACKAGE_ID)
+        self.assertContains(response, "outlinePane")
+        self.assertContains(response, "Free Text")
         
     def test_404_on_wrong_package(self):
         ## this id shouldn't be created

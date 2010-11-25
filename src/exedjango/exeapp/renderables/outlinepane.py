@@ -16,13 +16,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
-from exedjango.utils.shortcuts import render_to_unicode
-
 """
 OutlinePane is responsible for creating the XHTML for the package outline
 """
 
 import logging
+
+from django.template.loader import render_to_string
 from exeapp.renderables.renderable import Renderable
 log = logging.getLogger(__name__)
 
@@ -247,7 +247,7 @@ class OutlinePane(Renderable):
         then new lines are added when we actually return it
         """
         node_list = OutlinePane._create_node_list(self.package.root)
-        return render_to_unicode('exe/outlinepane.html', locals())
+        return render_to_string('exe/outlinepane.html', locals())
 
     def encode2nicexml(self, string):
         """
