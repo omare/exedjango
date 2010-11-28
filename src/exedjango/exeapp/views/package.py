@@ -2,8 +2,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 
-from exeapp.models import Package, User
-from exeapp.renderables.mainpage import MainPage 
+from exeapp.models import Package, User, idevice_storage
 
 import logging
 
@@ -19,5 +18,5 @@ def package(request, package_id):
     if package.user.username != request.user.username:
         return HttpResponseForbidden("You don't have an access to this package")
     else:
-        main_page = MainPage(None, persist_package)
-        return render_to_response('package.html', locals())
+        prototypes = idevice_storage.get_prototypes()
+        return render_to_response('exe/mainpage.html', locals())

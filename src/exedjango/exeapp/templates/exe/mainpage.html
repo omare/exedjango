@@ -1,3 +1,10 @@
+        {% extends "base.html" %}
+        
+        {%load renderables %}
+        
+        {% block title %}Package Page: {{ package.title }}{% endblock %}
+        
+        {% block head%}
         <!-- CSS -->
         <link rel="stylesheet" type="text/css" href="/exeapp/static/css/superfish.css" />
         <link rel="stylesheet" type="text/css" href="/exeapp/static/css/exe.css" />
@@ -51,6 +58,9 @@
                 updateTitle();
             });
         </script>
+        {% endblock %}
+        
+        {% block content %}
         <div id="wrap">
         <table><tr><td>
         <ul class="sf-menu sf-vertical" label="root">
@@ -303,9 +313,9 @@
                 <a id="btnUp" class="fg-button smallButton" action="Up">Up</a>
                 <a id="btnDown" class="fg-button smallButton" action="Down">Down</a>
             </div>
-        {{ outline_pane.render }}
+        {% render_outlinepane persist_package %}
             
-        {{ idevice_pane.render }}
+        {% render_idevicepane prototypes %}
 
         </div>
         <div id="middle">
@@ -322,3 +332,4 @@
             </div>
         </div>
         </div>
+        {% endblock %}
