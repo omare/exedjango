@@ -16,6 +16,7 @@ from django.http import HttpResponseNotFound, HttpResponseForbidden
 from exeapp.models import User, Package
 from exeapp.models.persist_package_store import package_storage
 from exeapp.templatetags.tests import IdeviceTagTestCase
+from exeapp.views.package import _get_parameter_dict
 from BeautifulSoup import BeautifulSoup
 
 
@@ -122,6 +123,13 @@ class PackagesPageTestCase(TestCase):
         response = self.c.get(self.PAGE_URL % PACKAGE_ID)
         self.assertContains(response, "outlinePane")
         self.assertContains(response, "Free Text")
+        
+    def test_get_parameters_list(self):
+        post_dict = {'name' : 'add', 'params[title]' : 'test_node'
+                     , 'params[place]' : '10'}
+        expected_dict = {'title' : 'test_node', 'place' : '10'}
+        
+        self.assertEquals(_get_parameter_dict(post_dict), expected_dict)
         
     def test_404_on_wrong_package(self):
         ## this id shouldn't be created

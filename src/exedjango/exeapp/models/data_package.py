@@ -270,9 +270,21 @@ class DublinCore(Jellyable, Unjellyable):
 
     def __setattr__(self, name, value):
         self.__dict__[name] = toUnicode(value)
-  
 
-class Package(Persistable):
+class NodeManager(Persistable):
+        '''Sums node handling methods for a package.'''
+        #TODO move into DataPackage class after losing Jelly dependance
+        
+        def __init__(self, package):
+            self.package = package
+            
+        def handleAddChild(self, parentNodeId):
+            node = self.package.findNode(parentNodeId)
+            if node is not None:
+                self.package.currentNode = newNode = node.createChild()
+                return {'id' : newNode.id, 'title' : newNode.title}
+
+class DataPackage(Persistable):
     """
     Package represents the collection of resources the user is editing
     i.e. the "package".
@@ -290,7 +302,8 @@ class Package(Persistable):
     _backgroundImg     = ''
     # This is like a constant
     defaultLevelNames  = [u"Topic", u"Section", u"Unit"]
-
+    
+    
     def __init__(self, id, name):
         """
         Initialize 
@@ -326,7 +339,9 @@ class Package(Persistable):
         # Temporary directory to hold resources in
         self.resourceDir = TempDirPath()
         self.resources = {} # Checksum-[_Resource(),..]
-
+        
+        # Managers
+        self.node_manager = NodeManager(self)
 
     # Property Handlers
 

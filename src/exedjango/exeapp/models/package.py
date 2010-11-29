@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.core.files.storage import default_storage
 from django.core.files import File
 
-from exeapp.models.persistent_package import Package as persist_Package
+from exeapp.models.data_package import DataPackage
 from exeapp.models import package_storage
 
 import tempfile
@@ -19,7 +19,7 @@ class PackageManager(models.Manager):
         p = Package(title=title, user=user)
         p.save()
         package_id = p.id
-        package_storage[package_id] = persist_Package(package_id, title)
+        package_storage[package_id] = DataPackage(package_id, title)
         #file = tempfile.NamedTemporaryFile(mode='w')
         #file.close()
         #package = persist_Package(package_id, title, file.name)
@@ -39,7 +39,7 @@ class Package(models.Model):
     def get_persist_package(self):
         if self.id not in package_storage:
             log.debug("Loading from %s" % self.persist_file)
-            persistent_package = persist_Package.load(self.persist_file.file)
+            persistent_package = DataPackage.load(self.persist_file.file)
             package_storage[self.id] = persistent_package
         return package_storage[self.id]
     

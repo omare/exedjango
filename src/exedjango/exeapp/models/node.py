@@ -109,7 +109,7 @@ class Node(Persistable):
         if hasattr(self, '_title') and self._title:
             return toUnicode(self._title)
         elif hasattr(self, '_package') and self.package is not None:
-            return _(toUnicode(self.package.levelName(self.level - 1)))
+            return self.package.levelName(self.level - 1)
         else:
             return u'Unknown Node [no title or package]'
 

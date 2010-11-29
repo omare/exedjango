@@ -12,9 +12,9 @@ from exeapp.models.idevices.idevice import Idevice
 
 register = template.Library()
 
-@register.inclusion_tag('exe/outlinepane.html')
-def render_outlinepane(package):
-    return {'node_list' : _create_node_list(package.root)}
+@register.inclusion_tag('exe/outlinepane.html', takes_context=True)
+def render_outlinepane(context):
+    return {'node_list' : _create_node_list(context['data_package'].root)}
 
 def _create_node_list(node):
         """
