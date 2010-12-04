@@ -79,6 +79,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfResponseMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    
+    #handling of 403 exception
+    'exedjango.base.middleware.Http403Middleware',
 )
 
 ROOT_URLCONF = 'exedjango.urls'

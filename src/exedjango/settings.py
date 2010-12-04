@@ -85,6 +85,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfResponseMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    
+    #handling of 403 exception
+    'exedjango.base.middleware.Http403Middleware',
 )
 
 ROOT_URLCONF = 'exedjango.urls'
@@ -99,9 +102,11 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.admin',
+    'jsonrpc',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'exeapp',
+    
 )
 
 STATIC_ROOT = _get_folder_from_root('exeapp_static')

@@ -31,11 +31,6 @@ div#sidebar {
     text-decoration: underline;
 }
 
-a.curNode {
-    text-decoration: none !important;
-    color: black !important;
-}
-
 iframe {
     width: 850px;
     height: 600px;

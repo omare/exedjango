@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% block title %}Main Page{% endblock %}
+{% block head %}
+<script type='text/javascript' src='/exeapp/static/scripts/jquery.min.js'></script>
+<script type='text/javascript' src='/exeapp/static/scripts/jquery.jsonrpc.js'></script>
+<script type='text/javascript' src='/exeapp/static/scripts/main.js'></script>
+{% endblock %}
 {% block content %} 
 <h1>Main Page</h1>
-<ul>
+<ul id="package_list">
   {% for package in package_list %}
-  <li class='package'><a href='/exeapp/package/{{ package.id }}/'>{{ package.title }}</a></li>
+  <li class='package'><a href='package/{{ package.id }}/'>{{ package.title }}</a></li>
   {% endfor %}
 </ul>
 <div id='createPackage'>
-  <h2>Create new Package</h2>
-  <form action='/exeapp/createpackage/' method='post'>
-    {% csrf_token %}
-    {{ create_package_form.as_p }}
-    <p><input type='submit' value='Create' /></p>
-  </form>
+    <p><input type='submit' id='create_package' value='Create' /></p>
 </div>
 {% endblock %}

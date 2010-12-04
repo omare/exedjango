@@ -12,12 +12,13 @@ class UserandPackageTestCase(TestCase):
     TEST_EMAIL = 'admin@exe.org'
     TEST_PASSWORD = 'admin'
     PACKAGE_TITLE = 'admins package'
+    PACKAGE_ID = 1
     
     def setUp(self):
         self.user = User.objects.create_user(self.TEST_USER,
                                     self.TEST_PASSWORD)
         Package.objects.create(title=self.PACKAGE_TITLE, user=self.user)
-        self.package = Package.objects.get(id=1)
+        self.package = Package.objects.get(id=self.PACKAGE_ID)
     
     def tearDown(self):
         package_storage.clear()
@@ -35,6 +36,6 @@ class UserandPackageTestCase(TestCase):
     def test_get_persistent_package(self):
         self.package.save_persist()
         del package_storage[self.package.id]
-        persist_package = self.package.get_persist_package()
+        persist_package = self.package.get_data_package()
         self.assertEquals(persist_package.name, self.PACKAGE_TITLE)
         

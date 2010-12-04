@@ -22,14 +22,12 @@ Nodes provide the structure to the package hierarchy
 
 import logging
 from copy               import deepcopy
-from exe.engine.persist import Persistable
-from exe.engine.path    import toUnicode
-from exe                import globals as G
+from exeapp.models.persist import Persistable
 from urllib             import quote
 #from exe.webui                import common
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 # ===========================================================================
 class Node(Persistable):
@@ -107,7 +105,7 @@ class Node(Persistable):
         Returns our title as a string
         """
         if hasattr(self, '_title') and self._title:
-            return toUnicode(self._title)
+            return self._title
         elif hasattr(self, '_package') and self.package is not None:
             return self.package.levelName(self.level - 1)
         else:
@@ -361,13 +359,16 @@ class Node(Persistable):
         for child_node in self.children:
             child_node.RenamedNodePath(isMerge, isExtract)
 
-
+    @property
+    def is_current_node(self):
+        '''Returns node's status as current node of it's package'''
+        return self == self.package.currentNode
 
     def setTitle(self, title):
         """
         Allows one to set the title as a string
         """
-        if toUnicode(title) != toUnicode(self._title):
+        if (title) != (self._title):
             self._title = title
             self.package.isChanged = True
 
@@ -387,9 +388,6 @@ class Node(Persistable):
         """
         log.debug(u"clone " + self.title)
 
-        # copy any nonpersistables of interest as well:
-        G.application.persistNonPersistants = True
-
         try: 
             # Setting self.parent in the copy to None, so it doesn't 
             # go up copying the whole tree 
@@ -397,14 +395,9 @@ class Node(Persistable):
                                   id(self.parent): None}) 
             newNode._id = newPackage._regNewNode(newNode)
         except Exception, e:
-            # and be sure to return nonpersistables to normal status: 
-            G.application.persistNonPersistants = False
-            # before continuing with the exception:
             raise
 
         # return nonpersistables to normal status:
-        G.application.persistNonPersistants = False
-
         # Give all the new nodes id's
         for node in newNode.walkDescendants():
             node._id = newPackage._regNewNode(node)
@@ -443,7 +436,7 @@ class Node(Persistable):
         log.debug(u"getResources ")
         resources = {}
         for idevice in self.idevices:
-            reses = [toUnicode(res.storageName, 'utf8') for res in idevice.userResources]
+            reses = [(res.storageName, 'utf8') for res in idevice.userResources]
             for resource in (idevice.systemResources + reses):
                 resources[resource] = True
         return resources.keys()

@@ -6,18 +6,21 @@ Replace these with more appropriate tests for your application.
 """
 
 import os, shutil
+from mock import Mock
 
 from django.test import TestCase, Client
 from django.contrib import auth
 from django.utils.html import escape
 from django.conf import settings
-from django.http import HttpResponseNotFound, HttpResponseForbidden
+from django.http import HttpResponseNotFound, HttpResponseForbidden, Http404
+from jsonrpc.proxy import ServiceProxy
 
 from exeapp.models import User, Package
 from exeapp.models.persist_package_store import package_storage
-from exeapp.templatetags.tests import IdeviceTagTestCase
-from exeapp.views.package import _get_parameter_dict
-from BeautifulSoup import BeautifulSoup
+from exeapp.templatetags.tests import MainpageExtrasTestCase
+from exedjango.exeapp.models.data_package import DataPackage
+from exedjango.exeapp.shortcuts import get_package_by_id_or_error
+from exedjango.base.http import Http403
 
 
 PACKAGE_COUNT = 3
@@ -47,11 +50,6 @@ def _clean_up_database_and_store():
         pass
     package_storage.clear()
     
-def _converted_soap(buffer):
-    '''Conviniece funtion for creation of BeautifulSoap objects with unescaped
-characters'''
-    return BeautifulSoup(buffer, convertEntities=BeautifulSoup.HTML_ENTITIES)
-    
     
 class MainPageTestCase(TestCase):
     TEST_USER = 'admin'
@@ -68,20 +66,20 @@ class MainPageTestCase(TestCase):
         self.c = Client()
         # login
         self.c.login(username=self.TEST_USER, password=self.TEST_PASSWORD)
+        self.s = ServiceProxy('http://locahost:8000/json/')
     
     def tearDown(self):
         _clean_up_database_and_store()
         
     def test_basic_elements(self):
-        response = self.c.get('/exeapp/main/')
+        response = self.c.get('/exeapp/')
         self.assertContains(response, "Main Page")
-        self.assertContains(response, "Package", PACKAGE_COUNT + 3)
+        self.assertContains(response, "Package")
         
-    def test_create_form(self):
-        POST_PACKAGE_NAME = '%s Package post' % self.TEST_USER
-        response = self.c.post('/exeapp/createpackage/',
-                     data={'package_title' : POST_PACKAGE_NAME})
-        p = Package.objects.get(title=POST_PACKAGE_NAME)
+    def _test_create_package(self):
+        PACKAGE_NAME = '%s Package post' % self.TEST_USER
+        response = self.s.app.register(PACKAGE_NAME)
+        p = Package.objects.get(title=PACKAGE_NAME)
         self.assertTrue(p.user.username == self.TEST_USER)
         
         
@@ -93,6 +91,7 @@ class MainPageTestCase(TestCase):
 class PackagesPageTestCase(TestCase):
     
     PAGE_URL = '/exeapp/package/%s/'
+    PACKAGE_ID = 1
     
     def setUp(self):
         self.c = Client()
@@ -104,32 +103,29 @@ class PackagesPageTestCase(TestCase):
         
     
     def test_basic_structure(self):
-        PACKAGE_ID = 1
-        response = self.c.get(self.PAGE_URL % PACKAGE_ID)
-        soup = _converted_soap(response.content)
-        package_title = Package.objects.get(id=PACKAGE_ID).title
-        title = soup.find('title')
-        self.assertTrue(title is not None)
-        self.assertEquals(title.contents[0], 'Package Page: %s' % package_title)
-        self.assertTrue(len(soup.find(attrs={'id' : 'wrap'})) > 0)
+        response = self.c.get(self.PAGE_URL % self.PACKAGE_ID)
+        package_title = Package.objects.get(id=self.PACKAGE_ID).title
+        self.assertContains(response, escape(package_title))
         
     def test_outline_pane(self):
-        PACKAGE_ID = 1
-        response = self.c.get(self.PAGE_URL % PACKAGE_ID)
+        response = self.c.get(self.PAGE_URL % self.PACKAGE_ID)
         self.assertContains(response, "outlinePane")
         
     def test_idevice_pane(self):
-        PACKAGE_ID = 1
-        response = self.c.get(self.PAGE_URL % PACKAGE_ID)
+        response = self.c.get(self.PAGE_URL % self.PACKAGE_ID)
         self.assertContains(response, "outlinePane")
         self.assertContains(response, "Free Text")
+    
+    def test_authoring(self):
+        response = self.c.get(self.PAGE_URL % self.PACKAGE_ID + "authoring/")
+        self.assertContains(response, "Authoring")
+        self.assertContains(response, self.PACKAGE_ID)
         
-    def test_get_parameters_list(self):
-        post_dict = {'name' : 'add', 'params[title]' : 'test_node'
-                     , 'params[place]' : '10'}
-        expected_dict = {'title' : 'test_node', 'place' : '10'}
+    def test_properties(self):
+        response = self.c.get(self.PAGE_URL % self.PACKAGE_ID + "properties/")
+        self.assertContains(response, "Properties")
+        self.assertContains(response, self.PACKAGE_ID)
         
-        self.assertEquals(_get_parameter_dict(post_dict), expected_dict)
         
     def test_404_on_wrong_package(self):
         ## this id shouldn't be created
@@ -142,3 +138,38 @@ class PackagesPageTestCase(TestCase):
         USERS_PACKAGE_ID = PACKAGE_COUNT + 1
         response = self.c.get(self.PAGE_URL % USERS_PACKAGE_ID)
         self.assertTrue(isinstance(response, HttpResponseForbidden))
+        
+class ShortcutTestCase(TestCase):
+    PACKAGE_ID = 1
+    NON_EXISTENT_PACKAGE_ID = 9001 # over 9000
+    PACKAGE_TITLE = "test"
+    TEST_USER = 'admin'
+    WRONG_USER = 'foo'
+    TEST_PASSWORD = 'admin'
+    TEST_ARG = 'arg'
+    
+    def test_get_package_or_error(self):
+        '''Tests exeapp.shortcuts.get_package_by_id_or_error convinience decorator'''
+        # mock request
+        request = Mock()
+        request.user = Mock()
+        request.user.username = self.TEST_USER
+        # mock view, doesn't return a response object
+        @get_package_by_id_or_error
+        def mock_view(request, package, arg):
+            return package, arg
+        user = User.objects.create_user(username=self.TEST_USER,
+                                        email = '',
+                                        password=self.TEST_PASSWORD)
+        package = Package.objects.create(self.PACKAGE_TITLE, user)
+        user.save()
+        package.save()
+        
+        package, arg = mock_view(request, self.PACKAGE_ID, self.TEST_ARG)
+        self.assertEquals(package.title, self.PACKAGE_TITLE)
+        self.assertEquals(arg, self.TEST_ARG)
+        self.assertRaises(Http404, mock_view, request, 
+                          self.NON_EXISTENT_PACKAGE_ID)
+        request.user.username = self.WRONG_USER
+        self.assertRaises(Http403, mock_view, request,
+                          self.PACKAGE_ID)

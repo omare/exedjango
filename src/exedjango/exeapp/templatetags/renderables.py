@@ -12,19 +12,6 @@ from exeapp.models.idevices.idevice import Idevice
 
 register = template.Library()
 
-@register.inclusion_tag('exe/outlinepane.html', takes_context=True)
-def render_outlinepane(context):
-    return {'node_list' : _create_node_list(context['data_package'].root)}
-
-def _create_node_list(node):
-        """
-        Creates a list of all children recursively.
-        """
-        ul = [node]
-        if node.children:
-            ul.append(_create_node_list(node))
-        return ul
-
 @register.inclusion_tag('exe/idevicepane.html')
 def render_idevicepane(prototypes):
     """

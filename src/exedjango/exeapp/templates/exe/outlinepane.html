@@ -1,8 +1,8 @@
 <!-- Start outlinePane -->
-<div id="outlinePane">
-  <ul id="outlineTree">
-  <!-- self.__renderNode(self.package.root, 4) -->
-  {{ node_list|unordered_list }}
+{% load mainpage_extras %}
+<div id="outlinePane" current_node="{{data_package.currentNode.id}}">
+  <ul id="outline_tree">
+  {{ data_package.root|nodes_ul}}
   </ul>
 </div>
 <!-- End outlinePane -->

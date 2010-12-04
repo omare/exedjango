@@ -37,7 +37,7 @@ from twisted.persisted.styles  import Versioned, doUpgrade
 from twisted.spread.jelly      import Jellyable, Unjellyable
 from exe.engine.beautifulsoup  import BeautifulSoup
 
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 
 def _(value):
     '''Placeholder for translation'''
@@ -271,19 +271,6 @@ class DublinCore(Jellyable, Unjellyable):
     def __setattr__(self, name, value):
         self.__dict__[name] = toUnicode(value)
 
-class NodeManager(Persistable):
-        '''Sums node handling methods for a package.'''
-        #TODO move into DataPackage class after losing Jelly dependance
-        
-        def __init__(self, package):
-            self.package = package
-            
-        def handleAddChild(self, parentNodeId):
-            node = self.package.findNode(parentNodeId)
-            if node is not None:
-                self.package.currentNode = newNode = node.createChild()
-                return {'id' : newNode.id, 'title' : newNode.title}
-
 class DataPackage(Persistable):
     """
     Package represents the collection of resources the user is editing
@@ -340,8 +327,6 @@ class DataPackage(Persistable):
         self.resourceDir = TempDirPath()
         self.resources = {} # Checksum-[_Resource(),..]
         
-        # Managers
-        self.node_manager = NodeManager(self)
 
     # Property Handlers
 
@@ -362,6 +347,33 @@ class DataPackage(Persistable):
             return "file://" + self._backgroundImg.path
         else:
             return ""
+    
+    def set_current_node_by_id(self, node_id):
+        node = self.findNode(node_id)
+        if node is not None:
+            self.currentNode = node
+            return "1"
+        else:
+            return "0"
+        
+    def add_child_node(self, parent_node_id):
+        '''Creates a child node of node with parent_node_id, doesn't set it as
+current node'''
+        node = self.findNode(parent_node_id)
+        if node is not None:
+            newNode = node.createChild()
+            return newNode
+            
+    def delete_current_node(self):
+        '''Removes current node. Sets current node to deleted node's 
+parent'''
+        node = self.currentNode
+        if node is not self.root:
+            self.currentNode = node.parent
+            node.delete()
+            return "1"
+        else:
+            return "0"
 
     def set_backgroundImg(self, value):
         """Set the background image for this package"""
@@ -444,7 +456,7 @@ class DataPackage(Persistable):
         Finds a node from its nodeId
         (nodeId can be a string or a list/tuple)
         """
-        log.debug(u"findNode" + repr(nodeId))
+        log.debug(u"findNode " + repr(nodeId))
         node = self._nodeIdDict.get(nodeId)
         if node and node.package is self:
             return node
@@ -747,9 +759,9 @@ class DataPackage(Persistable):
         stores the node in our id lookup dict
         returns a new unique id
         """
-        id_ = unicode(self._nextNodeId)
+        id_ = self._nextNodeId
         self._nextNodeId += 1
-        self._nodeIdDict[id_] = node
+        self._nodeIdDict[str(id_)] = node
         return id_
 
 

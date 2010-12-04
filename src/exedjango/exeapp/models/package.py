@@ -20,26 +20,20 @@ class PackageManager(models.Manager):
         p.save()
         package_id = p.id
         package_storage[package_id] = DataPackage(package_id, title)
-        #file = tempfile.NamedTemporaryFile(mode='w')
-        #file.close()
-        #package = persist_Package(package_id, title, file.name)
-        #package.save(filename=file.name)
-        #p.persist_file.save("Package %s" % package_id, File(open(file.name)))
-        #p.save()
-        
-    
-    
+        p.save_persist()
+        return p
+
 class Package(models.Model):
     title = models.CharField(max_length=30)
     user = models.ForeignKey(User)
-    persist_file = models.FileField(upload_to='packages',
+    data_package = models.FileField(upload_to='packages',
                         storage=default_storage, blank=True, null=True)
     objects = PackageManager()
     
-    def get_persist_package(self):
+    def get_data_package(self):
         if self.id not in package_storage:
-            log.debug("Loading from %s" % self.persist_file)
-            persistent_package = DataPackage.load(self.persist_file.file)
+            log.debug("Loading from %s" % self.data_package)
+            persistent_package = DataPackage.load(self.data_package.file)
             package_storage[self.id] = persistent_package
         return package_storage[self.id]
     
@@ -48,7 +42,7 @@ class Package(models.Model):
             persistent_package = package_storage[self.id]
             file = tempfile.NamedTemporaryFile(mode="w")
             persistent_package.doSave(file)
-            self.persist_file.save("Package %s" % self.id, 
+            self.data_package.save("Package %s" % self.id, 
                                     File(open(file.name)))
             
     class Meta:
