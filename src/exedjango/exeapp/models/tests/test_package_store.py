@@ -1,10 +1,13 @@
+from mock import Mock
+
+from django.test import TestCase
+
 from exeapp.models.persist_package_store\
                      import PackageStore, AlreadyRegistredError
-from pymock import *
 
 
 
-class PackageStoreTestCase(PyMockTestCase):
+class PackageStoreTestCase(TestCase):
     
     PACKAGE_ID = "1"
     
@@ -12,7 +15,7 @@ class PackageStoreTestCase(PyMockTestCase):
     def setUp(self):
         self.package_store = PackageStore()
         super(PackageStoreTestCase, self).setUp()
-        self.package = self.mock()
+        self.package = Mock()
         self.package_store[self.PACKAGE_ID] = self.package
         
         
@@ -24,6 +27,6 @@ class PackageStoreTestCase(PyMockTestCase):
         self.assertRaises(KeyError, self.package_store.__getitem__, self.PACKAGE_ID)
         
     def test_adding_same_id(self):
-        package2 = self.mock()
+        package2 = Mock()
         self.assertRaises(AlreadyRegistredError, self.package_store.__setitem__,
                           self.PACKAGE_ID, package2)

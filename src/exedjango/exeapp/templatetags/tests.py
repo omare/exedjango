@@ -18,7 +18,7 @@ class MainpageExtrasTestCase(unittest.TestCase):
   
     def test_idevice_ul(self):
         soup = BeautifulSoup(idevice_ul(self.groups, self.group_order))
-        self.assertEquals(len(soup.fetch('a')), 4)
+        self.assertEquals(len(soup.fetch('a')), 6)
         self.assertEquals(len(soup.fetch('li')), 6)
         self.assertEquals(len(soup.fetch('ul')), 2)
         self.assertTrue('Secondary' in soup.find('li').contents[0])
@@ -39,11 +39,9 @@ class MainpageExtrasTestCase(unittest.TestCase):
         Node(5, 'Child2', [])], current=True)
 
     def test_nodes_ul(self):
-        print nodes_ul(self.root)
         soup = BeautifulSoup(nodes_ul(self.root))
         root = soup.find(attrs={'nodeid' : '1'})
         self.assertTrue('Root' in root.contents[0])
-        self.assertTrue('curNode' in root.get('class'))
-        self.assertEquals(len(soup.fetch('li')), 6)
-        self.assertEquals(len(soup.fetch('ul')), 3)
+        self.assertEquals(len(soup.fetch('li')), 5)
+        self.assertEquals(len(soup.fetch('ul')), 2)
     
