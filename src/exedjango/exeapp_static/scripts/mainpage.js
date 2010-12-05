@@ -64,11 +64,15 @@ jQuery(document).ready(function() {
                   "core" : {"animation" : 0},
                   "ui" : {"select_limit" : 1, 
                       "initially_select" : ["node" + $("#outlinePane").attr("current_node")]},
-                  "plugins" : ["themes", "html_data", "ui"]});
+                  "plugins" : ["themes", "html_data", "ui", "crrm"]});
                 $("#outlinePane").jstree('open_all', $('#outlinePane>ul'));
                 //bind actions to outline nodes
                 $("#outlinePane").bind("select_node.jstree", 
                       handle_select_node);
+                $("#outlinePane").delegate("a", "dblclick", rename_node);
+                //bind renaming event
+                $("#outlinePane").bind("rename_node.jstree", handle_rename_current_node);
+                
                 
                 // Initialize idevice Tree
                 $("#idevicePane").jstree({"plugins" : ["themes", "html_data", "ui"]})
@@ -83,9 +87,8 @@ jQuery(document).ready(function() {
                 //bind actions to outline buttons
                 $("#btnAdd").click(add_child_node)
                 $("#btnRemove").click(delete_current_node)
-                $("#btnRename").click(function() {
-                    renameNode();
-                    });
+                $("#btnRename").click(rename_node);
+                
                 //$(".bigButton:not(#btnRename), .smallButton").each(function(index) {
                 //    bindButtonClicked(this);
                 //});
@@ -128,19 +131,15 @@ function delete_current_node() {
   })
 }
 
-
-// reference
-function serverId2treeitem(serverId) {
-    // Enumerate the tree elements until we find the correct one
-    var tree = document.getElementById('outline_tree')
-    var items = tree.getElementsByTagName('treeitem')
-    for (var i=0; i<items.length; i++) {
-        if (items[i].firstChild.getAttribute('_exe_nodeid') == serverId) {
-            return items[i]
-        }
-    }
-    return null // Should never really reach here
+//Simply triggeds jstree's rename routine
+function rename_node(){
+  if (get_current_node().attr('id') != "node" + current_outline_id()) {
+      alert("Somehow you managed to call dblclik event without a single click. Please, reload page!");
+      return -1;
+  }
+  $("#outlinePane").jstree("rename");
 }
+
 
 // Handles outlinePane selection event. Calls package.change_current_node
 // via rpc. 
@@ -157,6 +156,23 @@ function handle_select_node(event, data) {
         }
     });
     return false;
+}
+
+//handle renamed node event. Calls package.rename_node over rpc.
+function handle_rename_current_node(e, data){
+  var new_title = data.rslt.name;
+  $.jsonRPC.request('rename_current_node', [get_package_id(), new_title], {
+    success: function(results){
+      var server_title = ""
+      if ("title" in results.result){
+        server_title = results.result.title;
+      }
+      if (new_title != server_title){
+        alert("Server couldn't rename the node");
+        get_current_node().html($("<ins />").addClass('jstree-icon'));
+        get_current_node().append(server_title);
+      }
+    }});
 }
 
 
@@ -292,14 +308,6 @@ function XHRenNode(titleLong, id) {
         top.frames[0].src = top.frames[0].src;
     }
     updateTitle();
-}
-
-function renameNode() {
-    var oldLabel = $(".curNode").text();
-    jPrompt(RENAME_+oldLabel+"\n"+ENTER_THE_NEW_NAME, oldLabel, RENAME_, function(name) {
-        disableButtons(true);
-        nevow_clientToServerEvent('renameNode', this, '', current_outline_id(), name);
-        });
 }
 
 // Moves a node in the tree

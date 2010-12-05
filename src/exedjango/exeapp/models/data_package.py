@@ -374,6 +374,14 @@ parent'''
             return "1"
         else:
             return "0"
+    
+    def rename_current_node(self, new_title):
+        '''Renames current node. Returns new name, if it's changed, old name else'''
+        node = self.currentNode
+        if new_title not in ['', 'null']:
+            node.title = new_title
+            node.RenamedNodePath()
+        return node.title
 
     def set_backgroundImg(self, value):
         """Set the background image for this package"""

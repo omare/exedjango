@@ -16,7 +16,7 @@ Tested by exeapp.tests.ShortcutsTestCase.test_get_package_or_error. '''
             # assume we got a standard rpc package view
             package = Package.objects.get(id=package_id)
         except ObjectDoesNotExist:
-            raise Http404
+            raise Http404("Package %s not found" % package_id)
         if package.user.username == request.user.username:
             return func(request, package, *args, **kwargs)
         else:

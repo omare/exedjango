@@ -1,9 +1,9 @@
-from django.template import RequestContext
+from django.template import RequestContext, loader
 from django.conf import settings
 from django.core.exceptions import PermissionDenied  
 from django.http import HttpResponseForbidden
 
-from base.http import Http403
+from exedjango.base.http import Http403
 
 
 def render_to_403(*args, **kwargs):
@@ -18,10 +18,10 @@ def render_to_403(*args, **kwargs):
     httpresponse_kwargs = {'mimetype': kwargs.pop('mimetype', None)}
     response = HttpResponseForbidden(loader.render_to_string(*args, **kwargs), **httpresponse_kwargs)              
 
-    return response  
+    return response
 
 class Http403Middleware(object):
-    def process_exception(self,request,exception):
+    def process_exception(self, request, exception):
         if isinstance(exception,Http403):
             if settings.DEBUG:
                 raise PermissionDenied

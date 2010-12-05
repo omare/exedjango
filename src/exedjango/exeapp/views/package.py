@@ -11,10 +11,13 @@ import logging
 
 log = logging.getLogger(__name__)
 
+__all__ = ['package', 'authoring', 'properties']
+
 @login_required
-def package(request, package_id):
+@get_package_by_id_or_error
+def package(request, package):
+    '''Handle calls to package site. Renders exe/mainpage.html.'''
     
-    package = get_object_or_404(Package, id=package_id)
     if package.user.username != request.user.username:
         return HttpResponseForbidden("You don't have an access to this package")
     else:
@@ -29,9 +32,11 @@ def package(request, package_id):
 @login_required
 @get_package_by_id_or_error
 def authoring(request, package):
+    '''Handles calls to authoring iframe. Renders exe/authoring.html'''
     current_node = package.get_data_package().currentNode
     return render_to_response('exe/authoring.html', locals())
 
 @login_required
 def properties(request, package_id):
+    '''Handles calls to properties iframe.'''
     return HttpResponse("<h1>Properties for %s</h1>" % package_id)

@@ -9,7 +9,8 @@ import logging
 
 log = logging.getLogger()
 
-__all__ = ['add_node', 'delete_current_node', 'change_current_node']
+__all__ = ['add_node', 'delete_current_node', 'change_current_node', 
+           'rename_current_node']
 
 @jsonrpc_method('package.add_node', authenticated=True)
 @get_package_by_id_or_error
@@ -32,7 +33,15 @@ node'''
 @jsonrpc_method('package.change_current_node', authenticated=True)
 @get_package_by_id_or_error
 def change_current_node(request, package, node_id):
-    '''Handles jsonRPC request "package.change_current_node". Changes current node to
-one with give node_id''' 
+    '''Handles jsonRPC request "package.change_current_node". Changes current
+node to one with give node_id''' 
     node_changed = package.get_data_package().set_current_node_by_id(node_id)
     return {'changed' : node_changed}
+
+@jsonrpc_method('package.rename_current_node', authenticated=True)
+@get_package_by_id_or_error
+def rename_current_node(request, package, new_title):
+    '''Handles jsonRPC request "package.rename_current_node". Renames current
+    node to it's title'''
+    node_title = package.get_data_package().rename_current_node(new_title)
+    return {'title' : node_title}
