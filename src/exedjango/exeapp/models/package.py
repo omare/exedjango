@@ -1,14 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.storage import default_storage
-from django.core.files import File
+from django.core.files.base import ContentFile
+from django.db.models.fields.files import FieldFile
 
 from exeapp.models.data_package import DataPackage
 from exeapp.models import package_storage
 
 import tempfile
 import logging
-from django.db.models.fields.files import FieldFile
 from StringIO import StringIO
 
 log = logging.getLogger(__name__)
@@ -40,10 +40,12 @@ class Package(models.Model):
     def save_persist(self):
         if self.id in package_storage:
             persistent_package = package_storage[self.id]
-            file = tempfile.NamedTemporaryFile(mode="w")
+            file = StringIO()
             persistent_package.doSave(file)
+            file.seek(0)
             self.data_package.save("Package %s" % self.id, 
-                                    File(open(file.name)))
+                                    ContentFile(file.read()))
+            file.close()
             
     class Meta:
         app_label = "exeapp"

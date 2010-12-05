@@ -1,8 +1,10 @@
 # Django settings for exedjango project.
 
-import os, sys
-from exedjango.settings import _get_folder_from_root
+import os, sys, shutil
+from exedjango.settings import _get_file_from_root
 
+
+##
 sys.dont_write_bytecode = True
 
 DEBUG = True
@@ -17,7 +19,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '/home/alendit/Aptana Studio 3 Workspace/exedjango/src/sqlite.db',                      # Or path to database file if using sqlite3.
+        'NAME': _get_file_from_root('sqlite.db'),  
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -50,13 +52,14 @@ USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = _get_folder_from_root('exeapp_media_testing')
+MEDIA_ROOT = _get_file_from_root('exeapp_media_testing')
+# clean up media root after previous tests
+shutil.rmtree(MEDIA_ROOT)
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = ''
-
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
@@ -86,7 +89,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'exedjango.urls'
 
-TEMPLATE_DIRS = (_get_folder_from_root('exeapp_templates'),
+TEMPLATE_DIRS = (_get_file_from_root('exeapp_templates'),
                 )
 
 INSTALLED_APPS = (
@@ -101,7 +104,7 @@ INSTALLED_APPS = (
     'exeapp',
 )
 
-STATIC_ROOT = _get_folder_from_root('exeapp_static')
+STATIC_ROOT = _get_file_from_root('exeapp_static')
                     
 # Configure logging
 

@@ -5,7 +5,7 @@ to prevent conflicts with package creation in another tests. You can use
 _clean_up_database_and_store for it.
 """
 
-import os, shutil
+import os, sys, shutil
 from mock import Mock
 
 from django.test import TestCase, Client
@@ -21,6 +21,8 @@ from exeapp.templatetags.tests import MainpageExtrasTestCase
 from exedjango.exeapp.models.data_package import DataPackage
 from exedjango.exeapp.shortcuts import get_package_by_id_or_error
 from exedjango.base.http import Http403
+
+
 
 
 PACKAGE_COUNT = 3
@@ -44,11 +46,13 @@ def _create_basic_database():
     _create_packages(user)
     
 def _clean_up_database_and_store():
-    try:
-        shutil.rmtree(os.path.join(settings.MEDIA_ROOT, 'packages'))
-    except IOError:
-        print "%s couldn't be removed" % settings.MEDIA_ROOT
-        pass
+    if sys.platform[:3] != 'win':
+        # Doesn't work on windows because of access permission. MEDIA_ROOT will
+        # be removed on test suit start
+        try:
+            shutil.rmtree(os.path.join(settings.MEDIA_ROOT, 'packages'))
+        except remove_exception:
+            print "%s couldn't be removed" % settings.MEDIA_ROOT
     package_storage.clear()
     
     

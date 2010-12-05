@@ -1,12 +1,16 @@
 # Django settings for exedjango project.
 
-import os
+import os, sys
 
-def _get_folder_from_root(folder_name):
+def _get_file_from_root(folder_name):
+    '''Returns path to a file or folder in root of the project'''
     return os.path.join(os.path.dirname(__file__), folder_name).replace('\\', '/')
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+if DEBUG:
+    sys.dont_write_bytecode = True
 
 import logging
 logging.basicConfig(
@@ -23,7 +27,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '/home/alendit/Aptana Studio 3 Workspace/exedjango/src/sqlite.db',                      # Or path to database file if using sqlite3.
+        'NAME': _get_file_from_root('sqlite.db'),                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -56,7 +60,7 @@ USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = _get_folder_from_root('exeapp_media')
+MEDIA_ROOT = _get_file_from_root('exeapp_media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -92,7 +96,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'exedjango.urls'
 
-TEMPLATE_DIRS = (_get_folder_from_root('exeapp_templates'),
+TEMPLATE_DIRS = (_get_file_from_root('exeapp_templates'),
                  )
 
 INSTALLED_APPS = (
@@ -109,5 +113,5 @@ INSTALLED_APPS = (
     
 )
 
-STATIC_ROOT = _get_folder_from_root('exeapp_static')
+STATIC_ROOT = _get_file_from_root('exeapp_static')
 

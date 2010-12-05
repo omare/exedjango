@@ -24,9 +24,8 @@ import logging
 import os
 from copy                 import deepcopy
 from string               import Template
-from exe.engine.persist   import Persistable
-from exe.engine.path      import Path, toUnicode 
-from exe                       import globals as G
+from exeapp.models.persist import Persistable
+from exedjango.utils.path      import Path, toUnicode 
 
 
 log = logging.getLogger(__name__)

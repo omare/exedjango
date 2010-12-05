@@ -32,10 +32,10 @@ from exeapp.models.node        import Node
 #from exe.engine.genericidevice import GenericIdevice
 from exeapp.models.persist     import Persistable, encodeObject, \
                                       decodeObject, decodeObjectRaw
-from exe.engine.resource       import Resource
+from exeapp.models.resource import Resource
 from twisted.persisted.styles  import Versioned, doUpgrade
 from twisted.spread.jelly      import Jellyable, Unjellyable
-from exe.engine.beautifulsoup  import BeautifulSoup
+from BeautifulSoup  import BeautifulSoup
 
 log = logging.getLogger()
 
