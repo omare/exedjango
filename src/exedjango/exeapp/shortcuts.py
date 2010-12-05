@@ -9,6 +9,7 @@ def get_package_by_id_or_error(func):
 Raises 403 if a package doesn't belong to the user or 404 the package
 can't be found. 
 Please specify additional view arguments in the view docstring.
+Depends on Http403 handling middleware.
 Tested by exeapp.tests.ShortcutsTestCase.test_get_package_or_error. '''
     def permission_checking_view(request, package_id, *args, **kwargs):
         try:

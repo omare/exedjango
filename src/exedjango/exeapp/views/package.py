@@ -5,6 +5,7 @@ from django.core import serializers
 from django.utils import simplejson
 
 from exeapp.models import Package, User, idevice_storage, DataPackage
+from exeapp.shortcuts import get_package_by_id_or_error
 
 import logging
 
@@ -18,8 +19,6 @@ def package(request, package_id):
         return HttpResponseForbidden("You don't have an access to this package")
     else:
         data_package = package.get_data_package()
-        if request.is_ajax():
-            return ajax_handler(request, data_package, package_ajax_handlers)
         # temporary - saving package on each call
         package.save_persist()
         log.info("%s accesses package of %s" % (request.user.username, 
@@ -28,8 +27,10 @@ def package(request, package_id):
         return render_to_response('exe/mainpage.html', locals())
 
 @login_required
-def authoring(request, package_id):
-    return HttpResponse("<h1>Authoring for %s</h1>" % package_id)
+@get_package_by_id_or_error
+def authoring(request, package):
+    current_node = package.get_data_package().currentNode
+    return render_to_response('exe/authoring.html', locals())
 
 @login_required
 def properties(request, package_id):

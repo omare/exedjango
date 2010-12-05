@@ -143,7 +143,7 @@ function serverId2treeitem(serverId) {
 }
 
 // Handles outlinePane selection event. Calls package.change_current_node
-// via rpc
+// via rpc. 
 function handle_select_node(event, data) {
 
     var node = get_current_node();
@@ -331,10 +331,11 @@ function XHMoveNode(id, parentId, nextSiblingId) {
 }
 
 // called to synchronize current_node attribute of outline_pane with 
-// currently selected node
+// currently selected node. Refreshes authoringIFrame1
 function set_current_node(node) {
   $("#outlinePane").attr('current_node', get_current_node().attr('nodeid'));
   updateTitle();
+  window.frames['authoringIFrame1'].location.reload();
 }
 
 function get_current_node() {

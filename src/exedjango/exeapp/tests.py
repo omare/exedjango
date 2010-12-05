@@ -1,8 +1,8 @@
 """
-This file demonstrates two different styles of tests (one doctest and one
-unittest). These will both pass when you run "manage.py test".
-
-Replace these with more appropriate tests for your application.
+This file contains the tests for important views in exedjango.
+Notice, that your tests should always clear package_storage shoudl be cleared,
+to prevent conflicts with package creation in another tests. You can use 
+_clean_up_database_and_store for it.
 """
 
 import os, shutil
@@ -46,7 +46,8 @@ def _create_basic_database():
 def _clean_up_database_and_store():
     try:
         shutil.rmtree(os.path.join(settings.MEDIA_ROOT, 'packages'))
-    except:
+    except IOError:
+        print "%s couldn't be removed" % settings.MEDIA_ROOT
         pass
     package_storage.clear()
     
@@ -149,7 +150,8 @@ class ShortcutTestCase(TestCase):
     TEST_ARG = 'arg'
     
     def test_get_package_or_error(self):
-        '''Tests exeapp.shortcuts.get_package_by_id_or_error convinience decorator'''
+        '''Tests exeapp.shortcuts.get_package_by_id_or_error convinience
+decorator'''
         # mock request
         request = Mock()
         request.user = Mock()
@@ -173,3 +175,29 @@ class ShortcutTestCase(TestCase):
         request.user.username = self.WRONG_USER
         self.assertRaises(Http403, mock_view, request,
                           self.PACKAGE_ID)
+        
+class AuthoringTestCase(TestCase):
+    '''Tests the authoring view. The it ill be brought together with package
+view, this tests should be also merged'''
+
+    TEST_PACKAGE_ID = 1
+    TEST_NODE_ID = 0
+    TEST_NODE_TITLE = "Home"
+    
+    VIEW_URL = "/exeapp/package/%s/authoring/" % TEST_PACKAGE_ID
+    
+    
+    def setUp(self):
+        self.c = Client()
+        _create_basic_database()
+        self.c.login(username='admin', password='admin')
+
+    def tearDown(self):
+        _clean_up_database_and_store()
+        
+    def test_basic_elements(self): 
+        '''Basic tests aimed to determine if this view works at all'''
+        response = self.c.get(self.VIEW_URL)
+        self.assertContains(response, 'Package %s' % self.TEST_PACKAGE_ID)
+        self.assertContains(response, 'Rendering node %s' % self.TEST_NODE_ID)
+        self.assertContains(response, self.TEST_NODE_TITLE)
