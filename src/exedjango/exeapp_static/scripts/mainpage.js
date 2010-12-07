@@ -69,9 +69,9 @@ jQuery(document).ready(function() {
                 //bind actions to outline nodes
                 $("#outlinePane").bind("select_node.jstree", 
                       handle_select_node);
-                $("#outlinePane").delegate("a", "dblclick", rename_node);
+                $("#outlinePane").delegate("a", "dblclick", rename_current_node);
                 //bind renaming event
-                $("#outlinePane").bind("rename_node.jstree", handle_rename_current_node);
+                $("#outlinePane").bind("rename_node.jstree", handler_renamed_current_node);
                 
                 
                 // Initialize idevice Tree
@@ -87,7 +87,9 @@ jQuery(document).ready(function() {
                 //bind actions to outline buttons
                 $("#btnAdd").click(add_child_node)
                 $("#btnRemove").click(delete_current_node)
-                $("#btnRename").click(rename_node);
+                $("#btnRename").click(rename_current_node);
+                
+                $("#btnPromote").click(promote_current_node);
                 
                 //$(".bigButton:not(#btnRename), .smallButton").each(function(index) {
                 //    bindButtonClicked(this);
@@ -132,12 +134,25 @@ function delete_current_node() {
 }
 
 //Simply triggeds jstree's rename routine
-function rename_node(){
+function rename_current_node(){
   if (get_current_node().attr('id') != "node" + current_outline_id()) {
       alert("Somehow you managed to call dblclik event without a single click. Please, reload page!");
-      return -1;
+      return null;
   }
   $("#outlinePane").jstree("rename");
+}
+
+// Promotes current node to a sibling of it's parent.
+function promote_current_node(){
+  $.jsonRPC.request('promote_current_node', [get_package_id()], {
+    success: function(results){
+      if (results.result.promoted != "1") {
+        alert("An server error occured. Node was not moved.");
+      } else {
+        callback_promote_current_node();
+      }
+    }
+  });
 }
 
 
@@ -159,13 +174,14 @@ function handle_select_node(event, data) {
 }
 
 //handle renamed node event. Calls package.rename_node over rpc.
-function handle_rename_current_node(e, data){
+function handler_renamed_current_node(e, data){
   var new_title = data.rslt.name;
   $.jsonRPC.request('rename_current_node', [get_package_id(), new_title], {
     success: function(results){
       var server_title = ""
       if ("title" in results.result){
         server_title = results.result.title;
+        reload_authoring();
       }
       if (new_title != server_title){
         alert("Server couldn't rename the node");
@@ -281,8 +297,6 @@ function insertChildTreeItem(parentItem, newTreeItem, nextSibling) {
 }
 
 // Delete the currently selected node
-// XH means that the func is actually called by the server over xmlhttp
-// item can be a dom node or a server node id
 function callback_delete_current_node() {
     var currentNode = get_current_node();
     // parent ul
@@ -290,25 +304,14 @@ function callback_delete_current_node() {
     updateTitle();
 }
 
-// Renames the node associated with 'treeitem'
-// titleShort is the short version of the title for the outline_treeNode
-// titleLong is the long version of the title for authoringPage
-// titleFull is stored in the treecell's ID
-// If 'treeitem' is not passed, uses currently selected node
-function XHRenNode(titleLong, id) { 
-    $('.outlineNode[nodeId=' + id + ']').text(titleLong)
-    var titleElement = $("#authoringIFrame1").contents().find('#nodeTitle');
-    // Sometimes when promoting/demoting nodes
-    // the title element isn't there/renedered for some reason
-    // Looping doesn't fix that, so we just tell firefox
-    // to reload the page
-    if (titleElement) {
-        titleElement.text(titleLong);
-    } else {
-        top.frames[0].src = top.frames[0].src;
-    }
-    updateTitle();
+// Move the node to the same level as it's parent and place it after.
+function callback_promote_current_node() {
+  var current_node = get_current_node();
+  // Move through <li>, <ul> to parent's <li>
+  var parent_container = current_node.parent().parent().parent()
+  $("#outlinePane").jstree("move_node", current_node, parent_container, "after")
 }
+
 
 // Moves a node in the tree
 function XHMoveNode(id, parentId, nextSiblingId) {
@@ -343,7 +346,7 @@ function XHMoveNode(id, parentId, nextSiblingId) {
 function set_current_node(node) {
   $("#outlinePane").attr('current_node', get_current_node().attr('nodeid'));
   updateTitle();
-  window.frames['authoringIFrame1'].location.reload();
+  reload_authoring();
 }
 
 function get_current_node() {
@@ -351,6 +354,10 @@ function get_current_node() {
     return selected;
 }
 
+// Reloads content of authoring part
+function reload_authoring(){
+  window.frames['authoringIFrame1'].location.reload();
+}
 //Move node up
 function XHMoveNodeUp() {
     var curNode = get_current_node()

@@ -45,3 +45,10 @@ def rename_current_node(request, package, new_title):
     node to it's title'''
     node_title = package.get_data_package().rename_current_node(new_title)
     return {'title' : node_title}
+
+@jsonrpc_method('package.promote_current_node', authenticated=True)
+@get_package_by_id_or_error
+def promote_current_node(request, package):
+    promoted = 1 if package.get_data_package().promote_current_node() else 0
+    return {"promoted" : promoted}
+    

@@ -17,10 +17,12 @@ Tested by exeapp.tests.ShortcutsTestCase.test_get_package_or_error. '''
             package = Package.objects.get(id=package_id)
         except ObjectDoesNotExist:
             raise Http404("Package %s not found" % package_id)
-        if package.user.username == request.user.username:
+        username = request.user.username
+        if package.user.username == username:
             return func(request, package, *args, **kwargs)
         else:
-            raise Http403
+            raise Http403("User %s may not access package %s" %\
+                           (username, package_id))
     # Set docstring and name
     permission_checking_view.__name__ = func.__name__
     permission_checking_view.__doc__ = \

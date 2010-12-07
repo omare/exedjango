@@ -55,7 +55,7 @@ class Node(Persistable):
         self._package = package
         self._id      = package._regNewNode(self)
         self.parent   = parent
-        self._title   = title
+        self._title   =  self.createTitle()
         self.children = []
         self.idevices = []
 
@@ -99,14 +99,13 @@ class Node(Persistable):
     level = property(getLevel)
 
 
-    # title
-    def getTitle(self):
+    # 
+
+    def createTitle(self):
         """
-        Returns our title as a string
+        Returns initial title as a string
         """
-        if hasattr(self, '_title') and self._title:
-            return self._title
-        elif hasattr(self, '_package') and self.package is not None:
+        if hasattr(self, '_package') and self.package is not None:
             return self.package.levelName(self.level - 1)
         else:
             return u'Unknown Node [no title or package]'
@@ -363,6 +362,9 @@ class Node(Persistable):
     def is_current_node(self):
         '''Returns node's status as current node of it's package'''
         return self == self.package.currentNode
+    
+    def getTitle(self):
+        return self._title
 
     def setTitle(self, title):
         """

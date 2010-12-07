@@ -288,7 +288,7 @@ class DataPackage(Persistable):
     _description       = ''
     _backgroundImg     = ''
     # This is like a constant
-    defaultLevelNames  = [u"Topic", u"Section", u"Unit"]
+    defaultLevelNames  = [u"Topic", u"Section", u"Home"]
     
     
     def __init__(self, id, name):
@@ -382,6 +382,10 @@ parent'''
             node.title = new_title
             node.RenamedNodePath()
         return node.title
+    
+    def promote_current_node(self):
+        '''Move current node one step up in the hierarchie'''
+        return self.currentNode.promote()
 
     def set_backgroundImg(self, value):
         """Set the background image for this package"""
