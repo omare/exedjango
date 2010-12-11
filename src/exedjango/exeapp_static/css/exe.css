@@ -22,15 +22,6 @@ div#sidebar {
     width: 300px;
 }
 
-.outlineNode:visited {
-    color: blue;
-}
-
-.outlineNode {
-    color: blue;
-    text-decoration: underline;
-}
-
 iframe {
     width: 850px;
     height: 600px;
@@ -45,7 +36,7 @@ iframe {
     float: right;
 }
 
-#outlinePane {
+#outline_pane {
     height: 300px;
     overflow: auto;
     border: 1px solid;

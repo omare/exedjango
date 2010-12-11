@@ -384,8 +384,24 @@ parent'''
         return node.title
     
     def promote_current_node(self):
-        '''Move current node one step up in the hierarchie'''
+        '''Moves current node one step up in the hierarchie. Returns True if
+successful'''
         return self.currentNode.promote()
+    
+    def demote_current_node(self):
+        '''Moves current node one step up in the hierarchie. Returns True if
+successful'''
+        return self.currentNode.demote()
+    
+    def move_current_node_up(self):
+        '''Moves current node up on the same level. Returns true if 
+successful'''
+        return self.currentNode.up()
+    
+    def move_current_node_down(self):
+        '''Moves current node down on the same level. Returns true if 
+successful'''
+        return self.currentNode.down()
 
     def set_backgroundImg(self, value):
         """Set the background image for this package"""
