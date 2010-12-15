@@ -23,7 +23,6 @@ def package(request, package):
     else:
         data_package = package.get_data_package()
         # temporary - saving package on each call
-        package.save_persist()
         log.info("%s accesses package of %s" % (request.user.username, 
                                                 package.user.username))
         prototypes = idevice_storage.get_prototypes()

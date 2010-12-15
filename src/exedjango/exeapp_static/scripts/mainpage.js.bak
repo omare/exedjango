@@ -20,9 +20,6 @@
 
 // This file contains all the js related to the main xul page
 
-// Set it to false upon deployement
-DEBUG = true;
-
 // Strings to be translated
 DELETE_  = 'Delete "';
 NODE_AND_ALL_ITS_CHILDREN_ARE_YOU_SURE_ = '" node and all its children. Are you sure?';
@@ -51,9 +48,6 @@ INVALID_VALUE_PASSED_TO_EXPORTPACKAGE = "INVALID VALUE PASSED TO exportPackage";
 SELECT_PACKAGE_TO_INSERT = "Select package to insert";
 SAVE_EXTRACTED_PACKAGE_AS = "Save extracted package as";
 OVERWRITE_DIALOG = "\nFile already exists. Would you like to overwrite?"
-NODE_WAS_NOT_MOVED = "An server error occured. Node was not moved."
-CANT_MOVE_NODE_FURTHER = "Can't move up any farther"
-NOT_IMPLEMENTED = "This function is not implemented yet."
 
 // initialize
 jQuery(document).ready(function() {
@@ -66,18 +60,18 @@ jQuery(document).ready(function() {
                 
                 // Initialize outline tree
                 $.jstree._themes = "/exeapp/static/css/themes/"
-                get_outline_pane().jstree({
-                  "core" : {"animation" : 200},
+                $("#outlinePane").jstree({
+                  "core" : {"animation" : 0},
                   "ui" : {"select_limit" : 1, 
-                      "initially_select" : ["node" + get_outline_pane().attr("current_node")]},
+                      "initially_select" : ["node" + $("#outlinePane").attr("current_node")]},
                   "plugins" : ["themes", "html_data", "ui", "crrm"]});
-                get_outline_pane().jstree('open_all', $('#outline_pane>ul'));
+                $("#outlinePane").jstree('open_all', $('#outlinePane>ul'));
                 //bind actions to outline nodes
-                get_outline_pane().bind("select_node.jstree", 
+                $("#outlinePane").bind("select_node.jstree", 
                       handle_select_node);
-                get_outline_pane().delegate("a", "dblclick", rename_current_node);
+                $("#outlinePane").delegate("a", "dblclick", rename_current_node);
                 //bind renaming event
-                get_outline_pane().bind("rename_node.jstree", handler_renamed_current_node);
+                $("#outlinePane").bind("rename_node.jstree", handler_renamed_current_node);
                 
                 
                 // Initialize idevice Tree
@@ -94,12 +88,8 @@ jQuery(document).ready(function() {
                 $("#btnAdd").click(add_child_node)
                 $("#btnRemove").click(delete_current_node)
                 $("#btnRename").click(rename_current_node);
-                $("#btnDuplicate").click(function() {alert(NOT_IMPLEMENTED);});
                 
                 $("#btnPromote").click(promote_current_node);
-                $("#btnDemote").click(demote_current_node);
-                $("#btnUp").click(move_current_node_up);
-                $("#btnDown").click(move_current_node_down);
                 
                 //$(".bigButton:not(#btnRename), .smallButton").each(function(index) {
                 //    bindButtonClicked(this);
@@ -125,7 +115,7 @@ var clickon = true
 // Adds a new node to current one
 function add_child_node() {
   
-  $.jsonRPC.request('add_node', [get_package_id()], {
+  $.jsonRPC.request('add_node', [get_package_id(), current_outline_id()], {
     success: function(results) {
       callback_add_child_node(results.result.id, results.result.title);
     }
@@ -149,21 +139,15 @@ function rename_current_node(){
       alert("Somehow you managed to call dblclik event without a single click. Please, reload page!");
       return null;
   }
-  get_outline_pane().jstree("rename");
+  $("#outlinePane").jstree("rename");
 }
 
 // Promotes current node to a sibling of it's parent.
 function promote_current_node(){
-  // check if the current node is the root or a child of the root
-  if (is_root(get_current_node()) || 
-  is_root(get_current_node().parent().parent().parent())) {
-              alert(CANT_MOVE_NODE_FURTHER);
-              return -1;
-            }
   $.jsonRPC.request('promote_current_node', [get_package_id()], {
     success: function(results){
       if (results.result.promoted != "1") {
-        alert(NODE_WAS_NOT_MOVED);
+        alert("An server error occured. Node was not moved.");
       } else {
         callback_promote_current_node();
       }
@@ -171,63 +155,8 @@ function promote_current_node(){
   });
 }
 
-function demote_current_node() {
-  // Check if current node if a root
-  if (is_root(get_current_node())) {
-    alert("Can't demote the root.");
-  } else 
-    // Check if there are any nodes before current one on the same level
-    if (get_current_node().parent().prev().length == 0) {
-      alert ("No previous node, can't demote.");
-    } else {
-      $.jsonRPC.request('demote_current_node', [get_package_id()], {
-        success: function(results) {
-          if (results.result.demoted != "1") {
-            alert(NODE_WAS_NOT_MOVED);
-          } else {
-            callback_demote_current_node();
-          }
-        }
-      });
-    }
-}
 
-// Move node up at the same level
-function move_current_node_up(){
-  // Check if there are any nodes before the current one on the same level
-  if (get_current_node().parent().prev().length == 0) {
-    alert(CANT_MOVE_NODE_FURTHER);
-    return -1;
-  }
-  $.jsonRPC.request('move_current_node_up', [get_package_id()], {
-      success: function(results) {
-        if (results.result.moved != '1'){
-          alert(NODE_WAS_NOT_MOVED);
-        } else {
-          callback_move_current_node_up();
-        }
-      }
-    });
-}
-
-// Move current node down at the same level
-function move_current_node_down() {
-  if (get_current_node().parent().next().length == 0) {
-    alert(CANT_MOVE_NODE_FURTHER);
-    return -1;
-  }
-  $.jsonRPC.request('move_current_node_down', [get_package_id()], {
-    success: function(results) {
-      if (results.result.moved != '1'){
-        alert(NODE_WAN_NOT_MOVED);
-      } else {
-        callback_move_current_node_down();
-      }
-    }
-  });
-}
-
-// Handles outline_pane selection event. Calls package.change_current_node
+// Handles outlinePane selection event. Calls package.change_current_node
 // via rpc. 
 function handle_select_node(event, data) {
 
@@ -263,6 +192,28 @@ function handler_renamed_current_node(e, data){
 }
 
 
+// Takes a server tree node id eg. '1' and returns a xul tree index
+// Don t store this because this index changes when branches above the element
+// are collapsed and expanded
+function serverId2TreeId(serverId) {
+    var tree = document.getElementById('outline_tree')
+    var item = serverId2treeitem(serverId)
+    if (item) {
+        return tree.contentView.getIndexOfItem(item)
+    } else {
+        return '0' // Should never really reach here
+    }
+}
+
+// Called when window shown/refreshed. Tells the server that now is a good time
+// to put the correct selection in the node tree
+function initWindow() {
+    if (haveLoaded) {return}
+    // Select the correct tree item
+    nevow_clientToServerEvent('setTreeSelection', this, '');
+    haveLoaded = true;
+}
+
 // Returns the _exe_nodeid attribute of the currently selected row item
 function current_outline_id(index)
 {
@@ -283,7 +234,7 @@ function disableButtons(state) {
 
 function addStyle() {
     var src = addDir();
-    $.jsonRPC('importStyle', [get_package_id(),'',src]);
+    nevow_clientToServerEvent('importStyle', this, '', src);
 }
 
 function enableButtons() {
@@ -291,8 +242,24 @@ function enableButtons() {
     $.unblockUI();
 }
 
+// Confirms the deletion of the currently selected node.
+// Returns true or false for server
+// Basically ignores request when requesting to delete home node 
+function confirmDelete() {
+    var id = current_outline_id()
+    if (id != '0') {
+        return confirm(DELETE_  + current_outline_label() + NODE_AND_ALL_ITS_CHILDREN_ARE_YOU_SURE_)
+    } else {
+        return 'false' 
+    }
+}
+
 function get_package_id(){
   return $("#package_id").text()
+}
+
+function outlineDelNode() {
+    outlineControll("DelNode");
 }
 
 // Appends a child node with name and _exe_nodeid to the currently
@@ -301,17 +268,39 @@ function callback_add_child_node(nodeid, title) {
     var current_li = get_current_node().parent();
     var new_node = {'data' : {'title' : title, 
         'attr': {'id' : 'node' + nodeid, 'nodeid' : nodeid}}}
-    get_outline_pane().jstree("create_node",current_li, "last", new_node);
-    get_outline_pane().jstree("open_node", current_li);
+    $("#outlinePane").jstree("create_node",current_li, "last", new_node);
+    $("#outlinePane").jstree("open_node", current_li);
     set_current_node($("#nodeid" + nodeid));
-    get_outline_pane().jstree("select_node", $("#node" + nodeid), true);
+    $("#outlinePane").jstree("select_node", $("#node" + nodeid), true);
+}
+
+function insertChildTreeItem(parentItem, newTreeItem, nextSibling) {
+    // If we re not at the top level of the tree, become a container
+    var container = parentItem.getAttribute('container')
+    if ((!container) || (container == 'false')) {
+        parentItem.setAttribute('container', 'true')
+        parentItem.setAttribute('open', 'true')
+        container = parentItem.appendChild(document.createElement('treechildren'))
+    } else {
+        container = parentItem.getElementsByTagName('treechildren')[0]
+        // If still havent got a 'treechildren' node, then make one
+        if (!container) {
+            container = parentItem.appendChild(document.createElement('treechildren'))
+        }
+    }
+    // Append/insert the new node
+    if (nextSibling) {
+        container.insertBefore(newTreeItem, nextSibling)
+    } else { 
+        container.appendChild(newTreeItem)
+    }
 }
 
 // Delete the currently selected node
 function callback_delete_current_node() {
     var currentNode = get_current_node();
     // parent ul
-    get_outline_pane().jstree("delete_node", currentNode);
+    $("#outlinePane").jstree("delete_node", currentNode);
     updateTitle();
 }
 
@@ -320,59 +309,103 @@ function callback_promote_current_node() {
   var current_node = get_current_node();
   // Move through <li>, <ul> to parent's <li>
   var parent_container = current_node.parent().parent().parent()
-  get_outline_pane().jstree("move_node", current_node, parent_container, "after")
-}
-
-function callback_demote_current_node() {
-  var current_node = get_current_node();
-  var previous_node = get_current_node().parent().prev();
-  get_outline_pane().jstree("move_node", current_node, previous_node, "last");
-}
-
-// Move current node before the previous
-function callback_move_current_node_up() {
-  var current_node = get_current_node();
-  var neighbour_node = current_node.parent().prev();
-  get_outline_pane().jstree("move_node", current_node, neighbour_node, "before");
-}
-
-// Move current node after the next
-function callback_move_current_node_down() {
-  var current_node = get_current_node();
-  var neighbour_node = current_node.parent().next();
-  get_outline_pane().jstree("move_node", current_node, neighbour_node, "after");
+  $("#outlinePane").jstree("move_node", current_node, parent_container, "after")
 }
 
 
-// Checks if node is root, saves a lot parent() in the code
-function is_root(node) {
-  // Get parent li, if node is a <a>-reference
-  if ($(node).is('a')) {
-    node = $(node).parent();
-  }
-  return (node.parent().parent().attr('id') == 'outline_pane');
+// Moves a node in the tree
+function XHMoveNode(id, parentId, nextSiblingId) {
+    clickon = false
+    try {
+        var node = serverId2treeitem(id)
+        var oldParent = node.parentNode.parentNode
+        var newParent = serverId2treeitem(parentId)
+        if (nextSiblingId != 'null') {
+            var nextSibling = serverId2treeitem(nextSiblingId)
+        } else {
+            var nextSibling = null
+        }
+        // Remove ourselves from our old parent
+        XHDelNode(node)
+        // Insert ourselves in our new parent
+        if (nextSibling) {
+            insertChildTreeItem(newParent, node, nextSibling)
+        } else {
+            insertChildTreeItem(newParent, node)
+        }
+    } finally {
+        clickon = true
+    }
+    // Re-select the node we just moved
+    var tree = document.getElementById('outline_tree')
+    tree.view.selection.select(tree.view.getIndexOfItem(node))
 }
 
 // called to synchronize current_node attribute of outline_pane with 
 // currently selected node. Refreshes authoringIFrame1
 function set_current_node(node) {
-  get_outline_pane().attr('current_node', get_current_node().attr('nodeid'));
+  $("#outlinePane").attr('current_node', get_current_node().attr('nodeid'));
   updateTitle();
   reload_authoring();
 }
 
 function get_current_node() {
-    var selected = get_outline_pane().jstree("get_selected").find(">a");
+    var selected = $("#outlinePane").jstree("get_selected").find(">a");
     return selected;
-}
-
-function get_outline_pane() {
-  return $("#outline_pane");
 }
 
 // Reloads content of authoring part
 function reload_authoring(){
   window.frames['authoringIFrame1'].location.reload();
+}
+//Move node up
+function XHMoveNodeUp() {
+    var curNode = get_current_node()
+    curNode.prev().before(curNode);
+}
+
+//Move node down
+function XHMoveNodeDown() {
+    var curNode = get_current_node()
+    curNode.next().after
+}
+
+//Promote node
+function XHPromoteNode() {
+    var curNode = get_current_node();
+    curNode.parent().parent().after(curNode);
+}
+
+function XHDemoteNode() {
+    var curNode = get_current_node();
+    var sibling = curNode.prev();
+    if (sibling.length != 0) {
+        var siblingUl = sibling.find(" > ul");
+        if (siblingUl.length == 0) {
+            siblingUl = $('<ul />');
+            sibling.append(siblingUl);
+        }
+        siblingUl.append(curNode);
+    }
+}
+
+function delTreeItem() { submitLink('deleteNode', current_outline_id(), 1) }
+
+
+//bind server messages and class changing to the outline links
+function bind_outline_clicked(link) {
+    $(link).click(function() {
+        var node = this;
+        $.jsonRPC.request('change_current_node',
+         [get_package_id(), $(node).attr("nodeId")], {
+           success: function(results) {
+             if (results.result.changed == "1"){
+               set_current_node(node);
+             }
+           }
+         });
+        return false;
+    });
 }
 
 function setDocumentTitle(title) {
@@ -382,7 +415,7 @@ function setDocumentTitle(title) {
 // Call this to ask the server if the package is dirty
 // 'ifDirty' will be evaled if the package is dirty
 function checkDirty(ifClean, ifDirty) {
-    $.jsonRPC('isPackageDirty', [get_package_id(),'',ifClean,ifDirty]);
+    nevow_clientToServerEvent('isPackageDirty', this, '', ifClean, ifDirty)
 }
 
 // Call this to ask the server if the package is dirty
@@ -430,7 +463,7 @@ function fileNew() {
 }
 
 function tabNew() {
-    $.jsonRPC('openNewTab', [get_package_id(),]);
+    nevow_clientToServerEvent('openNewTab', this);
 }
 
 function openPreview(path) {
@@ -456,7 +489,7 @@ function fileOpen() {
 //gets editors width in pixel and sets its width accordingly
 function setEditorsWidth() {
 	var width = prompt("Enter editor's new width. 0 or empty to set it to 100%");
-	$.jsonRPC('setEditorsWidth', [get_package_id(),'',width]);
+	nevow_clientToServerEvent('setEditorsWidth', this, '', width);
 }
 
 // Shows the the load dialog and actually loads the new package
@@ -469,7 +502,7 @@ function fileOpen2() {
     fp.appendFilters(nsIFilePicker.filterAll);
     var res = fp.show();
     if (res == nsIFilePicker.returnOK) {
-        $.jsonRPC('loadPackage', [get_package_id(),'',fp.file.path]);
+        nevow_clientToServerEvent('loadPackage', this, '', fp.file.path)
     }
 }
 
@@ -481,7 +514,7 @@ function fileOpenTutorial() {
 // Actually does the opening of the tutorial document, 
 // once the current package has  been saved or discarded
 function fileOpenTutorial2() {
-    $.jsonRPC('loadTutorial', [get_package_id(),'']);
+    nevow_clientToServerEvent('loadTutorial', this, '')
 }
 
 
@@ -493,12 +526,12 @@ function fileOpenRecent(number) {
 // Actually does the openning of the recent file, once the current package has 
 // been saved or discarded
 function fileOpenRecent2(number) {
-    $.jsonRPC('loadRecent', [get_package_id(),'',number]);
+    nevow_clientToServerEvent('loadRecent', this, '', number)
 }
 
 // Clear recent files menu
 function fileRecentClear() {
-    $.jsonRPC('clearRecent', [get_package_id(),'']);
+    nevow_clientToServerEvent('clearRecent', this, '')
 }
 
 // Called by the user when they want to save their package
@@ -510,7 +543,7 @@ function fileRecentClear() {
 function fileSave(onProceed) {
     if (!onProceed)
         var onProceed = '';
-    $.jsonRPC('getPackageFileName', [get_package_id(),'','fileSave2',onProceed]);
+    nevow_clientToServerEvent('getPackageFileName', this, '', 'fileSave2', onProceed);
 }
 
 // Takes the server's response after we asked it for the
@@ -521,9 +554,9 @@ function fileSave2(filename, onDone) {
         // If the package has been previously saved/loaded
         // Just save it over the old file
         if (onDone) {
-            $.jsonRPC('savePackage', [get_package_id(),'','',onDone]);
+            nevow_clientToServerEvent('savePackage', this, '', '', onDone);
         } else {
-            $.jsonRPC('savePackage', [get_package_id(),'']);
+            nevow_clientToServerEvent('savePackage', this, '');
         }
     } else {
         // If the package is new (never saved/loaded) show a
@@ -534,7 +567,7 @@ function fileSave2(filename, onDone) {
 
 function askOverwrite(filename, stylesDir) {
     if (confirm(filename + OVERWRITE_DIALOG)) {
-        $.jsonRPC('exportWebSite2', [get_package_id(),'',filename,stylesDir]);
+        nevow_clientToServerEvent('exportWebSite2', this, '', filename, stylesDir);
         }
 }
 
@@ -549,9 +582,9 @@ function fileSaveAs(onDone) {
     if (res == nsIFilePicker.returnOK || res == nsIFilePicker.returnReplace) {
         saveWorkInProgress();
         if (onDone) {
-            $.jsonRPC('savePackage', [get_package_id(),'',fp.file.path,onDone]);
+            nevow_clientToServerEvent('savePackage', this, '', fp.file.path, onDone)
         } else {
-            $.jsonRPC('savePackage', [get_package_id(),'',fp.file.path]);
+            nevow_clientToServerEvent('savePackage', this, '', fp.file.path)
         }
     } else {
         eval(onDone)
@@ -610,11 +643,11 @@ function filePrint3_openPrintWin(tempPrintDir, tempExportedDir, webPrintDir) {
 
 
 function serveDocument() {
-    $.jsonRPC('serveDocument', [get_package_id(),]);
+    nevow_clientToServerEvent('serveDocument', this);
 }
 
 function stopServing() {
-    $.jsonRPC('stopServing', [get_package_id(),]);
+    nevow_clientToServerEvent('stopServing', this);
 }
 
 
@@ -646,7 +679,7 @@ function fileQuit() {
 // Closes the window and stops the server
 function doQuit() {
     netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect")
-    $.jsonRPC('quit', [get_package_id(),'']);
+    nevow_clientToServerEvent('quit', this, '');
     //var start = new Date().getTime();
     //while (new Date().getTime() < start + 500);
     //klass = Components.classes["@mozilla.org/toolkit/app-startup;1"]
@@ -701,7 +734,7 @@ function aboutPage() {
 
 // browse the specified URL in system browser
 function browseURL(url) {
-    $.jsonRPC('browseURL', [get_package_id(),'',url]);
+    nevow_clientToServerEvent('browseURL', this, '', url);
 }
 
 // Appends an iDevice
@@ -736,7 +769,7 @@ function updateTitle() {
 // DOMSlides-presentation
 
 function quickExport() {
-    $.jsonRPC('quickExport', [get_package_id(),]);
+    nevow_clientToServerEvent('quickExport', this);
 }
 
 function exportPackage(exportType, exportDir, printCallback) {
@@ -750,13 +783,13 @@ function exportPackage(exportType, exportDir, printCallback) {
                          nsIFilePicker.modeGetFolder);
             var res = fp.show();
             if (res == nsIFilePicker.returnOK || res == nsIFilePicker.returnReplace) {
-                $.jsonRPC('exportPackage', [get_package_id(),'',exportType,fp.file.path,'']);
+                nevow_clientToServerEvent('exportPackage', this, '', exportType, fp.file.path, '')
             }
         }
         else {
             // use the supplied exportDir, rather than asking.
             // NOTE: currently only the printing mechanism will provide an exportDir, hence the printCallback function.
-            $.jsonRPC('exportPackage', [get_package_id(),'',exportType,exportDir,printCallback]);
+            nevow_clientToServerEvent('exportPackage', this, '', exportType, exportDir, printCallback)
         }
     } else if(exportType == "textFile"){
         title = EXPORT_TEXT_PACKAGE_AS;
@@ -765,7 +798,7 @@ function exportPackage(exportType, exportDir, printCallback) {
         fp.appendFilters(nsIFilePicker.filterAll);
         var res = fp.show();
         if (res == nsIFilePicker.returnOK || res == nsIFilePicker.returnReplace)
-            $.jsonRPC('exportPackage', [get_package_id(),'',exportType,fp.file.path]);
+            nevow_clientToServerEvent('exportPackage', this, '', exportType, fp.file.path)
     } else {
         if (exportType == "scorm")
             title = EXPORT_SCORM_PACKAGE_AS;
@@ -782,7 +815,7 @@ function exportPackage(exportType, exportDir, printCallback) {
         fp.appendFilters(nsIFilePicker.filterAll);
         var res = fp.show();
         if (res == nsIFilePicker.returnOK || res == nsIFilePicker.returnReplace) {
-            $.jsonRPC('exportPackage', [get_package_id(),'',exportType,fp.file.path]);
+            nevow_clientToServerEvent('exportPackage', this, '', exportType, fp.file.path)
         }
     }
 } // exportPackage()
@@ -798,7 +831,7 @@ function insertPackage() {
     fp.appendFilters(nsIFilePicker.filterAll);
     var res = fp.show();
     if (res == nsIFilePicker.returnOK) {
-        $.jsonRPC('insertPackage', [get_package_id(),'',fp.file.path]);
+        nevow_clientToServerEvent('insertPackage', this, '', fp.file.path)
     }
 }
 
@@ -812,7 +845,7 @@ function extractPackage() {
     fp.appendFilters(nsIFilePicker.filterAll);
     var res = fp.show();
     if (res == nsIFilePicker.returnOK || res == nsIFilePicker.returnReplace) {
-        $.jsonRPC('extractPackage', [get_package_id(),'',fp.file.path,res == nsIFilePicker.returnReplace]);
+        nevow_clientToServerEvent('extractPackage', this, '', fp.file.path, res == nsIFilePicker.returnReplace)
     }
 }
 

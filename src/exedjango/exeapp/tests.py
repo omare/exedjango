@@ -16,7 +16,7 @@ from django.http import HttpResponseNotFound, HttpResponseForbidden, Http404
 from jsonrpc.proxy import ServiceProxy
 
 from exeapp.models import User, Package
-from exeapp.models.persist_package_store import package_storage
+from exeapp.models.data_package_store import package_storage
 from exeapp.templatetags.tests import MainpageExtrasTestCase
 from exedjango.exeapp.models.data_package import DataPackage
 from exedjango.exeapp.shortcuts import get_package_by_id_or_error

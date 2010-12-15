@@ -6,13 +6,22 @@
 <script type='text/javascript' src='/exeapp/static/scripts/main.js'></script>
 {% endblock %}
 {% block content %} 
+<p>Logged in as {{ user.username }}</p>
 <h1>Main Page</h1>
 <ul id="package_list">
   {% for package in package_list %}
-  <li class='package'><a href='package/{{ package.id }}/'>{{ package.title }}</a></li>
+  
+    <li class='package' id="package{{ package.id }}">
+      <input type="checkbox" class="package_checkbox" packageid="{{ package.id }}" />
+      <a href='package/{{ package.id }}/'>{{ package.title }}</a>
+    </li>
   {% endfor %}
 </ul>
 <div id='createPackage'>
-    <p><input type='submit' id='create_package' value='Create' /></p>
+    <p>
+      <input type='submit' id='create_package' value='Create' />
+      <input type='submit' id='delete_selected_packages' value='Delete Selected' />
+    </p> 
 </div>
+<a href="/accounts/logout">Logout</a>
 {% endblock %}
