@@ -31,10 +31,10 @@ class UserandPackageTestCase(TestCase):
         self.assertTrue(self.package.id in package_storage)
         self.assertEquals(package_storage[self.package.id].name,
                            self.PACKAGE_TITLE)
-        self.package.save_persist()
+        self.package.save_data_package()
         
     def test_get_persistent_package(self):
-        self.package.save_persist()
+        self.package.save_data_package()
         del package_storage[self.package.id]
         persist_package = self.package.get_data_package()
         self.assertEquals(persist_package.name, self.PACKAGE_TITLE)

@@ -20,7 +20,7 @@ class PackageManager(models.Manager):
         p.save()
         package_id = p.id
         package_storage[package_id] = DataPackage(package_id, title)
-        p.save_persist()
+        p.save_data_package()
         return p
 
 class Package(models.Model):
@@ -31,13 +31,21 @@ class Package(models.Model):
     objects = PackageManager()
     
     def get_data_package(self):
+        '''Returns data_package. Loads it from file, if it's not loaded'''
         if self.id not in package_storage:
-            log.debug("Loading from %s" % self.data_package)
+            log.debug("Loading data packge %s" % self.id)
             persistent_package = DataPackage.load(self.data_package.file)
             package_storage[self.id] = persistent_package
         return package_storage[self.id]
     
-    def save_persist(self):
+    def unload_data_package(self):
+        '''Unload a data package from package store'''
+        if self.id in package_storage:
+            log.debug("Unloading data package %s" % self.id)
+            del package_storage[self.id]
+            
+    def save_data_package(self):
+        '''Saves the data package to file system'''
         if self.id in package_storage:
             persistent_package = package_storage[self.id]
             file = StringIO()

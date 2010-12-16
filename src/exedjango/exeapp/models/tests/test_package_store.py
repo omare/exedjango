@@ -2,7 +2,7 @@ from mock import Mock
 
 from django.test import TestCase
 
-from exeapp.models.persist_package_store\
+from exeapp.models.data_package_store\
                      import PackageStore, AlreadyRegistredError
 
 
@@ -17,6 +17,9 @@ class PackageStoreTestCase(TestCase):
         super(PackageStoreTestCase, self).setUp()
         self.package = Mock()
         self.package_store[self.PACKAGE_ID] = self.package
+        
+    def tearDown(self):
+        self.package_store.clear()
         
         
     def test_add(self):

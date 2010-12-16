@@ -288,7 +288,7 @@ class DataPackage(Persistable):
     _description       = ''
     _backgroundImg     = ''
     # This is like a constant
-    defaultLevelNames  = [u"Topic", u"Section", u"Home"]
+    defaultLevelNames  = [u"Topic", u"Section", u"Unit"]
     
     
     def __init__(self, id, name):
@@ -356,13 +356,10 @@ class DataPackage(Persistable):
         else:
             return "0"
         
-    def add_child_node(self, parent_node_id):
-        '''Creates a child node of node with parent_node_id, doesn't set it as
-current node'''
-        node = self.findNode(parent_node_id)
-        if node is not None:
-            newNode = node.createChild()
-            return newNode
+    def add_child_node(self):
+        '''Creates a child node of the current node, current node stays
+the same'''
+        return self.currentNode.createChild()
             
     def delete_current_node(self):
         '''Removes current node. Sets current node to deleted node's 

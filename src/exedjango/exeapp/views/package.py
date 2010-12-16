@@ -22,7 +22,6 @@ def package(request, package):
         return HttpResponseForbidden("You don't have an access to this package")
     else:
         data_package = package.get_data_package()
-        # temporary - saving package on each call
         log.info("%s accesses package of %s" % (request.user.username, 
                                                 package.user.username))
         prototypes = idevice_storage.get_prototypes()
@@ -32,10 +31,12 @@ def package(request, package):
 @get_package_by_id_or_error
 def authoring(request, package):
     '''Handles calls to authoring iframe. Renders exe/authoring.html'''
+    
     current_node = package.get_data_package().currentNode
     return render_to_response('exe/authoring.html', locals())
 
 @login_required
 def properties(request, package_id):
     '''Handles calls to properties iframe.'''
+    
     return HttpResponse("<h1>Properties for %s</h1>" % package_id)

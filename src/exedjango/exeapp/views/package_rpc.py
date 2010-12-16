@@ -54,7 +54,7 @@ log = logging.getLogger(__name__)
 
 @jsonrpc_method('package.testPrintMessage', authenticated=True)
 @get_package_by_id_or_error
-def testPrintMessage(self, package, message):
+def testPrintMessage(request, package, message):
 
     """ 
     Prints a test message, and yup, that's all! 
@@ -63,7 +63,7 @@ def testPrintMessage(self, package, message):
 
 @jsonrpc_method('package.handleDblNode', authenticated=True)
 @get_package_by_id_or_error
-def handleDblNode(self, package):
+def handleDblNode (request, package):
 
     """
     Dublicates a tree element
@@ -81,7 +81,7 @@ def handleDblNode(self, package):
 
 @jsonrpc_method('package.setEditorsWidth', authenticated=True)
 @get_package_by_id_or_error
-def setEditorsWidth(self, package, width):
+def setEditorsWidth(request, package, width):
 
     """
     Set application's global variable editorsWidth to width. editorsWidth is used to
@@ -96,7 +96,7 @@ def setEditorsWidth(self, package, width):
         
 @jsonrpc_method('package.serveDocument', authenticated=True)
 @get_package_by_id_or_error
-def serveDocument(self, package):
+def serveDocument(request, package):
 
     """
     Starts serving of $path to localhost:8000
@@ -118,9 +118,10 @@ def serveDocument(self, package):
                       package.name)
 
 
+
 @jsonrpc_method('package.stopServing', authenticated=True)
 @get_package_by_id_or_error
-def stopServing(self, package):
+def stopServing(request, package):
 
     """
     Stops a running Server
@@ -137,7 +138,7 @@ def stopServing(self, package):
 
 @jsonrpc_method('package.openNewTab', authenticated=True)
 @get_package_by_id_or_error
-def openNewTab(self, package):
+def openNewTab(request, package):
 
     """
     Opens new tab with new exe instance running in it
@@ -161,7 +162,7 @@ def openNewTab(self, package):
 
 @jsonrpc_method('package.importStyle', authenticated=True)
 @get_package_by_id_or_error
-def importStyle(self, package, src):
+def importStyle(request, package, src):
 
     '''imports a user style in config directory'''
 
@@ -176,7 +177,7 @@ def importStyle(self, package, src):
 
 @jsonrpc_method('package.outlineClicked', authenticated=True)
 @get_package_by_id_or_error
-def outlineClicked(self, package):
+def outlineClicked(request, package):
 
     """
     Sets documents title to package name + page
@@ -188,7 +189,7 @@ def outlineClicked(self, package):
 
 @jsonrpc_method('package.importPDF', authenticated=True)
 @get_package_by_id_or_error
-def importPDF(self, package, path, importString):
+def importPDF(request, package, path, importString):
 
     """
     Import pdf from path page by page
@@ -224,7 +225,7 @@ def importPDF(self, package, path, importString):
 
 @jsonrpc_method('package.isPackageDirty', authenticated=True)
 @get_package_by_id_or_error
-def isPackageDirty(self, package, ifClean, ifDirty):
+def isPackageDirty(request, package, ifClean, ifDirty):
 
     """
     Called by js to know if the package is dirty or not.
@@ -241,7 +242,7 @@ def isPackageDirty(self, package, ifClean, ifDirty):
 
 @jsonrpc_method('package.getPackageFileName', authenticated=True)
 @get_package_by_id_or_error
-def getPackageFileName(self, package, onDone, onDoneParam):
+def getPackageFileName(request, package, onDone, onDoneParam):
 
     """
     Calls the javascript func named by 'onDone' passing as the
@@ -252,31 +253,20 @@ def getPackageFileName(self, package, onDone, onDoneParam):
     """
     client.call(onDone, unicode(package.filename), onDoneParam)
 
-def b4save(self, client, inputFilename, ext, msg):
-    """
-    Call this before saving a file to get the right filename.
-    Returns a new filename or 'None' when attempt to overide
-    'inputFilename' is the filename given by the user
-    'ext' is the extension that the filename should have
-    'msg' will be shown if the filename already exists
-    """
-    if not inputFilename.lower().endswith(ext):
-        inputFilename += ext
-        if Path(inputFilename).exists():
-            explanation = _(u'"%s" already exists.\nPlease try again with a different filename') % inputFilename
-            msg = u'%s\n%s' % (msg, explanation)
-            client.alert(msg)
-            raise Exception(msg)
-    return inputFilename
-
 @jsonrpc_method('package.savePackage', authenticated=True)
 @get_package_by_id_or_error
-def savePackage(self, package, filename=None, onDone=None):
+def savePackage(request, package, filename=None, onDone=None):
     package.save_data_package()
+    
+@jsonrpc_method('package.unload_data_package', authenticated=True)
+@get_package_by_id_or_error
+def unload_data_package(request, package):
+    '''Handles event "package.stopServing'. Unloads given data packages'''
+    package.unload_data_package()
 
 @jsonrpc_method('package.loadPackage', authenticated=True)
 @get_package_by_id_or_error
-def loadPackage(self, package, filename):
+def loadPackage(request, package, filename):
 
     """Load the package named 'filename'"""
     package = self._loadPackage(client, filename, newLoad=True)
@@ -288,7 +278,7 @@ def loadPackage(self, package, filename):
 
 @jsonrpc_method('package.loadRecent', authenticated=True)
 @get_package_by_id_or_error
-def loadRecent(self, package, number):
+def loadRecent(request, package, number):
 
     """
     Loads a file from our recent files list
@@ -298,7 +288,7 @@ def loadRecent(self, package, number):
 
 @jsonrpc_method('package.loadTutorial', authenticated=True)
 @get_package_by_id_or_error
-def loadTutorial(self, package):
+def loadTutorial(request, package):
 
     """
     Loads the tutorial file, from the Help menu
@@ -309,7 +299,7 @@ def loadTutorial(self, package):
 
 @jsonrpc_method('package.clearRecent', authenticated=True)
 @get_package_by_id_or_error
-def clearRecent(self, package):
+def clearRecent(request, package):
 
     """
     Clear the recent project list
@@ -321,7 +311,7 @@ def clearRecent(self, package):
 
 @jsonrpc_method('package.setLocale', authenticated=True)
 @get_package_by_id_or_error
-def setLocale(self, package, locale):
+def setLocale(request, package, locale):
 
     """
     Set locale using Nevow instead of a POST
@@ -334,7 +324,7 @@ def setLocale(self, package, locale):
 
 @jsonrpc_method('package.setInternalAnchors', authenticated=True)
 @get_package_by_id_or_error
-def setInternalAnchors(self, package, internalAnchors):
+def setInternalAnchors(request, package, internalAnchors):
 
     """
     Set locale using Nevow instead of a POST
@@ -346,7 +336,7 @@ def setInternalAnchors(self, package, internalAnchors):
 
 @jsonrpc_method('package.removeTempDir', authenticated=True)
 @get_package_by_id_or_error
-def removeTempDir(self, package, tempdir, rm_top_dir):
+def removeTempDir(request, package, tempdir, rm_top_dir):
 
     """
     Removes a temporary directory and any contents therein
@@ -371,7 +361,7 @@ def removeTempDir(self, package, tempdir, rm_top_dir):
     if (int(rm_top_dir) != 0):
         os.rmdir(tempdir)
 
-def get_printdir_relative2web(self, exported_dir):
+def get_printdir_relative2web(request, exported_dir):
     """
     related to the following ClearParentTempPrintDirs(), return a
     local URL corresponding to the exported_dir
@@ -386,7 +376,7 @@ def get_printdir_relative2web(self, exported_dir):
     log.debug('printdir http_relative_pathname=' + http_relative_pathname)
     return http_relative_pathname
 
-def ClearParentTempPrintDirs(self, client, log_dir_warnings):
+def ClearParentTempPrintDirs(request, client, log_dir_warnings):
     """
     Determine the parent temporary printing directory, and clear them 
     if safe to do so (i.e., if not the config dir itself, for example)
@@ -466,7 +456,7 @@ def ClearParentTempPrintDirs(self, client, log_dir_warnings):
 
 @jsonrpc_method('package.makeTempPrintDir', authenticated=True)
 @get_package_by_id_or_error
-def makeTempPrintDir(self, package, suffix, prefix, \
+def makeTempPrintDir(request, package, suffix, prefix, \
                                     callback):
 
     """
@@ -488,7 +478,7 @@ def makeTempPrintDir(self, package, suffix, prefix, \
 
 @jsonrpc_method('package.previewTinyMCEimage', authenticated=True)
 @get_package_by_id_or_error
-def previewTinyMCEimage(self, package, tinyMCEwin, tinyMCEwin_name, \
+def previewTinyMCEimage(request, package, tinyMCEwin, tinyMCEwin_name, \
                          tinyMCEfield, local_filename, preview_filename):
 
     """
@@ -601,7 +591,7 @@ def previewTinyMCEimage(self, package, tinyMCEwin, tinyMCEwin_name, \
 
 @jsonrpc_method('package.generateTinyMCEmath', authenticated=True)
 @get_package_by_id_or_error
-def generateTinyMCEmath(self, package, tinyMCEwin, tinyMCEwin_name, \
+def generateTinyMCEmath(request, package, tinyMCEwin, tinyMCEwin_name, \
                          tinyMCEfield, latex_source, math_fontsize, \
                          preview_image_filename, preview_math_srcfile):
 
@@ -686,7 +676,7 @@ def generateTinyMCEmath(self, package, tinyMCEwin, tinyMCEwin_name, \
 
 @jsonrpc_method('package.quickExport', authenticated=True)
 @get_package_by_id_or_error
-def quickExport(self, package):
+def quickExport(request, package):
 
     """
     Called by js.
@@ -699,7 +689,7 @@ def quickExport(self, package):
 
 @jsonrpc_method('package.exportPackage', authenticated=True)
 @get_package_by_id_or_error
-def exportPackage(self, package, exportType, filename, print_callback='', quick=False):
+def exportPackage(request, package, exportType, filename, print_callback='', quick=False):
 
     """
     Called by js. 
@@ -792,7 +782,7 @@ def exportPackage(self, package, exportType, filename, print_callback='', quick=
 
 @jsonrpc_method('package.quit', authenticated=True)
 @get_package_by_id_or_error
-def quit(self, package):
+def quit(request, package):
 
     """
     Stops the server
@@ -810,7 +800,7 @@ def quit(self, package):
 
 @jsonrpc_method('package.browseURL', authenticated=True)
 @get_package_by_id_or_error
-def browseURL(self, package, url):
+def browseURL(request, package, url):
 
     """visit the specified URL using the system browser
     
@@ -849,7 +839,7 @@ def browseURL(self, package, url):
 
 @jsonrpc_method('package.insertPackage', authenticated=True)
 @get_package_by_id_or_error
-def insertPackage(self, package, filename):
+def insertPackage(request, package, filename):
 
     """
     Load the package and insert in current node
@@ -871,7 +861,7 @@ def insertPackage(self, package, filename):
 
 @jsonrpc_method('package.extractPackage', authenticated=True)
 @get_package_by_id_or_error
-def extractPackage(self, package, filename, existOk):
+def extractPackage(request, package, filename, existOk):
 
     """
     Create a new package consisting of the current node and export
@@ -912,7 +902,7 @@ def extractPackage(self, package, filename, existOk):
 
 # Public Methods
 
-def exportSinglePage(self, client, filename, webDir, stylesDir, \
+def exportSinglePage(request, client, filename, webDir, stylesDir, \
                      printFlag):
     """
     Export 'client' to a single web page,
@@ -961,7 +951,7 @@ def exportSinglePage(self, client, filename, webDir, stylesDir, \
     # WARNING: the above only returns the RELATIVE pathname
 
     
-def exportPresentation(self, client, filename, stylesDir):
+def exportPresentation(request, client, filename, stylesDir):
     """
     export client to a DOM presentation
     """
@@ -999,7 +989,7 @@ def exportPresentation(self, client, filename, stylesDir):
     self._startFile(client, filename)
 
 
-def printHandout(self, client, exportDir, stylesDir):
+def printHandout(request, client, exportDir, stylesDir):
     """
     export client to a DOM presentation
     """
@@ -1011,7 +1001,7 @@ def printHandout(self, client, exportDir, stylesDir):
     return exportDir.encode('utf-8')
 
 
-def exportWebSite(self, client, filename, stylesDir, quick=False):
+def exportWebSite(request, client, filename, stylesDir, quick=False):
     """
     Export 'client' to a web site,
     'webDir' is just read from config.webDir
@@ -1031,7 +1021,7 @@ def exportWebSite(self, client, filename, stylesDir, quick=False):
         # Now do the export
         self.exportWebSite2(client, filename, stylesDir)
 
-def exportWebSite2(self, client, filename, stylesDir):
+def exportWebSite2(request, client, filename, stylesDir):
     '''Overwrite allowed, proceed'''
     try:
         filename = Path(filename)
@@ -1048,7 +1038,7 @@ def exportWebSite2(self, client, filename, stylesDir):
         log.error("EXPORT FAILED! %s" % filename)
         raise
 
-def exportWebZip(self, client, filename, stylesDir):
+def exportWebZip(request, client, filename, stylesDir):
     try:
         log.debug(u"exportWebsite, filename=%s" % filename)
         filename = Path(filename)
@@ -1080,7 +1070,7 @@ def exportText(self, client, filename):
         raise
     client.alert(_(u'Exported to %s') % filename)
     
-def exportIpod(self, client, filename):
+def exportIpod(request, client, filename):
     """
     Export 'client' to an iPod Notes folder tree
     'webDir' is just read from config.webDir
@@ -1114,7 +1104,7 @@ def exportIpod(self, client, filename):
         raise
     client.alert(_(u'Exported to %s') % filename)
 
-def exportScorm(self, client, filename, stylesDir, scormType):
+def exportScorm(request, client, filename, stylesDir, scormType):
     """
     Exports this package to a scorm package file
     """
@@ -1136,7 +1126,7 @@ def exportScorm(self, client, filename, stylesDir, scormType):
         raise
     client.alert(_(u'Exported to %s') % filename)
 
-def exportIMS(self, client, filename, stylesDir):
+def exportIMS(request, client, filename, stylesDir):
     """
     Exports this package to a ims package file
     """
@@ -1158,7 +1148,7 @@ def exportIMS(self, client, filename, stylesDir):
     client.alert(_(u'Exported to %s' % filename))
 
 # Utility methods
-def _startFile(self, client, filename):
+def _startFile(request, client, filename):
     """
     Launches an exported web site or page
     """
@@ -1168,7 +1158,7 @@ def _startFile(self, client, filename):
     log.info(filename)
     client.sendScript("openPreview('%s');" % filename)
 
-def _loadPackage(self, client, filename, newLoad=True,
+def _loadPackage(request, client, filename, newLoad=True,
                  destinationPackage=None):
     """Load the package named 'filename'"""
     try:
