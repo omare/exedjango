@@ -54,6 +54,7 @@ OVERWRITE_DIALOG = "\nFile already exists. Would you like to overwrite?"
 NODE_WAS_NOT_MOVED = "An server error occured. Node was not moved."
 CANT_MOVE_NODE_FURTHER = "Can't move up any farther"
 NOT_IMPLEMENTED = "This function is not implemented yet."
+SAVE_DIRTY_PACKAGE = "Package has been changed. Do you want to save it, before you leave?"
 
 // initialize
 jQuery(document).ready(function() {
@@ -77,7 +78,7 @@ jQuery(document).ready(function() {
                       handle_select_node);
                 get_outline_pane().delegate("a", "dblclick", rename_current_node);
                 //bind renaming event
-                get_outline_pane().bind("rename_node.jstree", handler_renamed_current_node);
+                get_outline_pane().bind("rename_node.jstree", handle_renamed_current_node);
                 
                 
                 // Initialize idevice Tree
@@ -114,6 +115,24 @@ jQuery(document).ready(function() {
                 updateTitle();
                 //uncomment to block UI. Quite slow
                 //$(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+                
+                // Bind reload handling
+                $(window).bind('beforeunload', function() {
+                  $.jsonRPC.request('is_package_dirty', [get_package_id()], {
+                    success: function(results) {
+                      if (results.result.dirty){
+                        if (confirm(SAVE_DIRTY_PACKAGE)) {
+                          $.jsonRPC.request("save_data_package", [get_package_id()], undefined, undefined, false);
+                        }
+                        $.jsonRPC.request("unload_data_package", [get_package_id()], undefined, undefined, false);
+                      }
+                    }
+                  }, undefined, false);
+                  
+                  return "Do you want to leave?";
+                });
+                //Unload data package on window unload
+                //$(window).bind('unload', handle_unload_page);
             });
             
 // This var is needed, because initWindow is called twice for some reason
@@ -245,7 +264,7 @@ function handle_select_node(event, data) {
 }
 
 //handle renamed node event. Calls package.rename_node over rpc.
-function handler_renamed_current_node(e, data){
+function handle_renamed_current_node(e, data){
   var new_title = data.rslt.name;
   $.jsonRPC.request('rename_current_node', [get_package_id(), new_title], {
     success: function(results){
@@ -260,6 +279,11 @@ function handler_renamed_current_node(e, data){
         get_current_node().append(server_title);
       }
     }});
+}
+
+// Handles page unload. Drops unsaved changes.
+function handle_unload_page(){
+  $.jsonRPC.request("unload_data_package", [get_package_id()], undefined, undefined, false);
 }
 
 

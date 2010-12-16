@@ -223,9 +223,9 @@ def importPDF(request, package, path, importString):
     client.sendScript((u'top.location = "/%s"' % package.name).encode('utf8'))
 
 
-@jsonrpc_method('package.isPackageDirty', authenticated=True)
+@jsonrpc_method('package.is_package_dirty', authenticated=True)
 @get_package_by_id_or_error
-def isPackageDirty(request, package, ifClean, ifDirty):
+def is_package_dirty(request, package):
 
     """
     Called by js to know if the package is dirty or not.
@@ -234,10 +234,7 @@ def isPackageDirty(request, package, ifClean, ifDirty):
     ifDirty is JavaScript to be evaled on the client if the package has not
     been changed
     """
-    if package.isChanged:
-        client.sendScript(ifDirty)
-    else:
-        client.sendScript(ifClean)
+    return {"dirty" : package.get_data_package().isChanged}
 
 
 @jsonrpc_method('package.getPackageFileName', authenticated=True)
@@ -253,9 +250,9 @@ def getPackageFileName(request, package, onDone, onDoneParam):
     """
     client.call(onDone, unicode(package.filename), onDoneParam)
 
-@jsonrpc_method('package.savePackage', authenticated=True)
+@jsonrpc_method('package.save_data_package', authenticated=True)
 @get_package_by_id_or_error
-def savePackage(request, package, filename=None, onDone=None):
+def save_data_package(request, package):
     package.save_data_package()
     
 @jsonrpc_method('package.unload_data_package', authenticated=True)

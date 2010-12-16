@@ -33,16 +33,18 @@
       },
 
       // Performas a single RPC request
-      request: function(method, params, callbacks, url) {
+      request: function(method, params, callbacks, url, async) {
         // Validate or method arguments
         this._validateRequestMethod(method);
         this._validateRequestParams(params);
         this._validateRequestCallbacks(callbacks);
 
+        //set async
+        async = typeof(async) != "undefined" ? async : true;
         // Perform the actual request
         this._doRequest(JSON.stringify(this._requestDataObj(method, params, 1)),
                         callbacks,
-                        url);
+                        url, async);
         
         return true;
       },
@@ -70,7 +72,7 @@
           data.push(this._requestDataObj(request.method, request.params, i+1));
         }
 
-        this._doRequest(JSON.stringify(data), callbacks, url);
+        this._doRequest(JSON.stringify(data), callbacks, url, false);
       },
 
       // Validate a params hash
@@ -117,7 +119,7 @@
       },
 
       // Internal method used for generic ajax requests
-      _doRequest: function(data, callbacks, url) {
+      _doRequest: function(data, callbacks, url, async) {
         var _that = this;
         $.ajax({
           type: 'POST',
@@ -125,6 +127,7 @@
           contentType: 'application/json',
           url: this._requestUrl(url),
           data: data,
+          async: async,
           cache: false,
           processData: false,
           error: function(json) {
