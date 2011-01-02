@@ -44,7 +44,7 @@ class Node(Persistable):
     # ensure that it is not saved with the .elp:
     nonpersistant      = ['tmp_export_filename']
 
-    def __init__(self, package, parent=None, title=None):
+    def __init__(self, package, parent=None, title=""):
         """
         Initialize a new node
         """
@@ -55,7 +55,7 @@ class Node(Persistable):
         self._package = package
         self._id      = package._regNewNode(self)
         self.parent   = parent
-        self._title   = title if title is not None else createTitle()
+        self._title   = title or self.createTitle()
         self.children = []
         self.idevices = []
 
