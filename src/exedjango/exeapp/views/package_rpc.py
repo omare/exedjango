@@ -49,9 +49,22 @@ import re, subprocess, shutil
 from jsonrpc import jsonrpc_method
 from exeapp.shortcuts import get_package_by_id_or_error
 from exeapp.views import package_outline_rpc
+from exeapp.models import idevice_storage
 
 log = logging.getLogger(__name__)
 
+@jsonrpc_method('package.add_idevice', authenticated=True)
+@get_package_by_id_or_error
+def add_idevice(request, package, idevice_type):
+    '''Adds a idevice of given type to the current node'''
+    
+    try:
+        package.get_data_package().add_idevice(idevice_type)
+        success = 1
+    except KeyError:
+        success = 0
+    return {'success' : success}
+    
 @jsonrpc_method('package.testPrintMessage', authenticated=True)
 @get_package_by_id_or_error
 def testPrintMessage(request, package, message):

@@ -5,11 +5,20 @@ class IdeviceStore(object):
     
     def __init__(self):
         
-        self.generic = []
-        self.extended = []
+        self.idevices = {}
+    
+    def add_idevice(self, idevice):
+        self.idevices[idevice.__name__] = idevice
         
     def get_prototypes(self):
-        return self.generic + self.extended
+        return self.idevices.values()
+    
+    
+    
+    def get_idevice(self, idevice_type):
+        # TODO Fix the whole thing with id's and prototypes. Should contain
+        # classes only
+        return self.idevices[idevice_type]
         
 idevice_storage = IdeviceStore()
-idevice_storage.extended.append(FreeTextIdevice())
+idevice_storage.add_idevice(FreeTextIdevice)

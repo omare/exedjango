@@ -24,7 +24,7 @@ def convert(data):
         args = ['get_package_id()']
         for arg in match.group(2).split(','):
             args.append(arg.strip())
-        call = '$.jsonRPC(\'%s\', [%s]);' % (match.group(1), ",".join(args))
+        call = '$.jsonRPC.request(\'%s\', [%s]);' % (match.group(1), ",".join(args))
         return call
     
     converted = re_nevow.sub(generate_rpc_call, data)

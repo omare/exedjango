@@ -46,6 +46,7 @@ class Package(models.Model):
             
     def save_data_package(self):
         '''Saves the data package to file system'''
+        log.debug("Saving package %s" % self.id)
         if self.id in package_storage:
             persistent_package = package_storage[self.id]
             file = StringIO()

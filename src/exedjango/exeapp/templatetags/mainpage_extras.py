@@ -15,8 +15,9 @@ def idevice_ul(groups, group_order):
         idevice_list.append("<a>%s</a>" % group)
         prototype_list = []
         for prototype in groups[group]:
-            prototype_list.append('<a class="ideviceItem"' +\
-                ' ideviceid="%s">%s</a>' % (prototype.id, prototype.title))
+            prototype_list.append('<a class="ideviceItem" href="#"' +\
+                ' ideviceid="%s">%s</a>' % (prototype.__name__,
+                                             prototype.title))
         idevice_list.append(prototype_list)
     
     return unordered_list(idevice_list)

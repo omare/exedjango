@@ -4,6 +4,8 @@ from django.http import HttpResponseForbidden, HttpResponse
 from django.core import serializers
 from django.utils import simplejson
 
+from tinymce import settings
+
 from exeapp.models import Package, User, idevice_storage, DataPackage
 from exeapp.shortcuts import get_package_by_id_or_error
 
@@ -33,6 +35,7 @@ def authoring(request, package):
     '''Handles calls to authoring iframe. Renders exe/authoring.html'''
     
     current_node = package.get_data_package().currentNode
+    js_url = settings.JS_URL
     return render_to_response('exe/authoring.html', locals())
 
 @login_required

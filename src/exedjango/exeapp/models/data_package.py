@@ -17,6 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
+
 """
 Package represents the collection of resources the user is editing
 i.e. the "package".
@@ -32,6 +33,7 @@ from exeapp.models.node        import Node
 #from exe.engine.genericidevice import GenericIdevice
 from exeapp.models.persist     import Persistable, encodeObject, \
                                       decodeObject, decodeObjectRaw
+                                      
 from exeapp.models.resource import Resource
 from twisted.persisted.styles  import Versioned, doUpgrade
 from twisted.spread.jelly      import Jellyable, Unjellyable
@@ -399,6 +401,11 @@ successful'''
         '''Moves current node down on the same level. Returns true if 
 successful'''
         return self.currentNode.down()
+    
+    def add_idevice(self, idevice_type):
+        '''Adds idevice by a given type. Throws KeyError, if idevice_type
+is not found'''
+        self.currentNode.addIdevice(idevice_type)
 
     def set_backgroundImg(self, value):
         """Set the background image for this package"""

@@ -2,6 +2,7 @@ import unittest
 from BeautifulSoup import BeautifulSoup
 
 from exeapp.templatetags.mainpage_extras import idevice_ul, nodes_ul
+from exeapp.templatetags.authoring_extras import *
 
 class MainpageExtrasTestCase(unittest.TestCase):
     
@@ -9,6 +10,7 @@ class MainpageExtrasTestCase(unittest.TestCase):
         '''A mock idevice'''
         def __init__(self, id, title):
             self.id = id
+            self.__name__ = title.replace(" ", "")
             self.title = title
             
     groups = {'Main' : [Prototype(1,'p1'), Prototype(2, 'p2')], 
@@ -44,4 +46,19 @@ class MainpageExtrasTestCase(unittest.TestCase):
         self.assertTrue('Root' in root.contents[0])
         self.assertEquals(len(soup.fetch('li')), 5)
         self.assertEquals(len(soup.fetch('ul')), 2)
+        
+    def test_render_idevice(self):
+        class TestIdevice(object):
+            def render_view(self):
+                return "View"
+            def render_preview(self):
+                return "Preview"
+            def render_edit(self):
+                return "Edit"
+            
+        idevice = TestIdevice()
+        self.assertEquals(render_idevice_view(idevice), "View")
+        self.assertEquals(render_idevice_preview(idevice), "Preview")
+        self.assertEquals(render_idevice_edit(idevice), "Edit")
+        
     

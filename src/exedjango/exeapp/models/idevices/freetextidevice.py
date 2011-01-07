@@ -25,6 +25,7 @@ FreeTextIdevice: just has a block of text
 import logging
 from exeapp.models.idevices.idevice import Idevice
 #from exe.engine.field   import TextAreaField
+from exeapp.views.blocks.freetextblock import FreeTextBlock
 log = logging.getLogger(__name__)
 
 # ===========================================================================
@@ -40,6 +41,9 @@ class FreeTextIdevice(Idevice):
     FreeTextIdevice: just has a block of text
     """
     persistenceVersion = 10
+    group = Idevice.Content
+    title = x_("Free Text")
+    block = FreeTextBlock
 
     def __init__(self, content=""):
         Idevice.__init__(self, x_(u"Free Text"), 
@@ -49,7 +53,6 @@ establishing context, delivering instructions and providing general information.
 This provides the framework within which the learning activities are built and 
 delivered."""), "", "")
         self.emphasis = Idevice.NoEmphasis
-        self.group    = Idevice.Content
 #        self.content  = TextAreaField(x_(u"Free Text"), 
                                     #x_(u"""Use this field to enter text. This 
 #iDevice has no emphasis applied although limited formatting can be applied to 

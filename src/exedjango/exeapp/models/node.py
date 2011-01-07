@@ -24,6 +24,8 @@ import logging
 from copy               import deepcopy
 from exeapp.models.persist import Persistable
 from urllib             import quote
+
+from exeapp.models import idevice_storage
 #from exe.webui                import common
 
 
@@ -578,11 +580,13 @@ class Node(Persistable):
             self._package = None
 
 
-    def addIdevice(self, idevice):
+    def addIdevice(self, idevice_type):
         """
-        Add the idevice to this node, sets idevice's parentNode 
+        Add the idevice to this node, sets idevice's parentNode. Throws
+KeyError, if idevice_type is not found
         """
-        log.debug(u"addIdevice ")
+        log.debug(u"addIdevice %s" % idevice_type)
+        idevice = idevice_storage.get_idevice(idevice_type)()
         idevice.id = self.package.getNewIdeviceId()
         idevice.parentNode = self
         for oldIdevice in self.idevices:

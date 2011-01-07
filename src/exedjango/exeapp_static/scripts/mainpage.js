@@ -106,37 +106,20 @@ jQuery(document).ready(function() {
                 //    bindButtonClicked(this);
                 //});
                 //bind action to idevice items
-                $(".ideviceItem").each(function(index) {
-                    $(this).click(function() {
-                        addIdevice($(this).attr("ideviceId"));
-                        });
-                    });
+                $("#idevicePane").delegate(".ideviceItem", "click", add_idevice);
                 $("#middle").tabs();
                 updateTitle();
                 //uncomment to block UI. Quite slow
                 //$(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
                 
                 // Bind reload handling
-                $(window).bind('beforeunload', function() {
-                  $.jsonRPC.request('is_package_dirty', [get_package_id()], {
-                    success: function(results) {
-                      if (results.result.dirty){
-                        if (confirm(SAVE_DIRTY_PACKAGE)) {
-                          $.jsonRPC.request("save_data_package", [get_package_id()], undefined, undefined, false);
-                        }
-                        $.jsonRPC.request("unload_data_package", [get_package_id()], undefined, undefined, false);
-                      }
-                    }
-                  }, undefined, false);
-                  
-                  return "Do you want to leave?";
-                });
+                $(window).bind('beforeunload', handle_unload_page);
                 //Unload data package on window unload
                 //$(window).bind('unload', handle_unload_page);
             });
             
-// This var is needed, because initWindow is called twice for some reason
-var haveLoaded = false
+// onbeforeunload is loaded twice in chrome, for some reason
+var to_be_unloaded = true
 
 // Set to false to stop selects doing page reloads
 var clickon = true 
@@ -246,6 +229,18 @@ function move_current_node_down() {
   });
 }
 
+function add_idevice() {
+  var ideviceid = $("#idevicePane").jstree("get_selected").find(">a").attr('ideviceid');
+  $.jsonRPC.request('add_idevice', [get_package_id(), ideviceid],{
+    success: function(results) {
+      if (results.result.success == '1'){
+        reload_authoring();
+        }
+    }
+  });
+  return false;
+}
+
 // Handles outline_pane selection event. Calls package.change_current_node
 // via rpc. 
 function handle_select_node(event, data) {
@@ -283,7 +278,22 @@ function handle_renamed_current_node(e, data){
 
 // Handles page unload. Drops unsaved changes.
 function handle_unload_page(){
-  $.jsonRPC.request("unload_data_package", [get_package_id()], undefined, undefined, false);
+  if (to_be_unloaded){
+    $.jsonRPC.request('is_package_dirty', [get_package_id()], {
+      success: function(results) {
+        $.jsonRPC.request("unload_data_package", [get_package_id()], undefined, undefined, false);
+        if ("dirty" in results.result && results.result.dirty){
+          if (confirm(SAVE_DIRTY_PACKAGE)) {
+            fileSave();
+          } else {
+            return "Do you really want to leave this page?";
+          }
+        }
+      }
+    }, undefined, false);
+    to_be_unloaded = false;
+  }
+  return null;
 }
 
 
@@ -526,15 +536,9 @@ function fileRecentClear() {
 }
 
 // Called by the user when they want to save their package
-// Also called by some java script to cause a whole
-// proper save process.
-// 'onProceed' is optional, if passed it will be evaluated
-// once the whole package has been saved or the save process
-// has been cancelled by the user.
-function fileSave(onProceed) {
-    if (!onProceed)
-        var onProceed = '';
-    $.jsonRPC('getPackageFileName', [get_package_id(),'','fileSave2',onProceed]);
+// Also called by some java scripts.
+function fileSave() {
+    $.jsonRPC.request("save_data_package", [get_package_id()], undefined, undefined, false);
 }
 
 // Takes the server's response after we asked it for the
@@ -742,6 +746,11 @@ function XHAddIdeviceListItem(ideviceId, ideviceTitle) {
 }
 
 function addIdevice(ideviceId) {
+  $.jsonRPC.request('addidevice', [get_current_package(), ideviceId],{
+    success: function(result) {
+      alert('Idevice added');
+    }
+  })
     submitLink('AddIdevice', ideviceId, 1);
 }
 

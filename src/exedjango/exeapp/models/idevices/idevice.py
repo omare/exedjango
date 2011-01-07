@@ -66,6 +66,7 @@ class Idevice(Persistable):
         self._purpose    = purpose
         self._tip        = tip
         self.icon        = icon
+        self.block = self.__class__.block(self)
         # userResources are copied into and stored in the package
         self.userResources = []
         # systemResources are resources from whatever style dir we are using at render time
