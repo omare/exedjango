@@ -29,6 +29,9 @@ import sys
 import logging
 log = logging.getLogger(__name__)
 
+def _(value):
+    return value
+
 # ===========================================================================
 class Block(object):
     """
@@ -38,14 +41,11 @@ class Block(object):
     nextId = 0
     Edit, Preview, View, Hidden = range(4)
 
-    def __init__(self, parent, idevice):
+    def __init__(self, idevice):
         """
         Initialize a new Block object
         """
         self.idevice = idevice
-        self.id      = idevice.id
-        self.purpose = idevice.purpose
-        self.tip     = idevice.tip
 
         if idevice.edit:
             self.mode = Block.Edit
@@ -78,10 +78,10 @@ class Block(object):
             elif request.args[u"action"][0] == u"move":
                 self.processMove(request)
                 
-            elif request.args[u"action"][0] == u"movePrev":
+            elif request.args[u"action"][0] == u"move_up":
                 self.processMovePrev(request)
                 
-            elif request.args[u"action"][0] == u"moveNext":
+            elif request.args[u"action"][0] == u"move_down":
                 self.processMoveNext(request)
                 
             elif request.args[u"action"][0] == u"promote":
@@ -155,7 +155,7 @@ class Block(object):
         Move this block back to the previous position
         """
         log.debug(u"processMovePrev id="+self.id)
-        self.idevice.movePrev()
+        self.idevice.move_up()
 
 
     def processMoveNext(self, request):
@@ -163,38 +163,20 @@ class Block(object):
         Move this block forward to the next position
         """
         log.debug(u"processMoveNext id="+self.id)
-        self.idevice.moveNext()
+        self.idevice.move_down()
 
-
-    def render(self, style):
+    
+    @classmethod
+    def render(cls, idevice):
         """
         Returns the appropriate XHTML string for whatever mode this block is in
         """
-        html = u''
-        broken = '<p><span style="font-weight: bold">%s:</span> %%s</p>' % _('IDevice broken')
-        try:
-            if self.mode == Block.Edit:
-                self.idevice.lastIdevice = True
-                html += u'<a name="currentBlock"></a>\n'
-                html += self.renderEdit(style)
-            elif self.mode == Block.View:
-                html += self.renderView(style)
-            elif self.mode == Block.Preview:
-                if self.idevice.lastIdevice:
-                    html += u'<a name="currentBlock"></a>\n'
-                html += self.renderPreview(style)
-        except Exception, e:
-            from traceback import format_tb
-            log.error('%s:\n%s' % (str(e), '\n'.join(format_tb(sys.exc_traceback))))
-            html += broken % str(e)
-            if self.mode == Block.Edit:
-                html += self.renderEditButtons()
-            if self.mode == Block.Preview:
-                html += self.renderViewButtons()
-        return html
+        if idevice.edit:
+            return cls.render_edit(idevice)
+        else:
+            return cls.render_preview(idevice)
 
-
-    def renderEdit(self, style):
+    def render_edit(self):
         """
         Returns an XHTML string with the form element for editing this block
         """
@@ -229,16 +211,16 @@ class Block(object):
             _(u"Delete"), 1)
 
         if self.idevice.isFirst():
-            html += common.image(u"movePrev", u"/images/stock-go-up-off.png")
+            html += common.image(u"move_up", u"/images/stock-go-up-off.png")
         else:
-            html += common.submitImage(u"movePrev", self.id, 
+            html += common.submitImage(u"move_up", self.id, 
                                        u"/images/stock-go-up.png", 
                                        _(u"Move Up"),1)
 
         if self.idevice.isLast():
-            html += common.image(u"moveNext", u"/images/stock-go-down-off.png")
+            html += common.image(u"move_down", u"/images/stock-go-down-off.png")
         else:
-            html += common.submitImage(u"moveNext", self.id, 
+            html += common.submitImage(u"move_down", self.id, 
                                        u"/images/stock-go-down.png", 
                                        _(u"Move Down"),1)
 

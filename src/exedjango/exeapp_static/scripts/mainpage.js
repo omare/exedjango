@@ -277,18 +277,16 @@ function handle_renamed_current_node(e, data){
 }
 
 // Handles page unload. Drops unsaved changes.
-function handle_unload_page(){
+function handle_unload_page(event){
   if (to_be_unloaded){
     $.jsonRPC.request('is_package_dirty', [get_package_id()], {
       success: function(results) {
-        $.jsonRPC.request("unload_data_package", [get_package_id()], undefined, undefined, false);
         if ("dirty" in results.result && results.result.dirty){
           if (confirm(SAVE_DIRTY_PACKAGE)) {
             fileSave();
-          } else {
-            return "Do you really want to leave this page?";
           }
         }
+         $.jsonRPC.request("unload_data_package", [get_package_id()], undefined, undefined, false);
       }
     }, undefined, false);
     to_be_unloaded = false;

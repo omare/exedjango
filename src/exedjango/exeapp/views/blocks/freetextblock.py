@@ -16,6 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
+from django.template.loader import render_to_string
 """
 FreeTextBlock can render and process FreeTextIdevices as XHTML
 """
@@ -37,10 +38,6 @@ class FreeTextBlock(Block):
     """
     def __init__(self, idevice):
         Block.__init__(self, idevice)
-        if idevice.content.idevice is None: 
-            # due to the loading process's timing, idevice wasn't yet set; 
-            # set it here for the TextAreaElement's tinyMCE editor 
-            idevice.content.idevice = idevice
 
 
     def process(self, request):
@@ -69,25 +66,19 @@ class FreeTextBlock(Block):
         if "export" + self.id in request.args and not is_cancel:
             self.idevice.exportType = request.args["export" + self.id][0]
 
+    @staticmethod
+    def render_edit(idevice):
+        """
+        Returns an HTML string with the form element for editing this block
+        """
+        return render_to_string('exe/idevices/freetext/edit.html', locals())
 
-    def render_edit(self, style):
+    @staticmethod
+    def render_preview(idevice):
         """
-        Returns an XHTML string with the form element for editing this block
+        Returns an HTML string for previewing this block
         """
-        return render_to_string('/exe/authoring/freetext/edit.html')
-
-
-    def renderPreview(self, style):
-        """
-        Returns an XHTML string for previewing this block
-        """
-        html  = u"<div class=\"iDevice "
-        html += u"emphasis"+unicode(self.idevice.emphasis)+"\" "
-        html += u"ondblclick=\"submitLink('edit',"+self.id+", 0);\">\n"
-        html += self.contentElement.renderPreview()
-        html += self.renderViewButtons()
-        html += "</div>\n"
-        return html
+        return render_to_string('exe/idevices/freetext/preview.html', locals())
 
 
     def renderView(self, style):

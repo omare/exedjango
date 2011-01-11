@@ -1,0 +1,16 @@
+<div class="block" {% include 'exe/idevices/idevice_id.html' %}>
+{% block idevice %}{% endblock %}
+  <div>
+    <a class="action_button" href='#' action="apply_changes">Apply</a>
+    {% if idevice.undo %}
+      <a href='#'>Cancel</a>
+    {% endif %}
+    <a class="action_button" href='#' action="delete">Remove</a>
+    {% if not idevice.isFirst %}
+      <a class="action_button" href='#' action="move_up">Move Up</a>
+    {% endif %}
+    {% if not idevice.isLast %}
+      <a class="action_button" href='#' action="move_down">Move Down</a>
+    {% endif %}
+  </div>
+</div>

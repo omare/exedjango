@@ -4,7 +4,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.db.models.fields.files import FieldFile
 
-from exeapp.models.data_package import DataPackage
+from exeapp.models import DataPackage
 from exeapp.models import package_storage
 
 import tempfile
@@ -35,6 +35,7 @@ class Package(models.Model):
         if self.id not in package_storage:
             log.debug("Loading data packge %s" % self.id)
             persistent_package = DataPackage.load(self.data_package.file)
+            self.data_package.file.close()
             package_storage[self.id] = persistent_package
         return package_storage[self.id]
     

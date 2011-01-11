@@ -30,6 +30,20 @@ from exeapp.models.resource  import Resource
 
 log = logging.getLogger(__name__)
 
+def extern_action(func):
+    '''Marks an function as an extern action, i.e. can be called via rpc.
+    Take caution, may be misused!'''
+    
+    def newFunc(self, *args, **kwargs):
+        # Get argument names of the function
+        arg_names = func.func_code.co_varnames
+        # Select only args relevant for this function
+        corrected_kwargs = dict(((k, v) for k,v in kwargs.items() \
+                    if k in arg_names[:func.func_code.co_argcount]))
+        return func(self, *args, **corrected_kwargs)
+    newFunc.extern_action = True
+    return newFunc
+
 # ===========================================================================
 class Idevice(Persistable):
     """
@@ -63,10 +77,9 @@ class Idevice(Persistable):
         self._title      = title
         self.group       = Idevice.Unknown
         self._author     = author
-        self._purpose    = purpose
-        self._tip        = tip
+        self.purpose    = purpose
+        self.tip        = tip
         self.icon        = icon
-        self.block = self.__class__.block(self)
         # userResources are copied into and stored in the package
         self.userResources = []
         # systemResources are resources from whatever style dir we are using at render time
@@ -143,7 +156,17 @@ class Idevice(Persistable):
         return miniMe
 
     # Public Methods
-
+    
+    
+    def render(self):
+        '''Delegates rendering to the block'''
+        return self.block.render(self)
+    
+    @extern_action
+    def edit_mode(self):
+        '''Sets idevice mode to edit'''
+        self.edit = True
+        
     def clone(self):
         """
         Clone an iDevice just like this one
@@ -151,7 +174,8 @@ class Idevice(Persistable):
         log.debug("Cloning iDevice")
         newIdevice = copy.deepcopy(self)
         return newIdevice
-        
+    
+    @extern_action    
     def delete(self):
         """
         delete an iDevice from it's parentNode
@@ -190,8 +214,8 @@ class Idevice(Persistable):
         index = self.parentNode.idevices.index(self)
         return index == len(self.parentNode.idevices) - 1
 
-
-    def movePrev(self):
+    @extern_action
+    def move_up(self):
         """
         Move to the previous position
         """
@@ -202,8 +226,8 @@ class Idevice(Persistable):
             parentNode.idevices[index - 1] = self
             parentNode.idevices[index]     = temp
 
-
-    def moveNext(self):
+    @extern_action
+    def move_down(self):
         """
         Move to the next position
         """

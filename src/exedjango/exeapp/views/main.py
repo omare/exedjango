@@ -6,7 +6,6 @@ from django.template import RequestContext
 from jsonrpc import jsonrpc_method
 
 from exeapp.models import Package, User, package_storage
-from exeapp.forms import CreatePackageForm
 from exeapp.shortcuts import get_package_by_id_or_error
 
 @login_required

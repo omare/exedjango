@@ -22,6 +22,7 @@ Nodes provide the structure to the package hierarchy
 
 import logging
 from copy               import deepcopy
+from collections import OrderedDict
 from exeapp.models.persist import Persistable
 from urllib             import quote
 
@@ -101,6 +102,14 @@ class Node(Persistable):
     level = property(getLevel)
 
 
+    def get_idevice(self, idevice_id):
+        '''Returns idevice with given id. Can't use dictionary, because
+it is unordered and can't use OrderedDict, because jelly doesn't play nice
+with it'''
+        for idevice in self.idevices:
+            if idevice.id == idevice_id:
+                return idevice
+        raise KeyError("Idevice %s not found" % idevice_id)
     # 
 
     def createTitle(self):
@@ -444,6 +453,21 @@ class Node(Persistable):
             for resource in (idevice.systemResources + reses):
                 resources[resource] = True
         return resources.keys()
+    
+    def handle_action(self, idevice_id, action, **kwargs):
+        '''Removes an iDevice or delegates action to it'''
+        idevice = self.get_idevice(idevice_id)
+        has_action = hasattr(idevice, action)
+        has_extern_action = hasattr(getattr(idevice, action), 'extern_action')
+        exter_action = getattr(idevice, action).extern_action
+        if not hasattr(idevice, action) or \
+            not hasattr(getattr(idevice, action), 'extern_action') or\
+            not getattr(idevice, action).extern_action:
+            raise AttributeError("Idevice does not have " +\
+                                 "an extern action %s" % action)
+        
+        getattr(idevice, action)(**kwargs)
+            
 
 
     def createChild(self):
@@ -592,8 +616,7 @@ KeyError, if idevice_type is not found
         for oldIdevice in self.idevices:
             oldIdevice.edit = False
         self.idevices.append(idevice)
-
-
+        
     def move(self, newParent, nextSibling=None):
         """
         Moves the node around in the tree.

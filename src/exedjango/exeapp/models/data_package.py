@@ -19,7 +19,7 @@
 # ===========================================================================
 
 """
-Package represents the collection of resources the user is editing
+DataPackage represents the collection of resources the user is editing
 i.e. the "package".
 """
 
@@ -228,9 +228,9 @@ def loadNode(pass_num, resourceDir, zippedFile, node, doc, item, level):
 
 def loadCC(zippedFile, filename):
     """
-    Load an IMS Common Cartridge or Content Package from filename
+    Load an IMS Common Cartridge or Content DataPackage from filename
     """
-    package = Package(Path(filename).namebase)
+    package = DataPackage(Path(filename).namebase)
     xmldoc = minidom.parseString( zippedFile.read('imsmanifest.xml')) 
 
     organizations_list = xmldoc.getElementsByTagName('organizations')
@@ -275,7 +275,7 @@ class DublinCore(Jellyable, Unjellyable):
 
 class DataPackage(Persistable):
     """
-    Package represents the collection of resources the user is editing
+    DataPackage represents the collection of resources the user is editing
     i.e. the "package".
     """
     persistenceVersion = 12
@@ -406,6 +406,12 @@ successful'''
         '''Adds idevice by a given type. Throws KeyError, if idevice_type
 is not found'''
         self.currentNode.addIdevice(idevice_type)
+        self.isChanged = True
+        
+    def handle_action(self, idevice_id, action, **kwargs):
+        '''Delegates a action to currentNode'''
+        self.currentNode.handle_action(idevice_id, action, **kwargs)
+        self.isChanged = True
 
     def set_backgroundImg(self, value):
         """Set the background image for this package"""
@@ -545,6 +551,7 @@ is not found'''
             self.doSave(filename)
             self.isChanged = False
             self.updateRecentDocuments(filename)
+        self.isChanged = False
 
     def updateRecentDocuments(self, filename):
         """
@@ -589,7 +596,7 @@ is not found'''
         """
         Clones and extracts the currently selected node into a new package.
         """
-        newPackage = Package('NoName') # Name will be set once it is saved..
+        newPackage = DataPackage('NoName') # Name will be set once it is saved..
         newPackage.title  = self.currentNode.title
         newPackage.style  = self.style
         newPackage.author = self.author
@@ -617,7 +624,7 @@ is not found'''
             # Get the jellied package data
             toDecode   = zippedFile.read(u"content.data")
         except KeyError:
-            log.info("no content.data, trying Common Cartridge/Content Package")
+            log.info("no content.data, trying Common Cartridge/Content DataPackage")
             newPackage = loadCC(zippedFile, filename)
             newPackage.tempFile = False
             newPackage.isChanged = False

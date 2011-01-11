@@ -15,10 +15,9 @@ from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseForbidden, Http404
 from jsonrpc.proxy import ServiceProxy
 
-from exeapp.models import User, Package
+from exeapp.models import User, DataPackage, Package
 from exeapp.models.data_package_store import package_storage
 from exeapp.templatetags.tests import MainpageExtrasTestCase
-from exedjango.exeapp.models.data_package import DataPackage
 from exedjango.exeapp.shortcuts import get_package_by_id_or_error
 from exedjango.base.http import Http403
 
@@ -26,7 +25,7 @@ from exedjango.base.http import Http403
 
 
 PACKAGE_COUNT = 3
-PACKAGE_NAME_TEMPLATE = '%s\'s Package %s'
+PACKAGE_NAME_TEMPLATE = '%s\'s DataPackage %s'
     
 def _create_packages(user, package_count=PACKAGE_COUNT,
                       package_name_template=PACKAGE_NAME_TEMPLATE):
@@ -79,10 +78,10 @@ class MainPageTestCase(TestCase):
     def test_basic_elements(self):
         response = self.c.get('/exeapp/')
         self.assertContains(response, "Main Page")
-        self.assertContains(response, "Package")
+        self.assertContains(response, "DataPackage")
         
     def _test_create_package(self):
-        PACKAGE_NAME = '%s Package post' % self.TEST_USER
+        PACKAGE_NAME = '%s DataPackage post' % self.TEST_USER
         response = self.s.app.register(PACKAGE_NAME)
         p = Package.objects.get(title=PACKAGE_NAME)
         self.assertTrue(p.user.username == self.TEST_USER)

@@ -23,7 +23,7 @@ FreeTextIdevice: just has a block of text
 """
 
 import logging
-from exeapp.models.idevices.idevice import Idevice
+from exeapp.models.idevices.idevice import Idevice, extern_action
 #from exe.engine.field   import TextAreaField
 from exeapp.views.blocks.freetextblock import FreeTextBlock
 log = logging.getLogger(__name__)
@@ -53,6 +53,7 @@ establishing context, delivering instructions and providing general information.
 This provides the framework within which the learning activities are built and 
 delivered."""), "", "")
         self.emphasis = Idevice.NoEmphasis
+        self.content = content
 #        self.content  = TextAreaField(x_(u"Free Text"), 
                                     #x_(u"""Use this field to enter text. This 
 #iDevice has no emphasis applied although limited formatting can be applied to 
@@ -77,6 +78,13 @@ delivered."""), "", "")
                     return self.content
 
         return None
+    
+    @extern_action
+    def apply_changes(self, content):
+        '''Saves changes and sets idevice mode to non-edit'''
+        self.content = content
+        self.edit = False
+        
        
     def getRichTextFields(self):
         """

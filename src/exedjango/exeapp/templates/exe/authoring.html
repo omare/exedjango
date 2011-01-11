@@ -1,3 +1,29 @@
-<p>Authoring for Package {{package.id}}</p>
-<p>Rendering node {{current_node.id}}</p>
-<h2>{{current_node.title}}</h2>
+{% load authoring_extras %}
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="/exeapp/static/css/editing.css">
+  
+  <script type="text/javascript" src="/exeapp/static/scripts/jquery.min.js"></script>
+  <script type='text/javascript' src='/exeapp/static/scripts/jquery.jsonrpc.js'></script>
+  <script type="text/javascript" src="http://localhost:8000/exeapp/static/scripts/tiny_mce/tiny_mce.js"></script>
+  <script type="text/javascript" src="/exeapp/static/scripts/tiny_mce/jquery.tinymce.js"></script>
+  <script type="text/javascript" src="/exeapp/static/scripts/common.js"></script>
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+    {% include "exe/idevices/tinymce_init.html" %}
+  })
+  </script>
+</head>
+<body>
+  <div id='authoring'>
+    <div id="package_id" style="display: none">{{package.id}}</div>
+    <p>Authoring for Package {{package.id}}</p>
+    <p>Rendering node {{current_node.id}}</p>
+    <h2>{{current_node.title}}</h2>
+    {% for idevice in current_node.idevices %}
+      <p>Idevice found</p>
+      {{ idevice.render|safe }}
+    {% endfor %}
+  </div>
+</body>
+</html>

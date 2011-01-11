@@ -18,7 +18,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 // ===========================================================================
 
-// This module is for the common Javascript used in all webpages.
+// This module is for the common Javascript used in the authoring webpage.
 
 // Called upon loading the page this function clears the hidden
 // action and object fields so they can be used by submitLink
@@ -61,6 +61,59 @@ SELECT_KPSE        = "Select kpsewhich"
 SELECT_A_PACKAGE   = "Select a package";
 YOUR_SCORE_IS      = "Your score is ";
 
+
+
+jQuery(document).ready(function() {
+  // Setup jsonRPC
+  $.jsonRPC.setup({
+                   endPoint: '/exeapp/json/',
+                   namespace: 'authoring',
+                });
+  //bind all apply buttons
+  $(".action_button").bind("click", handle_action_button)
+  return false;
+});
+
+function handle_action_button() {
+  var idevice_id = get_idevice_id($(this));
+  var action = $(this).attr("action");
+  var idevice_block = get_idevice($(this))
+  submitLink(action, idevice_id, true, get_arguments(idevice_block));
+  return false;
+}
+
+// Takes a jQuery object and returns the id of the idevice it
+// belongs to
+function get_idevice_id(obj){
+  re_idevice_id = /idevice(\d*)/;
+  return re_idevice_id.exec(get_idevice(obj).attr("id"))[1];
+}
+
+// Takes a jQuery object and returns it's idevice block
+function get_idevice(obj) {
+  return obj.closest(".block");
+}
+
+function get_package_id(){
+  return $("#package_id").text()
+}
+
+function reload_page(){
+  location.reload();
+}
+
+// Returns a dictionary of all elements of the idevice with non-empty
+// values. 
+function get_arguments(idevice_block) {
+  var args = {};
+  idevice_block.find(":input").each(function() {
+    // Don't post elements without name
+    if ($(this).attr("name") != undefined) {
+      args[$(this).attr("name")] = $(this).val();
+    }
+  });
+  return args;
+}
 
 // Calls function in an array where each 'row' of the array is in the format:
 // func
@@ -728,14 +781,11 @@ function clearHidden()
 
 // Sets the hidden action and object fields, then submits the 
 // contentForm to the server
-function submitLink(action, object, changed) 
+function submitLink(action, idevice_id, changed, arguments) 
 {
-    changeSubmitArgument("action", action); 
-    changeSubmitArgument("object", object);
-    changeSubmitArgument("isChanged", changed);
-    runFuncArray(beforeSubmitHandlers)
-
-    getContentForm().submit();
+    $.jsonRPC.request("idevice_action",
+      [get_package_id(), idevice_id, action, arguments],
+      {success: reload_page });
 
 }
 

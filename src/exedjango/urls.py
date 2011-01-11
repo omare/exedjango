@@ -7,7 +7,6 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    (r'^tinymce/', include('tinymce.urls')),
     (r'^$', redirect_to, {'url': '/exeapp/'}),
     (r'^exeapp/', include('exeapp.urls')),
     (r'^admin/', include(admin.site.urls)),
