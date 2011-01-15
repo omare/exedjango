@@ -2,6 +2,8 @@
 <html>
 <head>
   <link rel="stylesheet" type="text/css" href="/exeapp/static/css/editing.css">
+  <link rel="stylesheet" type="text/css" href="/exeapp/static/css/styles/base.css">
+  <link rel="stylesheet" type="text/css" href="/exeapp/static/css/styles/{{data_package.style}}/content.css">
   
   <script type="text/javascript" src="/exeapp/static/scripts/jquery.min.js"></script>
   <script type='text/javascript' src='/exeapp/static/scripts/jquery.jsonrpc.js'></script>
@@ -16,13 +18,13 @@
 </head>
 <body>
   <div id='authoring'>
-    <div id="package_id" style="display: none">{{package.id}}</div>
-    <p>Authoring for Package {{package.id}}</p>
+    <div id="package_id" style="display: none">{{data_package.id}}</div>
+    <p>Authoring for Package {{data_package.id}}</p>
     <p>Rendering node {{current_node.id}}</p>
     <h2>{{current_node.title}}</h2>
     {% for idevice in current_node.idevices %}
       <p>Idevice found</p>
-      {{ idevice.render|safe }}
+      {{ idevice|render_idevice }}
     {% endfor %}
   </div>
 </body>

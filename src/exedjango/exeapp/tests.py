@@ -18,6 +18,7 @@ from jsonrpc.proxy import ServiceProxy
 from exeapp.models import User, DataPackage, Package
 from exeapp.models.data_package_store import package_storage
 from exeapp.templatetags.tests import MainpageExtrasTestCase
+from exeapp.views.export.websiteexport import WebsiteExport
 from exedjango.exeapp.shortcuts import get_package_by_id_or_error
 from exedjango.base.http import Http403
 
@@ -204,3 +205,23 @@ view, this tests should be also merged'''
         self.assertContains(response, 'Package %s' % self.TEST_PACKAGE_ID)
         self.assertContains(response, 'Rendering node %s' % self.TEST_NODE_ID)
         self.assertContains(response, self.TEST_NODE_TITLE)
+        
+class ExportTestCase(TestCase):
+    
+    TEST_PACKAGE_ID = 1
+    
+    def setUp(self):
+        _create_basic_database()
+        self.data = Package.objects.get(id=self.TEST_PACKAGE_ID).get_data_package()
+        for x in range(3):
+            self.data.add_child_node()
+        
+    def tearDown(self):
+        _clean_up_database_and_store()
+        
+    def test_basic_export(self):
+        '''Exports a package'''
+        
+        exporter = WebsiteExport(self.data, settings.MEDIA_ROOT + "/111.zip")
+        exporter.exportZip()
+        

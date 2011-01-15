@@ -7,6 +7,7 @@ from collections import defaultdict
 from logging import getLogger
 
 from exeapp.models.idevices.idevice import Idevice
+from exeapp.templatetags.utils import _create_children_list
 
 log = getLogger()
 register = template.Library()
@@ -26,26 +27,13 @@ def idevice_ul(groups, group_order):
     return unordered_list(idevice_list)
         
 @register.filter
-def nodes_ul(root):
-    node_list = [_node_to_link(root),_create_children_list(root)]
+def outline_nodes_ul(root):
+    template = "exe/node_link.html"
+    node_list = [render_to_string(template, {"node" : root}),
+                 _create_children_list(root, "exe/node_link.html")]
     return unordered_list(node_list)
 
-def _node_to_link(node):
-    return render_to_string("exe/node_link.html", locals())
 
-def _create_children_list(node):
-        """
-        Creates a list of all children from the root recursively.
-        Root node has to be appended manually in a higher level function.
-        """
-        children_list = []
-        
-        if node.children:
-            for child in node.children:
-                children_list.append(_node_to_link(child))
-                if child.children:
-                    children_list.append(_create_children_list(child))
-        return children_list
     
 @register.tag
 def testing(parser, token):

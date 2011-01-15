@@ -7,4 +7,6 @@ from exeapp.views.handlers.package_rpc import *
 urlpatterns = patterns('exeapp.views',
                        (r'^$', 'package.package'),
                        (r'authoring/', 'package.authoring'),
-                       (r'properties/', 'package.properties'))
+                       (r'properties/', 'package.properties'),
+                       (r'download/(?P<format>\w+)/', 'package.export'),
+                       )

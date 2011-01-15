@@ -1,7 +1,7 @@
 import unittest
 from BeautifulSoup import BeautifulSoup
 
-from exeapp.templatetags.mainpage_extras import idevice_ul, nodes_ul
+from exeapp.templatetags.mainpage_extras import idevice_ul, outline_nodes_ul
 from exeapp.templatetags.authoring_extras import *
 
 class MainpageExtrasTestCase(unittest.TestCase):
@@ -41,7 +41,7 @@ class MainpageExtrasTestCase(unittest.TestCase):
         Node(5, 'Child2', [])], current=True)
 
     def test_nodes_ul(self):
-        soup = BeautifulSoup(nodes_ul(self.root))
+        soup = BeautifulSoup(outline_nodes_ul(self.root))
         root = soup.find(attrs={'nodeid' : '1'})
         self.assertTrue('Root' in root.contents[0])
         self.assertEquals(len(soup.fetch('li')), 5)

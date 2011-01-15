@@ -316,7 +316,7 @@ class DataPackage(Persistable):
 
         self.root          = Node(self, None, _(u"Home"))
         self.currentNode   = self.root
-        self.style         = u"default"
+        self.style         = "default"
         self.isChanged     = False
         self.idevices      = []
         self.dublinCore    = DublinCore()
@@ -540,6 +540,7 @@ is not found'''
             self.nonpersistant.remove('filename')
             oldFilename, self.filename = self.filename, self.filename
             try:
+                self.isChanged = False
                 filename.safeSave(self.doSave, _('SAVE FAILED!\nLast succesful save is %s.'))
             finally:
                 self.nonpersistant.append('filename')
@@ -551,7 +552,7 @@ is not found'''
             self.doSave(filename)
             self.isChanged = False
             self.updateRecentDocuments(filename)
-        self.isChanged = False
+        
 
     def updateRecentDocuments(self, filename):
         """

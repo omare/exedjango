@@ -80,15 +80,16 @@ class FreeTextBlock(Block):
         """
         return render_to_string('exe/idevices/freetext/preview.html', locals())
 
-
-    def renderView(self, style):
+    
+    @staticmethod
+    def render_export(idevice):
         """
         Returns an XHTML string for viewing this block
         """
         html  = u"<div class=\"iDevice "
-        html += u"emphasis"+unicode(self.idevice.emphasis) + "\">\n"
+        html += u"emphasis"+unicode(idevice.emphasis) + "\">\n"
         #html += u" presentable=" + unicode(self.idevice.presentable) + "\">\n"
-        html += self.contentElement.renderView()
+        html += idevice.content
         html += u"</div>\n"
         return html
     

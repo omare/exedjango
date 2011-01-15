@@ -1,0 +1,39 @@
+{% load export_extras %}
+{# navigation_links: "exe/export/navigation_links.html" #}
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+      @import url(base.css);
+      @import url(content.css);
+      @import url(nav.css);</style>
+    </style>
+    <script type="text/javascript" src="common.js"></script>
+    <title>{{node.title}}</title>
+  </head>
+  <body>
+    <div id="content">
+      <!-- TODO Background -->
+      <div id="navcontainer">
+        <ul id="navlist">
+          {{ data_package|navigation_bar:node }}
+        </ul>
+      </div>
+      <div id="main">
+        <div id="nodeDecoration">
+          <p id="nodeTitle">node.title</p>
+        </div>
+        {% include navigation_links %}
+        {% for idevice in node.idevices %}
+          <div class="{{idevice.klass}} id="id{{idevice.id}}">
+            {{idevice|export_idevice|process_internal_links:data_package}}
+          </div>
+        {% endfor %}
+        {% include navigation_links %}
+      </div>
+    </div>
+  </body>
+    
+  
+  </head>
+</html>

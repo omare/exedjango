@@ -50,12 +50,13 @@ class Package(models.Model):
         log.debug("Saving package %s" % self.id)
         if self.id in package_storage:
             persistent_package = package_storage[self.id]
-            file = StringIO()
-            persistent_package.doSave(file)
-            file.seek(0)
+            saved_file = StringIO()
+            persistent_package.doSave(saved_file)
+            saved_value = saved_file.getvalue()
+            saved_file.close()
             self.data_package.save("Package %s" % self.id, 
-                                    ContentFile(file.read()))
-            file.close()
+                                    ContentFile(saved_value))
+            
             
     class Meta:
         app_label = "exeapp"
