@@ -7,6 +7,11 @@ __all__ = ['handle_action']
 @get_package_by_id_or_error
 def idevice_action(request, package, idevice_id, action, arguments={}):
     
+    # have to circumvent a bug in python < 2.7
+    new_args = {}
+    for k,v in arguments.items():
+        new_args[str(k)] = v
+    
     package.get_data_package().handle_action(idevice_id, 
-                                             action, **arguments);
+                                             action, **new_args);
     return {'success' : True}
