@@ -1,3 +1,4 @@
+{% spaceless %}
 {% load export_extras %}
 {# navigation_links: "exe/export/navigation_links.html" #}
 <!DOCTYPE html>
@@ -9,22 +10,22 @@
       @import url(nav.css);</style>
     </style>
     <script type="text/javascript" src="common.js"></script>
-    <title>{{node.title}}</title>
+    <title>{{current_page.node.title}}</title>
   </head>
   <body>
     <div id="content">
       <!-- TODO Background -->
       <div id="navcontainer">
         <ul id="navlist">
-          {{ data_package|navigation_bar:node }}
+          {% include "exe/export/navigation_bar.html" %}
         </ul>
       </div>
       <div id="main">
         <div id="nodeDecoration">
-          <p id="nodeTitle">node.title</p>
+          <p id="nodeTitle">{{current_page.node.title}}</p>
         </div>
         {% include navigation_links %}
-        {% for idevice in node.idevices %}
+        {% for idevice in current_page.node.idevices %}
           <div class="{{idevice.klass}} id="id{{idevice.id}}">
             {{idevice|export_idevice|process_internal_links:data_package}}
           </div>
@@ -37,3 +38,4 @@
   
   </head>
 </html>
+{% endspaceless %}

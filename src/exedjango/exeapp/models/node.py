@@ -374,6 +374,11 @@ with it'''
         '''Returns node's status as current node of it's package'''
         return self == self.package.currentNode
     
+    @property
+    def is_root(self):
+        '''Checks if the node is root off it's package'''
+        return self == self.package.root 
+    
     def getTitle(self):
         return self._title
 

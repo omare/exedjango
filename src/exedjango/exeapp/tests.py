@@ -18,9 +18,10 @@ from jsonrpc.proxy import ServiceProxy
 from exeapp.models import User, DataPackage, Package
 from exeapp.models.data_package_store import package_storage
 from exeapp.templatetags.tests import MainpageExtrasTestCase
-from exeapp.views.export.websiteexport import WebsiteExport
+from exeapp.views.export.websiteexport import WebsiteExport, _generate_pages
 from exedjango.exeapp.shortcuts import get_package_by_id_or_error
 from exedjango.base.http import Http403
+from exeapp.views.export.websitepage import WebsitePage
 
 
 
@@ -225,3 +226,30 @@ class ExportTestCase(TestCase):
         exporter = WebsiteExport(self.data, settings.MEDIA_ROOT + "/111.zip")
         exporter.exportZip()
         
+    def test_pages_generation(self):
+        '''Tests generation of the page nested list'''
+        class MockNode(object):
+            def __init__(self, title):
+                self.title = title
+                self.children = []
+                self.is_root = False
+                
+        nodes = [MockNode("Node%s" % x) for x in range(4)]
+        nodes[0].is_root = True
+        nodes[0].children = [nodes[1], nodes[2]]
+        nodes[2].children = [nodes[3]]
+        pages = _generate_pages(nodes[0], 1)
+        pages.insert(0, None)
+        pages.append(None)
+        for i in range(1, len(pages) - 1):
+            page = pages[i]
+            if page != 'in' and page != 'out':
+                prev = i - 1
+                while pages[prev] == 'in' or pages[prev] == 'out':
+                    prev -= 1
+                next = i + 1
+                while pages[next] == 'in' or pages[next] == 'out':
+                    next += 1
+                
+                self.assertEquals(page.prev_page, pages[prev])
+                self.assertEquals(page.next_page, pages[next])

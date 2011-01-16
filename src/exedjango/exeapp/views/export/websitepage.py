@@ -37,23 +37,23 @@ class WebsitePage(Page):
     This class transforms an eXe node into a page on a self-contained website
     """
 
-    def save(self, outputDir, prevPage, nextPage, pages):
+    def save(self, outputDir, page_structure):
         """
         This is the main function. It will render the page and save it to a
         file.  'outputDir' is the directory where the filenames will be saved
         (a 'path' instance)
         """
         outfile = open(outputDir / self.name+".html", "w")
-        outfile.write(self.render(prevPage, nextPage, pages))
+        outfile.write(self.render(page_structure))
         outfile.close()
         
 
-    def render(self, prevPage, nextPage, pages):
+    def render(self, page_structure):
         """
         Returns an XHTML string rendering this page.
         """
         data_package = self.node.package
-        node = self.node
+        current_page = self
         return render_to_string("exe/export/websitepage.html", locals())
 
         

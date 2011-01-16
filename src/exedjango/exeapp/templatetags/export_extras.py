@@ -1,10 +1,11 @@
 from django import template
 
-from exeapp.templatetags.utils import _create_children_list
 from django.template.loader import render_to_string
 from django.template.defaultfilters import unordered_list
 
 from exedjango.utils import common
+
+import re
 
 register = template.Library()
 
@@ -16,23 +17,12 @@ block'''
     block = idevice.block
     return block.render_export(idevice)
 
-@register.filter
-def navigation_bar(data_package, current_node):
-    template = "exe/navigation_item.html"
-    current_node_template = "exe/navigation_item_current.html"
-    
-    node_list = _create_children_list(data_package.root,
-            template, current_node, current_node_template)
-    if data_package.root == current_node:
-        root_template = current_node_template
-    else:
-        root_template = template
-    root_item = render_to_string(root_template,
-                                {"node" : data_package.root})
-    return unordered_list([root_item, [node_list]])
+@register.inclusion_tag('navigation_bar.html')
+def navigation_bar(page_structure, current_page):
+    return locals()
 
 @register.filter
-def process_internal_links(package, html):
+def process_internal_links(html, package):
     """
     take care of any internal links which are in the form of:
        href="exe-node:Home:Topic:etc#Anchor"

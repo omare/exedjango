@@ -1,12 +1,12 @@
 <div class="noprt" align="right">
   {% if prev_page %}
     <div class="go_prev">
-      <a href="{{prevPage}}">Previous</a>
+      <a href="{{page.prev_page}}">Previous</a>
     </div>
   {% endif %}
   {% if next_page %}
     <div class="go_next">
-      <a href="{{nextPage}}">Next</a>
+      <a href="{{page.next_page}}">Next</a>
     </div>
   {% endif %}
 </div>

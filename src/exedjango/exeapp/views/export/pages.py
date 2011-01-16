@@ -23,6 +23,7 @@ Export Pages functions
 
 import logging
 from urllib                   import quote
+import re
 
 
 log = logging.getLogger(__name__)
@@ -34,16 +35,26 @@ class Page(object):
     This is an abstraction for a page containing a node
     e.g. in a SCORM package or Website
     """
-    def __init__(self, name, depth, node, prev, next):
+    def __init__(self, node, depth, prev_page=None, next_page = None):
         """
         Initialize
         """
-        self.name  = name
         self.depth = depth
         self.node  = node
-        self.prev = prev
-        self.next = next
+        self.prev_page = prev_page
+        self.next_page = next_page
+        self.name = self._generate_name()
         
+    def _generate_name(self):
+        if self.node.is_root:
+            return "index"
+        else:
+            page_name = self.node.title.lower().replace(" ", "_")
+            page_name = re.sub(r"\W", "", page_name)
+            if not page_name:
+                page_name = "__"
+            return page_name
+
     def renderLicense(self):
         """
         Returns an XHTML string rendering the license.
@@ -111,12 +122,12 @@ def uniquifyNames(pages):
     """
     pageNumbers = {}
 
-    # First identify the duplicate names
     for page in pages:
-        if page.name in pageNumbers:
-            pageNumbers[page.name] += 1
-            page.name += str(pageNumbers[page.name])
-
-        else:
-            pageNumbers[page.name] = 0
+        if isinstance(page, Page):
+            if page.name in pageNumbers:
+                pageNumbers[page.name] += 1
+                page.name += str(pageNumbers[page.name])
+    
+            else:
+                pageNumbers[page.name] = 0
 

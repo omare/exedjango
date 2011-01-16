@@ -7,7 +7,6 @@ from collections import defaultdict
 from logging import getLogger
 
 from exeapp.models.idevices.idevice import Idevice
-from exeapp.templatetags.utils import _create_children_list
 
 log = getLogger()
 register = template.Library()
@@ -77,3 +76,21 @@ def render_idevicepane(prototypes):
     # used to perserve the group order
     group_order = sorted(groups.keys())
     return locals()
+
+def _create_children_list(node, template=None,):
+        """Creates a list of all children from the root recursively.
+Root node has to be appended manually in a higher level function. List items will
+be rendered using given template. """
+        children_list = []
+        
+        if node.children:
+            for child in node.children:
+                if template is None:
+                    node_item = child.title
+                else:
+                    node_item = render_to_string(template, {"node" : child})
+                children_list.append(node_item)
+                if child.children:
+                    children_list.append(_create_children_list(child,
+                            template))
+        return children_list

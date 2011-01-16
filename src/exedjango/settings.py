@@ -19,7 +19,7 @@ logging.basicConfig(
             )
 
 ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
+    ('Dmytro Vorona', 'alendit@gmail.com'),
 )
 
 MANAGERS = ADMINS

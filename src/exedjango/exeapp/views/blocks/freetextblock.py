@@ -86,10 +86,5 @@ class FreeTextBlock(Block):
         """
         Returns an XHTML string for viewing this block
         """
-        html  = u"<div class=\"iDevice "
-        html += u"emphasis"+unicode(idevice.emphasis) + "\">\n"
-        #html += u" presentable=" + unicode(self.idevice.presentable) + "\">\n"
-        html += idevice.content
-        html += u"</div>\n"
-        return html
+        return render_to_string('exe/idevices/freetext/export.html', locals())
     

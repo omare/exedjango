@@ -71,22 +71,17 @@ class WebsiteExport(object):
 #                                     self.style_dir/"websitepage.py")
 #            WebsitePage = module.WebsitePage
 
-        self.pages = [ WebsitePage("index", 1, self.data_package.root,
-                                    None, None) ]
-        self._generate_pages(self.data_package.root, 1)
+        # List of page objects. "in" and "out" identify depth
+        # grows and decreae
+        self.page_structure = _generate_pages(self.data_package.root, 0)
+        self.pages = [page for page in self.page_structure\
+                       if isinstance(page, WebsitePage)]
         uniquifyNames(self.pages)
 
-        prevPage = None
-        
-        thisPage = self.pages[0]
-
-        for nextPage in self.pages[1:]:
-            thisPage.save(outputDir, prevPage, nextPage, self.pages)
-            prevPage = thisPage
-            thisPage = nextPage
+        for page in self.pages:
+            page.save(outputDir, self.page_structure)
             
 
-        thisPage.save(outputDir, prevPage, None, self.pages)
         self.copyFiles(self.data_package, outputDir)
         # Zip up the website package
         self.doZip(self.file_obj, outputDir)
@@ -197,34 +192,32 @@ class WebsiteExport(object):
             (self.templatesDir/'fdl.html').copyfile(outputDir/'fdl.html')
 
 
-    def _generate_pages(self, node, depth):
-        """
-        Recursively generate pages and store in pages member variable
-        for retrieving later
-        """
-        prev_child = None
-        for i in range(len(node.children) - 1):
-            current_child = node.children[i]
-            next_child = node.children[i + 1]
-            page_name = self._generate_name(current_child.titleShort)
 
-            self.pages.append(WebsitePage(page_name, depth, current_child,
-                                          prev_child, next_child))
-            self._generate_pages(current_child, depth + 1)
-        
-        if node.children:
-            current_child = node.children[-1]
-            page_name = self._generate_name(current_child.titleShort)
-            self.pages.append(WebsitePage(page_name, depth, current_child,
-                                          prev_child, None))
-            self._generate_pages(current_child, depth + 1)
-        
-            
+def _generate_pages(node, depth, prev_page=None):
+    """
+    Recursively generate pages and store in pages member variable
+for retrieving later.
+    """
+    page = WebsitePage(node, depth, prev_page)
+    if prev_page is not None:
+        prev_page.next_page = page
+    pages = [page]
+    prev_page = page
     
-    def _generate_name(self, title):
-        page_name = title.lower().replace(" ", "_")
-        page_name = re.sub(r"\W", "", page_name)
-        if not page_name:
-            page_name = "__"
-        return page_name
+    if node.children:
+        pages.append("in")
+        for child in node.children:
+            child_pages = _generate_pages(child, depth + 1,
+                                                       prev_page)
+            # find last page
+            i = -1
+            while child_pages[i] == 'out':
+                i -= 1
+            prev_page = child_pages[i]
+            pages += child_pages
+        pages.append("out")
+    
+    return pages
+
+
 
