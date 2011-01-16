@@ -66,7 +66,7 @@ jQuery(document).ready(function() {
                 $("a.bigButton, a.smallButton").button();
                 
                 // Initialize outline tree
-                $.jstree._themes = "/exeapp/static/css/themes/"
+                $.jstree._themes = "/static/css/themes/"
                 get_outline_pane().jstree({
                   "core" : {"animation" : 200},
                   "ui" : {"select_limit" : 1, 
