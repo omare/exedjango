@@ -22,7 +22,6 @@ Nodes provide the structure to the package hierarchy
 
 import logging
 from copy               import deepcopy
-from collections import OrderedDict
 from exeapp.models.persist import Persistable
 from urllib             import quote
 
