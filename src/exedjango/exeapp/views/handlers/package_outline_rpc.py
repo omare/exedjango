@@ -34,8 +34,7 @@ node'''
 def change_current_node(request, package, node_id):
     '''Handles jsonRPC request "package.change_current_node". Changes current
 node to one with give node_id''' 
-    node_changed = package.get_data_package().set_current_node_by_id(node_id)
-    return {'changed' : node_changed}
+    package.get_data_package().set_current_node_by_id(node_id)
 
 @jsonrpc_method('package.rename_current_node', authenticated=True)
 @get_package_by_id_or_error
@@ -56,7 +55,7 @@ if successful'''
 
 @jsonrpc_method('package.demote_current_node', authenticated=True)
 @get_package_by_id_or_error
-def promote_current_node(request, package):
+def demote_current_node(request, package):
     '''Handles jsonRPC request "package.demote_current_node". Moves current
 node one step up in the hierarchie. Returns json variable demoted = 1
 if successful'''

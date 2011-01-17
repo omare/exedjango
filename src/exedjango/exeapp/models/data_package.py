@@ -354,9 +354,8 @@ class DataPackage(Persistable):
         node = self.findNode(node_id)
         if node is not None:
             self.currentNode = node
-            return "1"
         else:
-            return "0"
+            raise KeyError("Node %s not found." % node_id)
         
     def add_child_node(self):
         '''Creates a child node of the current node, current node stays
@@ -403,8 +402,8 @@ successful'''
         return self.currentNode.down()
     
     def add_idevice(self, idevice_type):
-        '''Adds idevice by a given type. Throws KeyError, if idevice_type
-is not found'''
+        '''Adds idevice by a given type to the current node.
+Throws KeyError, if idevice_type is not found'''
         self.currentNode.addIdevice(idevice_type)
         self.isChanged = True
         
