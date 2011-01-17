@@ -55,7 +55,7 @@ USE_L10N = True
 MEDIA_ROOT = _get_file_from_root('exeapp_media_testing')
 # clean up media root after previous tests
 try:
-    shutil.rmtree(MEDIA_ROOT)
+    shutil.rmtree(MEDIA_ROOT + "/*")
 except:
     pass
 

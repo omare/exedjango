@@ -14,7 +14,7 @@ def export_idevice(idevice):
     '''Convinience filter, just renders calls render function of a
 block'''
     
-    block = idevice.block
+    block = idevice.as_leaf_class().block
     return block.render_export(idevice)
 
 @register.inclusion_tag('navigation_bar.html')

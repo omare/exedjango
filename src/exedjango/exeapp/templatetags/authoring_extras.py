@@ -7,8 +7,9 @@ def render_idevice(idevice):
     '''Convinience filter, just renders calls render function of a
 block'''
     
-    block = idevice.block
-    return block.render(idevice)
+    leaf_idevice = idevice.as_leaf_class()
+    block = leaf_idevice.block
+    return block.render(leaf_idevice)
 
 
     

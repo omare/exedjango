@@ -21,12 +21,13 @@
 The base class for all iDevices
 """
 
-import copy
+from django.db import models
+from django.contrib.contenttypes.models import ContentType
+
 import logging
 from copy                 import deepcopy
 from exeapp.models.persist   import Persistable
 #from exe.engine.translate import lateTranslate
-from exeapp.models.resource  import Resource
 
 log = logging.getLogger(__name__)
 
@@ -45,75 +46,34 @@ def extern_action(func):
     return newFunc
 
 # ===========================================================================
-class Idevice(Persistable):
+class Idevice(models.Model):
     """
-    The base class for all iDevices
-    iDevices are mini templates which the user uses to create content in the 
-    package
+    The base model for all iDevices
+iDevices are mini templates which the user uses to create content in the 
+package
     """
 
     # Class attributes
     # see derieved classes for persistenceVersion 
-    nextId = 1
     NoEmphasis, SomeEmphasis, StrongEmphasis = range(3)
     Didactics, Content, Media, Test, Communication, Unknown = \
              "Didactics", "Content", "Media", "Test",\
              "Communication", "Unknown"
-        
+             
+    # should be overwritten by child classes
+    title = ""
+    emphasis = NoEmphasis
+    autor = ""
+    purpose = ""
+    tip = ""
+             
+    edit = models.BooleanField(default=True)
+    icon = models.ImageField(upload_to="icons", blank=True, null=True)
+    parent_node = models.ForeignKey('Node', related_name='idevices')
+    
+    content_type = models.ForeignKey(ContentType, editable=False, null=True,
+                                     related_name="base_idevice")
 
-    def __init__(self, title, author, purpose, tip, icon, parentNode=None):
-        """Initialize a new iDevice, setting a unique id"""
-#        groups = [_("Didactics"), _("Content"), _("Media"), _("Test"),\
-#            _("Communication"), _("Unknown")]
- 
-        log.debug("Creating iDevice")
-        self.edit        = True
-        self.lastIdevice = True
-        self.emphasis    = Idevice.SomeEmphasis
-        self.version     = 0
-        self.id          = unicode(Idevice.nextId)
-        Idevice.nextId  += 1
-        self.parentNode  = parentNode
-        self._title      = title
-        self.group       = Idevice.Unknown
-        self._author     = author
-        self.purpose    = purpose
-        self.tip        = tip
-        self.icon        = icon
-        # userResources are copied into and stored in the package
-        self.userResources = []
-        # systemResources are resources from whatever style dir we are using at render time
-        if self.icon:
-            self.systemResources = ["icon_"+self.icon+".gif"]
-        else:
-            self.systemResources = []
-
-    # Properties
-    def get_title(self):
-        """
-        Gives a nicely encoded and translated title that can be put inside
-        xul labels (eg. <label value="my &quot;idevice&quot;">)
-        """
-        #TODO implement translation
-        return self._title
-        if not hasattr(self, '_title'):
-            self._title = 'NO TITLE'
-        if self._title:
-            title = _(self._title)
-            title = title.replace('&', '&amp;') 
-            title = title.replace('"', '&quot;')
-            return title
-        else:
-            return u''
-
-
-    def set_title(self, value):
-        """
-        Sets self._title
-        """
-        self._title = value
-
-    title    = property(get_title, set_title)
 #    rawTitle = lateTranslate('title')
 #    author   = lateTranslate('author')
 #    purpose  = lateTranslate('purpose')
@@ -130,55 +90,15 @@ class Idevice(Persistable):
             return klass[:-2]
     klass = property(get_klass)
 
-    def __cmp__(self, other):
-        """
-        Compare this iDevice with other
-        """
-        return cmp(self.id, other.id)
-
-    def __deepcopy__(self, others):
-        """
-        Override deepcopy because normal one seems to skip things when called from resource.__deepcopy__
-        """
-        # Create a new me
-        miniMe = self.__class__.__new__(self.__class__)
-        others[id(self)] = miniMe
-        # Copy our resources first
-        miniMe.userResources = []
-        for resource in self.userResources:
-            miniMe.userResources.append(deepcopy(resource, others))
-        # Copy the rest of our attributes
-        for key, val in self.__dict__.items():
-            if key != 'userResources':
-                setattr(miniMe, key, deepcopy(val, others))
-        miniMe.id = unicode(Idevice.nextId)
-        Idevice.nextId += 1
-        return miniMe
-
-    # Public Methods
-    
-    
-    def render(self):
-        '''Delegates rendering to the block'''
-        return self.block.render(self)
-    
     @extern_action
     def edit_mode(self):
         '''Sets idevice mode to edit'''
         self.edit = True
         
-    def clone(self):
-        """
-        Clone an iDevice just like this one
-        """
-        log.debug("Cloning iDevice")
-        newIdevice = copy.deepcopy(self)
-        return newIdevice
-    
     @extern_action    
     def delete(self):
         """
-        delete an iDevice from it's parentNode
+        delete an iDevice from it's parent_node
         """
         # Clear out old user resources
         # use reverse for loop to delete old user resources
@@ -191,19 +111,19 @@ class Idevice(Persistable):
             # and NOW we can finally properly delete it!
             self.userResources[i].delete()
 
-        if self.parentNode:
+        if self.parent_node:
             # first remove any internal anchors' links:
-            self.ChangedParentNode(self.parentNode, None)
+            self.ChangedParentNode(self.parent_node, None)
 
-            self.parentNode.idevices.remove(self)
-            self.parentNode = None
+            self.parent_node.idevices.remove(self)
+            self.parent_node = None
 
 
     def isFirst(self):
         """
         Return true if this is the first iDevice in this node
         """
-        index = self.parentNode.idevices.index(self)
+        index = self.parent_node.idevices.index(self)
         return index == 0
 
 
@@ -211,32 +131,40 @@ class Idevice(Persistable):
         """
         Return true if this is the last iDevice in this node
         """
-        index = self.parentNode.idevices.index(self)
-        return index == len(self.parentNode.idevices) - 1
+        index = self.parent_node.idevices.index(self)
+        return index == len(self.parent_node.idevices) - 1
 
     @extern_action
     def move_up(self):
         """
         Move to the previous position
         """
-        parentNode = self.parentNode
-        index = parentNode.idevices.index(self)
-        if index > 0:
-            temp = parentNode.idevices[index - 1]
-            parentNode.idevices[index - 1] = self
-            parentNode.idevices[index]     = temp
+        # Had to access _order directly because of a strange bug
+        # May be reverted to use normal set_idevice_order routine
+        # get_previous_in_order doesn't work either.
+        prev_idevice = self.base_idevice.get_previous_in_order()
+        prev_idevice._order, self._order = self._order, prev_idevice._order
+        prev_idevice.save()
 
     @extern_action
     def move_down(self):
         """
         Move to the next position
         """
-        parentNode = self.parentNode
-        index = parentNode.idevices.index(self)
-        if index < len(parentNode.idevices) - 1:
-            temp = parentNode.idevices[index + 1]
-            parentNode.idevices[index + 1] = self
-            parentNode.idevices[index]     = temp
+        prev_idevice = self.base_idevice.get_next_in_order()
+        prev_idevice._order, self._order = self._order, prev_idevice._order
+        prev_idevice.save()
+            
+    # Kudos to crucialfelix for djangosnippet 1031
+    # http://djangosnippets.org/snippets/1031/        
+    def save(self, *args, **kwargs):
+        if (not self.content_type):
+            self.content_type = ContentType.objects.\
+                    get_for_model(self.__class__)
+        self.save_base(*args, **kwargs)
+        
+    def as_leaf_class(self):
+        return getattr(self, self.content_type.model)
 
 
     def setParentNode(self, parentNode):
@@ -322,32 +250,14 @@ class Idevice(Persistable):
                 + "implementation available for this particular iDevice "
                 + "class: " + repr(self) )
         return []
+    
+    def __unicode__(self):
+        return "FreeTextIdevice: %s" % self._order
         
         
-    # Protected Methods
-
-    def _upgradeIdeviceToVersion1(self):
-        """
-        Upgrades the Idevice class members from version 0 to version 1.
-        Should be called in derived classes.
-        """
-        log.debug("upgrading to version 1")
-        self._title   = self.__dict__.get('title', self.title)
-        self._author  = self.__dict__.get('author', self.title)
-        self._purpose = self.__dict__.get('purpose', self.title)
-        self._tip     = self.__dict__.get('tip', self.title)
-
-
-    def _upgradeIdeviceToVersion2(self):
-        """
-        Upgrades the Idevice class members from version 1 to version 2.
-        Should be called in derived classes.
-        """
-        log.debug("upgrading to version 2, for 0.12")
-        self.userResources = []
-        if self.icon:
-            self.systemResources = ["icon_"+self.icon+".gif"]
-        else:
-            self.systemResources = []
-
+    class Meta:
+        order_with_respect_to = 'parent_node'
+        app_label = "exeapp"
+       
+        
 # ===========================================================================

@@ -148,10 +148,10 @@ class WebsiteExport(object):
         self.style_dir.copylist(styleFiles, outputDir)
 
         # copy the package's resource files
-        package.resourceDir.copyfiles(outputDir)
+#        package.resourceDir.copyfiles(outputDir)
             
         # copy script files.
-        self.scripts_dir.copylist(('libot_drag.js', 'common.js'), 
+        self.scripts_dir.copylist(('libot_drag.js',), 
                                   outputDir)
         
         # copy players for media idevices.                
@@ -163,18 +163,18 @@ class WebsiteExport(object):
         for page in self.pages:
             if isBreak:
                 break
-            for idevice in page.node.idevices:
+            for idevice in page.node.idevices.all():
                 if (hasFlowplayer and hasMagnifier and hasXspfplayer):
                     isBreak = True
                     break
                 if not hasFlowplayer:
-                    if 'flowPlayer.swf' in idevice.systemResources:
+                    if 'flowPlayer.swf' in idevice.system_resources:
                         hasFlowplayer = True
                 if not hasMagnifier:
-                    if 'magnifier.swf' in idevice.systemResources:
+                    if 'magnifier.swf' in idevice.system_resources:
                         hasMagnifier = True
                 if not hasXspfplayer:
-                    if 'xspf_player.swf' in idevice.systemResources:
+                    if 'xspf_player.swf' in idevice.system_resources:
                         hasXspfplayer = True
                         
         if hasFlowplayer:
@@ -204,9 +204,9 @@ for retrieving later.
     pages = [page]
     prev_page = page
     
-    if node.children:
+    if node.children.exists():
         pages.append("in")
-        for child in node.children:
+        for child in node.children.all():
             child_pages = _generate_pages(child, depth + 1,
                                                        prev_page)
             # find last page

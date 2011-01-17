@@ -57,7 +57,7 @@ class TestingNode(template.Node):
             return ""
         
 @register.inclusion_tag('exe/idevicepane.html')
-def render_idevicepane(prototypes):
+def render_idevicepane(idevices):
     """
     Returns an html string for viewing idevicepane
     """
@@ -65,10 +65,10 @@ def render_idevicepane(prototypes):
     groups = defaultdict(list)
 
     def sortfunc(pt1, pt2):
-        """Used to sort prototypes by title"""
+        """Used to sort idevices by title"""
         return cmp(pt1.title, pt2.title)
-    prototypes.sort(sortfunc)
-    for prototype in prototypes:
+    idevices.sort(sortfunc)
+    for prototype in idevices:
         if prototype.group:
             groups[prototype.group].append(prototype)
         else:
@@ -83,14 +83,14 @@ Root node has to be appended manually in a higher level function. List items wil
 be rendered using given template. """
         children_list = []
         
-        if node.children:
-            for child in node.children:
+        if node.children.all():
+            for child in node.children.all():
                 if template is None:
                     node_item = child.title
                 else:
                     node_item = render_to_string(template, {"node" : child})
                 children_list.append(node_item)
-                if child.children:
+                if child.children.all():
                     children_list.append(_create_children_list(child,
                             template))
         return children_list

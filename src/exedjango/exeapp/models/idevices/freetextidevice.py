@@ -21,9 +21,12 @@
 """
 FreeTextIdevice: just has a block of text
 """
+from django.db import models
 
 import logging
 from exeapp.models.idevices.idevice import Idevice, extern_action
+from django.contrib.contenttypes import generic
+
 #from exe.engine.field   import TextAreaField
 from exeapp.views.blocks.freetextblock import FreeTextBlock
 log = logging.getLogger(__name__)
@@ -40,32 +43,20 @@ class FreeTextIdevice(Idevice):
     """
     FreeTextIdevice: just has a block of text
     """
-    persistenceVersion = 10
     group = Idevice.Content
-    title = x_("Free Text")
     block = FreeTextBlock
-
-    def __init__(self, content=""):
-        Idevice.__init__(self, x_(u"Free Text"), 
-                         x_(u"University of Auckland"), 
-                         x_(u"""The majority of a learning resource will be 
+    title="Free Text"
+    author="University of Auckland"
+    purpose="""The majority of a learning resource will be 
 establishing context, delivering instructions and providing general information.
 This provides the framework within which the learning activities are built and 
-delivered."""), "", "")
-        self.emphasis = Idevice.NoEmphasis
-        self.content = content
-#        self.content  = TextAreaField(x_(u"Free Text"), 
-                                    #x_(u"""Use this field to enter text. This 
-#iDevice has no emphasis applied although limited formatting can be applied to 
-#text through the text editing buttons associated with the field."""),
-#                                      content)
-#        self.content.idevice = self
-#        if content:
-#            self.edit = False
-#        # determines if the element is exported to presentation
-        self.exportType = NOEXPORT
-
-   
+delivered."""
+    emphasis=Idevice.NoEmphasis
+    system_resources = []
+    
+    content = models.CharField(max_length=2048, default="")
+    base_idevice = models.OneToOneField(Idevice, parent_link=True)
+    
     def getResourcesField(self, this_resource):
         """
         implement the specific resource finding mechanism for this iDevice:
@@ -125,80 +116,11 @@ delivered."""), "", "")
                     self.content.content_wo_resourcePaths)
         self.content.content = self.content.content_w_resourcePaths
         
-    def upgradeToVersion1(self):
-        """
-        Upgrades the node from version 0 (eXe version 0.4) to 1.
-        Adds icon
-        """
-        self.icon = ""
-
-
-    def upgradeToVersion2(self):
-        """
-        Upgrades the node from version 1 (not released) to 2
-        Use new Field classes
-        """
-        self.content = TextAreaField("content", 
-x_(u"This is a free text field general learning content can be entered."),
-                                     self.content)
-
-
-    def upgradeToVersion3(self):
-        """
-        Upgrades the node from 2 (v0.5) to 3 (v0.6).
-        Old packages will loose their icons, but they will load.
-        """
-        log.debug(u"Upgrading iDevice")
-        self.emphasis = Idevice.NoEmphasis
+    def __unicode__(self):
+        return "FreeTextIdevice: %s" % self._order
         
-
-    def upgradeToVersion4(self):
-        """
-        Upgrades v0.6 to v0.7.
-        """
-        self.lastIdevice = False
-   
-
-    def upgradeToVersion5(self):
-        """
-        Upgrades v0.6 to v0.7.
-        """
-        self._upgradeIdeviceToVersion1()
-
-        
-    def upgradeToVersion6(self):
-        """
-        Upgrades to v0.12
-        """
-        self._upgradeIdeviceToVersion2()
-
-    def upgradeToVersion7(self):
-        """
-        Attach the idevice to the TextAreaField for tinyMCE image embedding:
-        """
-        self.content.idevice = self
-
-    def upgradeToVersion8(self):
-        """
-        Attach presentable to idevice
-        Tum changes
-        """
-        self.presentable = 'False'
-   
-
-    def upgradeToVersion9(self):
-        """
-        Adds group to idevice
-        """
-        self.group = Idevice.Content
-    
-
-    def upgradeToVersion10(self):
-        """
-        Additional options for export
-        """
-        self.exportType = NOEXPORT
- 
+    class Meta:
+        app_label = "exeapp"
    
 # ===========================================================================
 

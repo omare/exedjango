@@ -50,7 +50,7 @@ from jsonrpc import jsonrpc_method
 from exeapp.shortcuts import get_package_by_id_or_error
 from exeapp.views.handlers import package_outline_rpc
 from exeapp.views.handlers import authoring_rpc
-from exeapp.models import idevice_storage
+from exeapp.models import idevice_store
 
 log = logging.getLogger(__name__)
 
