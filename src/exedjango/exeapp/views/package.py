@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequest
 from django.core.servers.basehttp import FileWrapper 
 
-from exeapp.models import DataPackage, User, idevice_storage, DataPackage
+from exeapp.models import DataPackage, User, idevice_store, DataPackage
 from exeapp.views.export.websiteexport import WebsiteExport
 from exeapp.shortcuts import get_package_by_id_or_error
 
@@ -29,7 +29,7 @@ def package(request, package):
         data_package = package.get_data_package()
         log.info("%s accesses package of %s" % (request.user.username, 
                                                 package.user.username))
-        prototypes = idevice_storage.get_prototypes()
+        idevices = idevice_store.values()
         return render_to_response('exe/mainpage.html', locals())
 
 @login_required
@@ -37,7 +37,6 @@ def package(request, package):
 def authoring(request, package):
     '''Handles calls to authoring iframe. Renders exe/authoring.html'''
     
-    current_node = package.get_data_package().currentNode
     data_package = package.get_data_package()
     return render_to_response('exe/authoring.html', locals())
 

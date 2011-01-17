@@ -1,4 +1,5 @@
 import unittest
+from mock import Mock
 from BeautifulSoup import BeautifulSoup
 
 from exeapp.templatetags.mainpage_extras import idevice_ul, outline_nodes_ul
@@ -30,7 +31,8 @@ class MainpageExtrasTestCase(unittest.TestCase):
         def __init__(self, id, title, children, current = False):
             self.id = id
             self.title = title
-            self.children = children
+            self.children = Mock()
+            self.children.all = Mock(return_value=children)
             self.current = current
             
         def is_current_node(self):

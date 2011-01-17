@@ -25,7 +25,7 @@
           <p id="nodeTitle">{{current_page.node.title}}</p>
         </div>
         {% include navigation_links %}
-        {% for idevice in current_page.node.idevices %}
+        {% for idevice in current_page.node.idevices.all %}
           <div class="{{idevice.klass}} id="id{{idevice.id}}">
             {{idevice|export_idevice|process_internal_links:data_package}}
           </div>

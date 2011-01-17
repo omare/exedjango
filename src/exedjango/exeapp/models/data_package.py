@@ -17,6 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
+from django.db import models
 
 """
 DataPackage represents the collection of resources the user is editing
@@ -29,14 +30,12 @@ import zipfile
 import re
 from xml.dom                   import minidom
 from exedjango.utils.path      import Path, TempDirPath, toUnicode
-from exeapp.models.node        import Node
+from exeapp.models        import Node
 #from exe.engine.genericidevice import GenericIdevice
 from exeapp.models.persist     import Persistable, encodeObject, \
                                       decodeObject, decodeObjectRaw
                                       
 from exeapp.models.resource import Resource
-from twisted.persisted.styles  import Versioned, doUpgrade
-from twisted.spread.jelly      import Jellyable, Unjellyable
 from BeautifulSoup  import BeautifulSoup
 
 log = logging.getLogger()
@@ -222,7 +221,7 @@ def loadNode(pass_num, resourceDir, zippedFile, node, doc, item, level):
             next_node = node
             if pass_num == 1:
                 # if this is actually loading the nodes:
-                next_node = node.createChild()
+                next_node = node.create_child()
             loadNode(pass_num, resourceDir, zippedFile, next_node,
                     doc, subitem, level+1)
 
@@ -248,7 +247,7 @@ def loadCC(zippedFile, filename):
     return package
 
 # ===========================================================================
-class DublinCore(Jellyable, Unjellyable):
+class DublinCore(object):
     """
     Holds dublin core info
     """
@@ -272,76 +271,56 @@ class DublinCore(Jellyable, Unjellyable):
 
     def __setattr__(self, name, value):
         self.__dict__[name] = toUnicode(value)
+        
+class DataPackageManager(models.Manager):
+    
+    def create(self, *args, **kwargs):
+        data_package = DataPackage(*args, **kwargs)
+        data_package.save()
+        root = Node(package=data_package, parent=None,
+                    title="Home", is_current_node=True, is_root=True)
+        root.save()
+        
+        return data_package
 
-class DataPackage(Persistable):
+class DataPackage(models.Model):
     """
     DataPackage represents the collection of resources the user is editing
-    i.e. the "package".
+i.e. the "package".
     """
-    persistenceVersion = 12
-    nonpersistant      = ['resourceDir', 'filename']
-    # Name is used in filenames and urls (saving and navigating)
-    _name              = '' 
-    tempFile           = False # This is set when the package is saved as a temp copy file
-    # Title is rendered in exports
-    _title             = '' 
-    _author            = ''
-    _email             = ''
-    _description       = ''
-    _backgroundImg     = ''
-    # This is like a constant
-    defaultLevelNames  = [u"Topic", u"Section", u"Unit"]
     
+    DEFAULT_LEVEL_NAMES  = ["Topic", "Section", "Unit"]
     
-    def __init__(self, id, name):
-        """
-        Initialize 
-        """
-        log.debug(u"init " + repr(name))
-        self._nextIdeviceId = 0
-        self._nextNodeId    = 0
-        # For looking up nodes by ids
-        self._nodeIdDict    = {} 
-
-        self._levelNames    = self.defaultLevelNames[:]
-        self.id             = id
-        self.name           = name
-        self._title         = u''
-        self._backgroundImg = u''
-        self.backgroundImgTile = False
-        self._footerImg = u''
-        self.footerImgTile = False
-
-        self.filename      = u''
-
-        self.root          = Node(self, None, _(u"Home"))
-        self.currentNode   = self.root
-        self.style         = "default"
-        self.isChanged     = False
-        self.idevices      = []
-        self.dublinCore    = DublinCore()
-        self.scolinks      = False
-        self.license       = "None"
-        self.footer        = ""
-        self.sourcerefs    = {}
-
-        # Temporary directory to hold resources in
-        self.resourceDir = TempDirPath()
-        self.resources = {} # Checksum-[_Resource(),..]
-        
+    package = models.ForeignKey('Package', related_name="data_package")
+    
+    title = models.CharField(max_length=100)
+      
+    author = models.CharField(max_length=50, blank=True)
+    email = models.CharField(max_length=30, blank=True)
+    description = models.CharField(max_length=256, blank=True)
+    
+    _backgroundImg     = models.ImageField(upload_to='background', 
+                                           blank=True, null=True)
+    backgroundImgTile = models.BooleanField(default=False)
+    
+    license = models.CharField(max_length=50, blank=True)
+    style = models.CharField(max_length=20, default="default")
+    resourceDir = models.FileField(upload_to="resources", 
+                                    blank=True, null=True)
+    
+    level1 = models.CharField(max_length=20, default=DEFAULT_LEVEL_NAMES[0])
+    level2 = models.CharField(max_length=20, default=DEFAULT_LEVEL_NAMES[1])
+    level3 = models.CharField(max_length=20, default=DEFAULT_LEVEL_NAMES[2])
+    
+    objects = DataPackageManager()
+    
+        # self.dublinCore    = DublinCore()
+        # self.license       = "None"
+        # self.footer        = ""
+        # self.sourcerefs    = {}
+        # self.resourceDir = TempDirPath()
 
     # Property Handlers
-
-    def set_name(self, value):
-        self._name = toUnicode(value)
-    def set_title(self, value):
-        self._title = toUnicode(value)
-    def set_author(self, value):
-        self._author = toUnicode(value)
-    def set_description(self, value):
-        self._description = toUnicode(value)
-    def set_email(self, value):
-        self._email = toUnicode(value)
 
     def get_backgroundImg(self):
         """Get the background image for this package"""
@@ -351,23 +330,23 @@ class DataPackage(Persistable):
             return ""
     
     def set_current_node_by_id(self, node_id):
-        node = self.findNode(node_id)
-        if node is not None:
-            self.currentNode = node
-        else:
-            raise KeyError("Node %s not found." % node_id)
+        try:
+            node = Node.objects.get(pk=node_id)
+        except Node.DoesNotExist:
+            raise KeyError("Could not find node %s" % node_id)
+        self.current_node = node 
         
     def add_child_node(self):
         '''Creates a child node of the current node, current node stays
 the same'''
-        return self.currentNode.createChild()
+        return self.current_node.create_child()
             
     def delete_current_node(self):
         '''Removes current node. Sets current node to deleted node's 
 parent'''
-        node = self.currentNode
+        node = self.current_node
         if node is not self.root:
-            self.currentNode = node.parent
+            self.current_node = node.parent
             node.delete()
             return "1"
         else:
@@ -375,41 +354,41 @@ parent'''
     
     def rename_current_node(self, new_title):
         '''Renames current node. Returns new name, if it's changed, old name else'''
-        node = self.currentNode
+        node = self.current_node
         if new_title not in ['', 'null']:
             node.title = new_title
-            node.RenamedNodePath()
+            node.save()
         return node.title
     
     def promote_current_node(self):
         '''Moves current node one step up in the hierarchie. Returns True if
 successful'''
-        return self.currentNode.promote()
+        return self.current_node.promote()
     
     def demote_current_node(self):
         '''Moves current node one step up in the hierarchie. Returns True if
 successful'''
-        return self.currentNode.demote()
+        return self.current_node.demote()
     
     def move_current_node_up(self):
         '''Moves current node up on the same level. Returns true if 
 successful'''
-        return self.currentNode.up()
+        return self.current_node.up()
     
     def move_current_node_down(self):
         '''Moves current node down on the same level. Returns true if 
 successful'''
-        return self.currentNode.down()
+        return self.current_node.down()
     
     def add_idevice(self, idevice_type):
         '''Adds idevice by a given type to the current node.
 Throws KeyError, if idevice_type is not found'''
-        self.currentNode.addIdevice(idevice_type)
+        self.current_node.addIdevice(idevice_type)
         self.isChanged = True
         
     def handle_action(self, idevice_id, action, **kwargs):
-        '''Delegates a action to currentNode'''
-        self.currentNode.handle_action(idevice_id, action, **kwargs)
+        '''Delegates a action to current_node'''
+        self.current_node.handle_action(idevice_id, action, **kwargs)
         self.isChanged = True
 
     def set_backgroundImg(self, value):
@@ -448,58 +427,22 @@ Throws KeyError, if idevice_type is not found'''
             self._footerImg = u''
 
 
-    def get_level1(self):
-        return self.levelName(0)
-    def set_level1(self, value):
-        if value != '':
-            self._levelNames[0] = value 
-        else:
-            self._levelNames[0] = self.defaultLevelNames[0]
-
-    def get_level2(self):
-        return self.levelName(1)
-    def set_level2(self, value):
-        if value != '':
-            self._levelNames[1] = value 
-        else:
-            self._levelNames[1] = self.defaultLevelNames[1]
-
-    def get_level3(self):
-        return self.levelName(2)
-    def set_level3(self, value):
-        if value != '':
-            self._levelNames[2] = value 
-        else:
-            self._levelNames[2] = self.defaultLevelNames[2]
-
-
     # Properties
-
-    name          = property(lambda self:self._name, set_name)
-    title         = property(lambda self:self._title, set_title)
-    author        = property(lambda self:self._author, set_author)
-    description   = property(lambda self:self._description, set_description)
-    email         = property(lambda self:self._email, set_email)
-
-    backgroundImg = property(get_backgroundImg, set_backgroundImg)
-    footerImg = property(get_footerImg, set_footerImg)
-
-    level1 = property(get_level1, set_level1)
-    level2 = property(get_level2, set_level2)
-    level3 = property(get_level3, set_level3)
-
-    def findNode(self, nodeId):
-        """
-        Finds a node from its nodeId
-        (nodeId can be a string or a list/tuple)
-        """
-        log.debug(u"findNode " + repr(nodeId))
-        node = self._nodeIdDict.get(nodeId)
-        if node and node.package is self:
-            return node
-        else: 
-            return None
-
+    @property
+    def current_node(self):
+        return self.nodes.get(is_current_node=True)
+    
+    @current_node.setter
+    def current_node(self, node):
+        old_node = self.current_node
+        old_node.is_current_node = False
+        old_node.save()
+        node.is_current_node = True
+        node.save()
+    
+    @property
+    def root(self):
+        return self.nodes.get(is_root=True)
 
     def levelName(self, level):
         """
@@ -509,48 +452,6 @@ Throws KeyError, if idevice_type is not found'''
             return _(self._levelNames[level])
         else:
             return _(u"?????")
-        
-
-    def save(self, filename=None, tempFile=False):
-        """
-        Save package to disk
-        pass an optional filename
-        """
-        self.tempFile = tempFile
-        # Get the filename
-        if filename:
-            filename = Path(filename)
-            # If we are being given a new filename...
-            # Change our name to match our new filename
-#            name = filename.splitpath()[1]
-#            if not tempFile:
-#                self.name = name.basename().splitext()[0]
-        elif self.filename:
-            # Otherwise use our last saved/loaded from filename
-            filename = self.filename
-        else:
-            # If we don't have a last saved/loaded from filename,
-            # raise an exception because, we need to have a new
-            # file passed when a brand new package is saved
-            raise AssertionError(u'No name passed when saving a new package')
-        # Store our new filename for next file|save, and save the package
-        log.debug(u"Will save %s to: %s" % (self.name, filename))
-        if tempFile:
-            self.nonpersistant.remove('filename')
-            oldFilename, self.filename = self.filename, self.filename
-            try:
-                self.isChanged = False
-                filename.safeSave(self.doSave, _('SAVE FAILED!\nLast succesful save is %s.'))
-            finally:
-                self.nonpersistant.append('filename')
-                self.filename = oldFilename
-        else:
-            # Update our new filename for future saves
-            self.filename = filename
-#            filename.safeSave(self.doSave, _('SAVE FAILED!\nLast succesful save is %s.'))
-            self.doSave(filename)
-            self.isChanged = False
-            self.updateRecentDocuments(filename)
         
 
     def updateRecentDocuments(self, filename):
@@ -575,35 +476,18 @@ Throws KeyError, if idevice_type is not found'''
         del recentProjects[5:] # Delete any older names from the list
         G.application.config.configParser.write() # Save the settings
 
-    def doSave(self, fileObj):
-        """
-        Actually performs the save to 'fileObj'.
-        """
-        zippedFile = zipfile.ZipFile(fileObj, "w", zipfile.ZIP_DEFLATED)
-        try:
-            for resourceFile in self.resourceDir.files():
-                zippedFile.write(unicode(resourceFile.normpath()),
-                       resourceFile.name.encode('utf8'), zipfile.ZIP_DEFLATED)
-
-            zinfo = zipfile.ZipInfo(filename='content.data',
-                    date_time=time.localtime()[0:6])
-            zinfo.external_attr = 0100644<<16L
-            zippedFile.writestr(zinfo, encodeObject(self))
-        finally:
-            zippedFile.close()
-
     def extractNode(self):
         """
         Clones and extracts the currently selected node into a new package.
         """
         newPackage = DataPackage('NoName') # Name will be set once it is saved..
-        newPackage.title  = self.currentNode.title
+        newPackage.title  = self.current_node.title
         newPackage.style  = self.style
         newPackage.author = self.author
         newPackage._nextNodeId = self._nextNodeId
         # Copy the nodes from the original package
         # and merge into the root of the new package
-        self.currentNode.copyToPackage(newPackage)
+        self.current_node.copyToPackage(newPackage)
         return newPackage
 
     @staticmethod
@@ -759,159 +643,12 @@ Throws KeyError, if idevice_type is not found'''
                     foundResource = this_resource
                     return foundResource
         return foundResource
-
-
-    def upgradeToVersion1(self):
-        """
-        Called to upgrade from 0.3 release
-        """
-        self._nextNodeId = 0
-        self._nodeIdDict = {}
-
-        # Also upgrade all the nodes.
-        # This needs to be done here so that draft gets id 0
-        # If it's done in the nodes, the ids are assigned in reverse order
-        draft = getattr(self, 'draft')
-        draft._id = self._regNewNode(draft)
-        draft._package = self
-        setattr(self, 'editor', Node(self, None, _(u"iDevice Editor")))
-
-        # Add a default idevice to the editor
-        idevice = GenericIdevice("", "", "", "", "")
-        editor = getattr(self, 'editor')
-        idevice.parentNode = editor
-        editor.addIdevice(idevice)
-        def superReg(node):
-            """Registers all our nodes
-            because in v0 they were not registered
-            in this way"""
-            node._id = self._regNewNode(node)
-            node._package = self
-            for child in node.children:
-                superReg(child)
-        superReg(self.root)
-
-
-    def _regNewNode(self, node):
-        """
-        Called only by nodes, 
-        stores the node in our id lookup dict
-        returns a new unique id
-        """
-        id_ = self._nextNodeId
-        self._nextNodeId += 1
-        self._nodeIdDict[str(id_)] = node
-        return id_
-
-
-    def getNewIdeviceId(self):
-        """
-        Returns an iDevice Id which is unique for this package.
-        """
-        id_ = unicode(self._nextIdeviceId)
-        self._nextIdeviceId += 1
-        return id_
-
-
-    def upgradeToVersion2(self):
-        """
-        Called to upgrade from 0.4 release
-        """
-        getattr(self, 'draft').delete()
-        getattr(self, 'editor').delete()
-        delattr(self, 'draft')
-        delattr(self, 'editor')
-        # Need to renumber nodes because idevice node and draft nodes are gone
-        self._nextNodeId = 0
-        def renumberNode(node):
-            """
-            Gives the old node a number
-            """
-            node._id = self._regNewNode(node)
-            for child in node.children:
-                renumberNode(child)
-        renumberNode(self.root)
-
-
-    def upgradeToVersion3(self):
-        """
-        Also called to upgrade from 0.4 release
-        """
-        self._nextIdeviceId = 0
-
-
-    def upgradeToVersion4(self):
-        """
-        Puts properties in their place
-        Also called to upgrade from 0.8 release
-        """
-        self._name = toUnicode(self.__dict__['name'])
-        self._author = toUnicode(self.__dict__['author'])
-        self._description = toUnicode(self.__dict__['description'])
-
-
-    def upgradeToVersion5(self):
-        """
-        For version 0.11
-        """
-        self._levelNames = self.levelNames
-        del self.levelNames
     
-    def upgradeToVersion6(self):
-        """
-        For version 0.14
-        """
-        self.dublinCore = DublinCore()
-        # Copy some of the package properties to dublin core
-        self.title = self.root.title
-        self.dublinCore.title = self.root.title
-        self.dublinCore.creator = self._author
-        self.dublinCore.description = self._description
-        self.scolinks = False
-
-    def upgradeToVersion7(self):
-        """
-        For version 0.15
-        """
-        self._backgroundImg = ''
-        self.backgroundImgTile = False
+    class Meta:
+        app_label = "exeapp"
         
-    def upgradeToVersion8(self):
-        """
-        For version 0.20, alpha, for nightlies r2469
-        """
-        self.license = 'None'
-        self.footer = ""
-        self.idevices = []
-
-    def upgradeToVersion9(self):
-        """
-        For version >= 0.20.4
-        """
-        if not hasattr(self, 'resources'):
-            # The hasattr is needed, because sometimes, Resource instances are upgraded
-            # first and they also set this attribute on the package
-            self.resources = {}
-#        G.application.afterUpgradeHandlers.append(self.cleanUpResources)
-
-    def upgradeToVersion10(self):
-        """
-        Footer have images now
-        """
-        self._footerImg = u''
-        self.footerImgTile = False
-
-    def upgradeToVersion11(self):
-        """
-        Authors email for feedback
-        """
-        self._email = ""
-
-    def upgradeToVersion12(self):
-        """
-        Source references added
-        """
-        self.sourcerefs = {}
+    def __unicode__(self):
+        return "DataPackage %s" % self.title
 
 
 # ===========================================================================

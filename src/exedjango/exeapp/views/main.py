@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from jsonrpc import jsonrpc_method
 
-from exeapp.models import Package, User, package_storage
+from exeapp.models import Package, User
 from exeapp.shortcuts import get_package_by_id_or_error
 
 @login_required
@@ -30,8 +30,6 @@ def delete_package(request, package):
     '''Removes a package'''
     
     package_id = package.id
-    if package.id in package_storage:
-        del package_storage[package.id]
     package.delete()
     return {"package_id" : package_id}
 

@@ -112,15 +112,8 @@ jQuery(document).ready(function() {
                 //uncomment to block UI. Quite slow
                 //$(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
                 
-                // Bind reload handling
-                $(window).bind('beforeunload', handle_unload_page);
-                //Unload data package on window unload
-                //$(window).bind('unload', handle_unload_page);
             });
             
-// onbeforeunload is loaded twice in chrome, for some reason
-var to_be_unloaded = true
-
 // Set to false to stop selects doing page reloads
 var clickon = true 
 
@@ -249,10 +242,7 @@ function handle_select_node(event, data) {
     $.jsonRPC.request('change_current_node',
     [get_package_id(), $(node).attr("nodeId")], {
         success: function(results) {
-            //checks if requess
-            if (results.result.changed == "1") {
-                set_current_node(node);
-            }
+              set_current_node(node);
         }
     });
     return false;
@@ -275,25 +265,6 @@ function handle_renamed_current_node(e, data){
       }
     }});
 }
-
-// Handles page unload. Drops unsaved changes.
-function handle_unload_page(event){
-  if (to_be_unloaded){
-    $.jsonRPC.request('is_package_dirty', [get_package_id()], {
-      success: function(results) {
-        if ("dirty" in results.result && results.result.dirty){
-          if (confirm(SAVE_DIRTY_PACKAGE)) {
-            fileSave();
-          }
-        }
-         $.jsonRPC.request("unload_data_package", [get_package_id()], undefined, undefined, false);
-      }
-    }, undefined, false);
-    to_be_unloaded = false;
-  }
-  return null;
-}
-
 
 // Returns the _exe_nodeid attribute of the currently selected row item
 function current_outline_id(index)

@@ -20,77 +20,50 @@
 Nodes provide the structure to the package hierarchy
 """
 
+from django.db import models
+
+from exeapp.models import idevice_store
+
 import logging
 from copy               import deepcopy
-from exeapp.models.persist import Persistable
 from urllib             import quote
 
-from exeapp.models import idevice_storage
 #from exe.webui                import common
 
 
 log = logging.getLogger()
 
-# ===========================================================================
-class Node(Persistable):
+class NodeManager(models.Manager):
+    
+    def create(self, package, parent, title="", is_root=False, 
+               is_current_node=False):
+        if not title:
+            level = parent.level + 1
+            if level > 3:
+                title = "???"
+            else:
+                title = getattr(package, "level%s" % level)
+        node = Node(package=package, parent=parent, title=title,
+                    is_root=is_root, is_current_node=is_current_node)
+        node.save()
+        return node
+
+class Node(models.Model):
     """
     Nodes provide the structure to the package hierarchy
     """
+    package = models.ForeignKey('DataPackage', related_name='nodes')
+    parent = models.ForeignKey('self', related_name='children', 
+                               blank=True, null=True)
+    title = models.CharField(max_length=50)
+    is_root = models.BooleanField(default=False)
+    is_current_node = models.BooleanField(default=False)
+    
+    objects = NodeManager()
 
-    # Class attributes
-    persistenceVersion = 2
-
-    # temporary variable for the exported filename,
-    #     [ as used by export's Page:uniquifyNames() ]
-    # such that links to any anchors on this node may be resolved.
-    # ensure that it is not saved with the .elp:
-    nonpersistant      = ['tmp_export_filename']
-
-    def __init__(self, package, parent=None, title=""):
-        """
-        Initialize a new node
-        """
-        log.debug(u"init " + title)
-
-        if parent:
-            parent.children.append(self)
-        self._package = package
-        self._id      = package._regNewNode(self)
-        self.parent   = parent
-        self._title   = title or self.createTitle()
-        self.children = []
-        self.idevices = []
-
-        # set its initial old node path for internal anchors, before any moves
-        self.last_full_node_path = self.GetFullNodePath()
+    #self.last_full_node_path = self.GetFullNodePath()
 
     # Properties
-
-    # id
-    def getId(self):
-        """
-        Returns our id.
-        Used property to make it read only
-        """
-        if hasattr(self, '_id'): 
-            return self._id
-        else:
-            return None
-    id = property(getId)
-
-
-    # package
-    def getPackage(self):
-        """
-        Returns our package.
-        Makes it read only
-        """
-        if hasattr(self, '_package'): 
-            return self._package
-        else:
-            return None
-    package = property(getPackage)
-
 
     # level
     def getLevel(self):
@@ -110,27 +83,6 @@ with it'''
                 return idevice
         raise KeyError("Idevice %s not found" % idevice_id)
     # 
-
-    def createTitle(self):
-        """
-        Returns initial title as a string
-        """
-        if hasattr(self, '_package') and self.package is not None:
-            return self.package.levelName(self.level - 1)
-        else:
-            return u'Unknown Node [no title or package]'
-
-    def TwistedRePersist(self):
-        """
-        Handles any post-upgrade issues 
-        (such as typically re-persisting non-persistent data)
-        that slipped between the cracks....
-        """
-        # add a brand-new new Node variable, to support the renaming 
-        # of any internal anchors within its fields.
-        # Store the current full node path, such that any renames or moves
-        # can reference the previous path and update anchors & any links:
-        self.last_full_node_path = self.GetFullNodePath()
 
 
 
@@ -368,28 +320,6 @@ with it'''
         for child_node in self.children:
             child_node.RenamedNodePath(isMerge, isExtract)
 
-    @property
-    def is_current_node(self):
-        '''Returns node's status as current node of it's package'''
-        return self == self.package.currentNode
-    
-    @property
-    def is_root(self):
-        '''Checks if the node is root off it's package'''
-        return self == self.package.root 
-    
-    def getTitle(self):
-        return self._title
-
-    def setTitle(self, title):
-        """
-        Allows one to set the title as a string
-        """
-        if (title) != (self._title):
-            self._title = title
-            self.package.isChanged = True
-
-    title = property(getTitle, setTitle)
     titleShort = property(lambda self: self.title.split('--', 1)[0].strip())
     titleLong = property(lambda self: self.title.split('--', 1)[-1].strip())
 
@@ -460,10 +390,7 @@ with it'''
     
     def handle_action(self, idevice_id, action, **kwargs):
         '''Removes an iDevice or delegates action to it'''
-        idevice = self.get_idevice(idevice_id)
-        has_action = hasattr(idevice, action)
-        has_extern_action = hasattr(getattr(idevice, action), 'extern_action')
-        exter_action = getattr(idevice, action).extern_action
+        idevice = self.idevices.get(pk=idevice_id).as_leaf_class()
         if not hasattr(idevice, action) or \
             not hasattr(getattr(idevice, action), 'extern_action') or\
             not getattr(idevice, action).extern_action:
@@ -471,16 +398,17 @@ with it'''
                                  "an extern action %s" % action)
         
         getattr(idevice, action)(**kwargs)
+        idevice.save()
+        
             
 
 
-    def createChild(self):
+    def create_child(self):
         """
         Create a child node
         """
-        log.debug(u"createChild ")
-        self.package.isChanged = True
-        return Node(self.package, self)
+        log.debug(u"create_child ")
+        return Node.objects.create(package=self.package, parent=self)
 
 
     def delete(self, pruningZombies=False):
@@ -614,50 +542,44 @@ with it'''
 KeyError, if idevice_type is not found
         """
         log.debug(u"addIdevice %s" % idevice_type)
-        idevice = idevice_storage.get_idevice(idevice_type)()
-        idevice.id = self.package.getNewIdeviceId()
-        idevice.parentNode = self
-        for oldIdevice in self.idevices:
-            oldIdevice.edit = False
-        self.idevices.append(idevice)
+        try:
+            idevice_class = idevice_store[idevice_type]
+        except KeyError:
+            KeyError("Idevice type %s does not exist." % idevice_type)
+        for edited_device in self.idevices.filter(edit=True):
+            edited_device.edit = False
+        idevice_class.objects.create(parent_node=self)
         
-    def move(self, newParent, nextSibling=None):
+    def move(self, new_parent, next_sibling=None):
         """
         Moves the node around in the tree.
-        nextSibling can be a node object or an integer index
         """
-        log.debug(u"move ")
-        if newParent:
-            assert newParent.package is self.package, \
-                   "Can't change a node into a different package"
-        if self.parent:
-            self.parent.children.remove(self)
-        self.parent = newParent
-        if newParent:
-            children = newParent.children
-            if nextSibling: 
-                if type(nextSibling) is int:
-                    children.insert(nextSibling, self)
-                else:
-                    children.insert(children.index(nextSibling), self)
-            else:
-                newParent.children.append(self)
-
-        # and trigger an update of this node's anchor paths as well:
-        self.RenamedNodePath()
-
-        self.package.isChanged = True
+        
+        self.parent = new_parent
+        self.save()
+        node_order = self.parent.get_node_order()
+        del node_order[node_order.index(self.id)]
+        if next_sibling is not None:
+            sibling_index = node_order.index(next_sibling.pk)
+        else:
+            sibling_index = -1
+        node_order.insert(sibling_index, self.pk)
+        self.parent.set_node_order(node_order)  
 
 
     def promote(self):
         """
-        Convenience function.
-        Moves the node one step closer to the tree root.
-        Returns True is successful
+        Convenience function. Moves the node one step 
+closer to the tree root.
+Returns True is successful
         """
         log.debug(u"promote ")
         if self.parent and self.parent.parent:
-            self.move(self.parent.parent, self.parent.nextSibling())
+            try:
+                next_sibling = self.parent.get_next_in_order()
+            except Node.DoesNotExist:
+                next_sibling = None
+            self.move(self.parent.parent, next_sibling)
             return True
 
         return False
@@ -665,17 +587,18 @@ KeyError, if idevice_type is not found
 
     def demote(self):
         """
-        Convenience function.
-        Moves the node one step further away from its parent,
-        tries to keep the same position in the tree.
-        Returns True is successful
+        Convenience function. Moves the node one step further away 
+from its parent, tries to keep the same position in the tree.
+Returns True is successful
         """
         log.debug(u"demote ")
         if self.parent:
-            idx = self.parent.children.index(self)
-            if idx > 0:
-                newParent = self.parent.children[idx - 1]
-                self.move(newParent)
+            try:
+                new_parent = self.get_previous_in_order()
+            except Node.DoesNotExist:
+                return False
+            if new_parent is not None:
+                self.move(new_parent)
                 return True
 
         return False
@@ -688,16 +611,13 @@ KeyError, if idevice_type is not found
         Returns True is successful.
         """
         log.debug(u"up ")
-        if self.parent:
-            children = self.parent.children
-            i = children.index(self)
-            if i > 0:
-                children.remove(self)
-                children.insert(i-1, self)
-                # Mark the package as changed
-                self.package.isChanged = True
-                return True
-
+        try:
+            prev_sibling = self.get_previous_in_order()
+        except Node.DoesNotExist:
+            return False
+        if prev_sibling is not None:
+            self.move(self.parent, prev_sibling)
+            return True
         return False
 
 
@@ -707,44 +627,16 @@ KeyError, if idevice_type is not found
         Returns True is successful.
         """
         log.debug(u"down ")
-        if self.parent:
-            children = self.parent.children
-            i = children.index(self)
-            children.remove(self)
-            children.insert(i+1, self)
-            # Mark the package as changed
-            self.package.isChanged = True
+        try:
+            next_sibling = self.get_next_in_order()
+        except Node.DoesNotExist:
+            return False
+        if next_sibling is not None:
+            self.move(self.parent, next_sibling.get_next_in_order())
             return True
 
         return False
 
-
-    def nextSibling(self):
-        """Returns our next sibling or None"""
-        log.debug(u"nextSibling ")
-        sibling = None
-
-        if self.parent:
-            children = self.parent.children
-            i = children.index(self) + 1
-            if i < len(children):
-                sibling = children[i]
-
-        return sibling
-
-
-    def previousSibling(self):
-        """Returns our previous sibling or None"""
-        log.debug(u"previousSibling ")
-        sibling = None
-
-        if self.parent:
-            children = self.parent.children
-            i = children.index(self) - 1
-            if i > 0:
-                sibling = children[i]
-
-        return sibling
 
     def walkDescendants(self):
         """
@@ -755,31 +647,8 @@ KeyError, if idevice_type is not found
             for descendant in child.walkDescendants():
                 yield descendant
 
-    def __str__(self):
-        """
-        Return a node as a string
-        """
-        nodeStr = ""
-        nodeStr += self.id + u" "
-        nodeStr += self.title + u"\n"
-
-        for child in self.children:
-            nodeStr += child.__str__()
-
-        return nodeStr
 
 
-    def upgradeToVersion1(self):
-        """Upgrades the node from version 0 to 1."""
-        log.debug(u"upgradeToVersion1 ")
-        self._title = self.__dict__[u'title']
-
-
-    def upgradeToVersion2(self):
-        """Upgrades the node from eXe version 0.5."""
-        log.debug(u"upgradeToVersion2 ")
-        self._title = self._title.title
-        
     def launch_testForZombies(self):
         """
         a wrapper to testForZombieNodes(self), such that it might be called
@@ -820,6 +689,16 @@ KeyError, if idevice_type is not found
             if self._title[0:len(zombie_preface)] != zombie_preface: 
                 self._title = zombie_preface + self._title + ")"
             G.application.afterUpgradeZombies2Delete.append(self)
-
+    
+    def __unicode__(self):
+        """
+        Return a node as a string
+        """
+    
+        return "Node %s" % self.title
+    
+    class Meta:
+        app_label = "exeapp"
+        order_with_respect_to = 'parent'
 
 # ===========================================================================

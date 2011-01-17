@@ -46,15 +46,6 @@ def _create_basic_database():
     _create_packages(admin)
     _create_packages(user)
     
-def _clean_up_database_and_store():
-    if sys.platform[:3] != 'win':
-        # Doesn't work on windows because of access permission. MEDIA_ROOT will
-        # be removed on test suit start
-        try:
-            shutil.rmtree(os.path.join(settings.MEDIA_ROOT, 'packages'))
-        except remove_exception:
-            print "%s couldn't be removed" % settings.MEDIA_ROOT
-    package_storage.clear()
     
     
 class MainPageTestCase(TestCase):
@@ -74,9 +65,6 @@ class MainPageTestCase(TestCase):
         self.c.login(username=self.TEST_USER, password=self.TEST_PASSWORD)
         self.s = ServiceProxy('http://locahost:8000/json/')
     
-    def tearDown(self):
-        _clean_up_database_and_store()
-        
     def test_basic_elements(self):
         response = self.c.get('/exeapp/')
         self.assertContains(response, "Main Page")
@@ -98,16 +86,13 @@ class PackagesPageTestCase(TestCase):
     
     PAGE_URL = '/exeapp/package/%s/'
     PACKAGE_ID = 1
+    NODE_ID = 1
     
     def setUp(self):
         self.c = Client()
         _create_basic_database()
         self.c.login(username='admin', password='admin')
         
-    def tearDown(self):
-        _clean_up_database_and_store()
-        
-    
     def test_basic_structure(self):
         response = self.c.get(self.PAGE_URL % self.PACKAGE_ID)
         package_title = Package.objects.get(id=self.PACKAGE_ID).title
@@ -116,6 +101,7 @@ class PackagesPageTestCase(TestCase):
     def test_outline_pane(self):
         response = self.c.get(self.PAGE_URL % self.PACKAGE_ID)
         self.assertContains(response, "outlinePane")
+        self.assertContains(response, 'current_node="%s"' % self.NODE_ID)
         
     def test_idevice_pane(self):
         response = self.c.get(self.PAGE_URL % self.PACKAGE_ID)
@@ -186,8 +172,10 @@ class AuthoringTestCase(TestCase):
 view, this tests should be also merged'''
 
     TEST_PACKAGE_ID = 1
-    TEST_NODE_ID = 0
+    TEST_NODE_ID = 1
     TEST_NODE_TITLE = "Home"
+    IDEVICE_TYPE = "FreeTextIdevice"
+
     
     VIEW_URL = "/exeapp/package/%s/authoring/" % TEST_PACKAGE_ID
     
@@ -196,16 +184,34 @@ view, this tests should be also merged'''
         self.c = Client()
         _create_basic_database()
         self.c.login(username='admin', password='admin')
+        self.data_package = DataPackage.objects.get(pk=self.TEST_PACKAGE_ID)
+        self.root = self.data_package.root
 
-    def tearDown(self):
-        _clean_up_database_and_store()
-        
     def test_basic_elements(self): 
         '''Basic tests aimed to determine if this view works at all'''
         response = self.c.get(self.VIEW_URL)
         self.assertContains(response, 'Package %s' % self.TEST_PACKAGE_ID)
         self.assertContains(response, 'Rendering node %s' % self.TEST_NODE_ID)
         self.assertContains(response, self.TEST_NODE_TITLE)
+        
+    def test_idevice(self):
+        '''Tests if idevice is rendered properly'''
+        IDEVICE_ID = 1
+        
+        
+        self.root.addIdevice(self.IDEVICE_TYPE)
+        response = self.c.get(self.VIEW_URL)
+        self.assertContains(response, 'id="idevice%s"' % IDEVICE_ID)
+        
+    def test_idevice_move_up(self):
+        FIRST_IDEVICE_ID = 1
+        SECOND_IDEVICE_ID = 2
+        self.root.addIdevice(self.IDEVICE_TYPE)
+        self.root.addIdevice(self.IDEVICE_TYPE)
+        self.data_package.handle_action(SECOND_IDEVICE_ID, "move_up")
+        content = self.c.get(self.VIEW_URL).content
+        self.assertTrue(content.index("idevice%s" % FIRST_IDEVICE_ID) \
+                        > content.index("idevice%s" % SECOND_IDEVICE_ID))
         
 class ExportTestCase(TestCase):
     
@@ -217,8 +223,6 @@ class ExportTestCase(TestCase):
         for x in range(3):
             self.data.add_child_node()
         
-    def tearDown(self):
-        _clean_up_database_and_store()
         
     def test_basic_export(self):
         '''Exports a package'''
@@ -231,13 +235,23 @@ class ExportTestCase(TestCase):
         class MockNode(object):
             def __init__(self, title):
                 self.title = title
-                self.children = []
+                self.children = MockQuerySet([])
                 self.is_root = False
+                
+        class MockQuerySet(object):
+            def __init__(self, values):
+                self.values = values
+            
+            def all(self):
+                return self.values
+            
+            def exists(self):
+                return bool(self.values)
                 
         nodes = [MockNode("Node%s" % x) for x in range(4)]
         nodes[0].is_root = True
-        nodes[0].children = [nodes[1], nodes[2]]
-        nodes[2].children = [nodes[3]]
+        nodes[0].children = MockQuerySet([nodes[1], nodes[2]])
+        nodes[2].children = MockQuerySet([nodes[3]])
         pages = _generate_pages(nodes[0], 1)
         pages.insert(0, None)
         pages.append(None)
