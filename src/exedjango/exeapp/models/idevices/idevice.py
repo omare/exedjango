@@ -25,8 +25,6 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 
 import logging
-from copy                 import deepcopy
-from exeapp.models.persist   import Persistable
 #from exe.engine.translate import lateTranslate
 
 log = logging.getLogger(__name__)

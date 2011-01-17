@@ -32,10 +32,7 @@ from xml.dom                   import minidom
 from exedjango.utils.path      import Path, TempDirPath, toUnicode
 from exeapp.models        import Node
 #from exe.engine.genericidevice import GenericIdevice
-from exeapp.models.persist     import Persistable, encodeObject, \
-                                      decodeObject, decodeObjectRaw
                                       
-from exeapp.models.resource import Resource
 from BeautifulSoup  import BeautifulSoup
 
 log = logging.getLogger()
