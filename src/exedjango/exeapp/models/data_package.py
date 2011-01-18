@@ -288,7 +288,7 @@ i.e. the "package".
     
     DEFAULT_LEVEL_NAMES  = ["Topic", "Section", "Unit"]
     
-    package = models.ForeignKey('Package', related_name="data_package")
+    package = models.OneToOneField('Package', related_name="data_package")
     
     title = models.CharField(max_length=100)
       
@@ -386,7 +386,6 @@ Throws KeyError, if idevice_type is not found'''
     def handle_action(self, idevice_id, action, **kwargs):
         '''Delegates a action to current_node'''
         self.current_node.handle_action(idevice_id, action, **kwargs)
-        self.isChanged = True
 
     def set_backgroundImg(self, value):
         """Set the background image for this package"""
@@ -425,20 +424,18 @@ Throws KeyError, if idevice_type is not found'''
 
 
     # Properties
-    
-    # Had to deploy it to python2.5 -.- so no nice setter for me
-    def get_current_node(self):
+    @property
+    def current_node(self):
         return self.nodes.get(is_current_node=True)
     
-    def set_current_node(self, node):
+    @current_node.setter
+    def current_node(self, node):
         old_node = self.current_node
         old_node.is_current_node = False
         old_node.save()
         node.is_current_node = True
         node.save()
         
-    current_node = property(get_current_node, set_current_node)
-    
     @property
     def root(self):
         return self.nodes.get(is_root=True)

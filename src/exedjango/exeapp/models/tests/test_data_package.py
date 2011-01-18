@@ -41,12 +41,26 @@ class DataPackageTestCase(TestCase):
         self.assertEquals(self.root.children.all()[0].title, "node1")
         self.assertEquals(self.root.children.all()[1].title, "node0")
         
+    def test_move_next_to_last_down(self):
+        self.assertTrue(self.root.children.all()[1].down())
+        self.assertEquals(self.root.children.all()[1].title, "node2")
+        self.assertEquals(self.root.children.all()[2].title, "node1")
+
+        
     def test_promote(self):
-        child = self.root.children.all()[0].create_child()
+        child = self.root.children.all()[1].create_child()
         child.title = "node4"
         child.save()
         self.assertTrue(child.promote())
-        self.assertEquals(self.root.children.all()[1].title, child.title)
+        self.assertEquals(self.root.children.all()[2].title, child.title)
+        self.assertFalse(child.promote())
+        
+    def test_promote_last(self):
+        child = self.root.children.all()[2].create_child()
+        child.title = "node4"
+        child.save()
+        self.assertTrue(child.promote())
+        self.assertEquals(self.root.children.all()[3].title, child.title)
         self.assertFalse(child.promote())
         
     def test_demote(self):

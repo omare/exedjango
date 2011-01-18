@@ -22,10 +22,10 @@
 FreeTextIdevice: just has a block of text
 """
 from django.db import models
+from django.contrib.contenttypes import generic
 
 import logging
 from exeapp.models.idevices.idevice import Idevice, extern_action
-from django.contrib.contenttypes import generic
 
 #from exe.engine.field   import TextAreaField
 from exeapp.views.blocks.freetextblock import FreeTextBlock
@@ -52,10 +52,8 @@ establishing context, delivering instructions and providing general information.
 This provides the framework within which the learning activities are built and 
 delivered."""
     emphasis=Idevice.NoEmphasis
-    system_resources = []
     
     content = models.CharField(max_length=2048, default="")
-    base_idevice = models.OneToOneField(Idevice, parent_link=True)
     
     def getResourcesField(self, this_resource):
         """

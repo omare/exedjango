@@ -27,7 +27,7 @@ class Package(models.Model):
     
     def get_data_package(self):
         '''Returns data_package.'''
-        return self.data_package.all()[0]
+        return self.data_package
     
     class Meta:
         app_label = "exeapp"

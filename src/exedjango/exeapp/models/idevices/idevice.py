@@ -64,6 +64,7 @@ package
     autor = ""
     purpose = ""
     tip = ""
+    system_resources = []
              
     edit = models.BooleanField(default=True)
     icon = models.ImageField(upload_to="icons", blank=True, null=True)
@@ -71,6 +72,7 @@ package
     
     content_type = models.ForeignKey(ContentType, editable=False, null=True,
                                      related_name="base_idevice")
+    
 
 #    rawTitle = lateTranslate('title')
 #    author   = lateTranslate('author')
@@ -87,6 +89,10 @@ package
             klass = str(self.__class__).split('.')[-1]
             return klass[:-2]
     klass = property(get_klass)
+    
+    @property
+    def base_idevice(self):
+        return Idevice.objects.get(pk=self.pk)
 
     @extern_action
     def edit_mode(self):
@@ -95,27 +101,8 @@ package
         
     @extern_action    
     def delete(self):
-        """
-        delete an iDevice from it's parent_node
-        """
-        # Clear out old user resources
-        # use reverse for loop to delete old user resources
-        length=len(self.userResources) 
-        for i in range(length-1, -1, -1):
-            # possible bug fix, due to inconsistent order of loading:
-            # ensure that this idevice IS attached to the resource:
-            if self.userResources[i]._idevice is None:
-                self.userResources[i]._idevice = self
-            # and NOW we can finally properly delete it!
-            self.userResources[i].delete()
-
-        if self.parent_node:
-            # first remove any internal anchors' links:
-            self.ChangedParentNode(self.parent_node, None)
-
-            self.parent_node.idevices.remove(self)
-            self.parent_node = None
-
+        super(Idevice, self).delete()
+        
 
     def isFirst(self):
         """
@@ -256,6 +243,3 @@ package
     class Meta:
         order_with_respect_to = 'parent_node'
         app_label = "exeapp"
-       
-        
-# ===========================================================================

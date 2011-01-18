@@ -164,17 +164,18 @@ class WebsiteExport(object):
             if isBreak:
                 break
             for idevice in page.node.idevices.all():
+                resources = idevice.as_leaf_class().system_resources
                 if (hasFlowplayer and hasMagnifier and hasXspfplayer):
                     isBreak = True
                     break
                 if not hasFlowplayer:
-                    if 'flowPlayer.swf' in idevice.system_resources:
+                    if 'flowPlayer.swf' in resources:
                         hasFlowplayer = True
                 if not hasMagnifier:
-                    if 'magnifier.swf' in idevice.system_resources:
+                    if 'magnifier.swf' in resources:
                         hasMagnifier = True
                 if not hasXspfplayer:
-                    if 'xspf_player.swf' in idevice.system_resources:
+                    if 'xspf_player.swf' in resources:
                         hasXspfplayer = True
                         
         if hasFlowplayer:

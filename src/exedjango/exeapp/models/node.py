@@ -398,9 +398,10 @@ with it'''
                                  "an extern action %s" % action)
         
         getattr(idevice, action)(**kwargs)
-        idevice.save()
-        
-            
+        if action == "delete":
+            idevice = None
+        else:
+            idevice.save()
 
 
     def create_child(self):
@@ -409,131 +410,6 @@ with it'''
         """
         log.debug(u"create_child ")
         return Node.objects.create(package=self.package, parent=self)
-
-
-    def delete(self, pruningZombies=False):
-        """
-        Delete a node with all its children
-        """
-        delete_msg = ""
-        if pruningZombies:
-            delete_msg += "pruning zombie Node "
-        else:
-            delete_msg += "deleting Node "
-        delete_msg += "[parent="
-        if hasattr(self, 'parent') and self.parent:
-            delete_msg += "\"" + self.parent._title + "\"] \""
-        else:
-            delete_msg += "None] \""
-        delete_msg += self.getTitle() + "\" nodeId=" + str(self.getId()) \
-            + ", @ \"" + str(id(self)) +"\""
-
-        if pruningZombies: 
-            log.warn(delete_msg)
-        else:
-            log.debug(delete_msg)
-
-        this_node_path = self.GetFullNodePath()
-        this_anchor_name = u"auto_top"
-        full_link_name = this_node_path + "#" + this_anchor_name
-        if not hasattr(self, 'top_anchors_linked_from_fields'):
-            self.top_anchors_linked_from_fields = []
-        for this_field in self.top_anchors_linked_from_fields: 
-            # this internal link points to an anchor which is NO LONGER VALID.
-            # Remove it. 
-            # Now that intlinks_to_anchors can store nodes for auto_top...
-            this_anchor_field = self
-            this_field.RemoveInternalLinkToRemovedAnchor( \
-                    this_anchor_field, full_link_name)
-
-        # Remove ourself from the id dict and our parents child thing
-        # (zombie nodes may not even be listed)
-        if hasattr(self, '_package') and self.package is not None \
-        and self.id in self.package._nodeIdDict \
-        and self.package._nodeIdDict[self.id] == self: 
-            # okay, this node IS in the package's node ID dictionary.
-            # do NOT delete it if we are pruningZombies,
-            # as that is to be done as SAFELY as possible,
-            # and zombies are usually NOT in the node ID dictionary:
-
-            if pruningZombies:
-                # BEWARE, as zombies are not usually in the node ID dictionary,
-                # unless a full zombie tree, or the root itself, from an
-                # earlier version of Extract which left its parent tree zombied
-
-                if self.package and self.package.root == self:
-                    # okay, this is a valid root-node, with a parent left over:
-                    if self.parent and self in self.parent.children: 
-                        self.parent.children.remove(self)
-                    self.parent = None
-                    log.warn("While pruning zombie nodes, found ROOT node \"" 
-                        + self._title + "\" still in package node dictionary. "
-                        + "Stopping the prune on this part of the node tree.")
-                    # and bail, leaving its children and idevices in place
-                    self.package.isChanged = True
-                    return
-                elif self.parent:
-                    if self in self.parent.children: 
-                        self.parent.children.remove(self)
-                    self.parent = None
-                    log.warn("While pruning zombie nodes, found node \"" 
-                        + self._title + "\" still in package node dictionary. "
-                        + "Stopping the prune on this part of the node tree.")
-                    # and bail, leaving its children and idevices in place
-                    self.package.isChanged = True
-                    return
-
-                # else this is a stand-alone zombie tree
-                del self.package._nodeIdDict[self.id]
-                # and continue on with the pruning / standard deleting...
-
-            else: 
-                # standard delete, which IS expected to be in the node ID dict:
-                del self.package._nodeIdDict[self.id]
-                # and continue on with the pruning / standard deleting...
-
-        if hasattr(self, 'parent') and self.parent:
-            # (zombie nodes will NOT necessarily be in the parent's children):
-            if hasattr(self.parent, 'children')\
-            and self in self.parent.children: 
-                self.parent.children.remove(self)
-            self.parent = None
-
-        # Remove all children from package id-dict and our own children list
-        # use reverse for loop to delete, in case of any problems deleting:
-        num_children = 0
-        if hasattr(self, 'children'):
-            num_children = len(self.children)
-        for i in range(num_children-1, -1, -1):
-            # safety check for extracted nodes, ensure that children[i] is valid
-            if self.children[i]:
-                if self.children[i].parent is None:
-                    log.warn('reconnecting child node before deletion from node')
-                    self.children[i].parent = self
-                elif self.children[i].parent != self:
-                    log.warn('about to delete child node from node, '\
-                            'but it points to a different parentNode.')
-                    # continuing on with the delete anyhow, though...
-                self.children[i].delete(pruningZombies)
-
-        # Let all the iDevices know they're being deleted too
-        # use reverse for loop to delete, in case of any problems deleting:
-        num_idevices = 0
-        if hasattr(self, 'idevices'): 
-            num_idevices = len(self.idevices)
-        for i in range(num_idevices-1, -1, -1):
-            if self.idevices[i].parentNode is None:
-                log.warn('reconnecting iDevice before deletion from node')
-                self.idevices[i].parentNode = self
-            elif self.idevices[i].parentNode != self:
-                log.warn('about to delete iDevice from node, '\
-                        'but it points to a different parentNode.')
-                # continuing on with the delete anyhow, though...
-            self.idevices[0].delete()
-
-        if self.package: 
-            self.package.isChanged = True
-            self._package = None
 
 
     def addIdevice(self, idevice_type):
@@ -558,11 +434,11 @@ KeyError, if idevice_type is not found
         self.parent = new_parent
         self.save()
         node_order = self.parent.get_node_order()
-        del node_order[node_order.index(self.id)]
+        node_order.remove(self.id)
         if next_sibling is not None:
             sibling_index = node_order.index(next_sibling.pk)
         else:
-            sibling_index = -1
+            sibling_index = len(node_order)
         node_order.insert(sibling_index, self.pk)
         self.parent.set_node_order(node_order)  
 
@@ -631,11 +507,15 @@ Returns True is successful
             next_sibling = self.get_next_in_order()
         except Node.DoesNotExist:
             return False
-        if next_sibling is not None:
-            self.move(self.parent, next_sibling.get_next_in_order())
-            return True
+        try:
+            next_next_sibling = next_sibling.get_next_in_order()
+            
+        except Node.DoesNotExist:
+            next_next_sibling = None
+        
+        self.move(self.parent, next_next_sibling) 
+        return True
 
-        return False
 
 
     def walkDescendants(self):
