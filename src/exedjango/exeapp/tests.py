@@ -267,3 +267,13 @@ class ExportTestCase(TestCase):
                 
                 self.assertEquals(page.prev_page, pages[prev])
                 self.assertEquals(page.next_page, pages[next])
+                
+    def test_websitepage(self):
+        IDEVICE_TYPE = "FreeTextIdevice"
+        IDEVICE_ID = 1
+        
+        self.assertEquals(self.data.root, self.data.current_node)
+        self.data.add_idevice(IDEVICE_TYPE)
+        websitepage = WebsitePage(self.data.root, 0)
+        self.assertTrue('class="%s" id="id1"' % IDEVICE_TYPE \
+                        in websitepage.render([self.data.root]))

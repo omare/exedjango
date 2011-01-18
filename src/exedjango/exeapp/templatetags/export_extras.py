@@ -15,7 +15,7 @@ def export_idevice(idevice):
 block'''
     
     block = idevice.as_leaf_class().block
-    return block.render_export(idevice)
+    return block.render_export(idevice.as_leaf_class())
 
 @register.inclusion_tag('navigation_bar.html')
 def navigation_bar(page_structure, current_page):

@@ -86,7 +86,7 @@ package
             else:
                 return self.class_ + u'Idevice'
         else:
-            klass = str(self.__class__).split('.')[-1]
+            klass = str(self.as_leaf_class().__class__).split('.')[-1]
             return klass[:-2]
     klass = property(get_klass)
     

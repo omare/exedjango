@@ -381,7 +381,6 @@ successful'''
         '''Adds idevice by a given type to the current node.
 Throws KeyError, if idevice_type is not found'''
         self.current_node.addIdevice(idevice_type)
-        self.isChanged = True
         
     def handle_action(self, idevice_id, action, **kwargs):
         '''Delegates a action to current_node'''
