@@ -25,6 +25,7 @@ This class transforms an eXe node into a page on a self-contained website
 import logging
 import re
 from urllib                   import quote
+import codecs
 from utils.path          import Path
 from utils import common
 from exeapp.views.export.pages         import Page, uniquifyNames
@@ -43,8 +44,9 @@ class WebsitePage(Page):
         file.  'outputDir' is the directory where the filenames will be saved
         (a 'path' instance)
         """
-        outfile = open(outputDir / self.name+".html", "w")
-        outfile.write(self.render(page_structure))
+        outfile = codecs.open(outputDir / self.name+".html", "w", "utf-8")
+        content = self.render(page_structure)
+        outfile.write(content)
         outfile.close()
         
 
