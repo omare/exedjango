@@ -12,15 +12,15 @@ base style sheet for all themes
     ***********************/
 
 
-body {
+#authoring {
     margin: 0px;
-    padding: 0px 10px 10px 10px;
+    padding: 10px 10px 10px 10px;
     font-family: arial, verdana, helvetica, sans-serif;
     font-size: .8em;
     background-color: #FFFFFF;
 }
 
-#header {
+#authoring > #header {
     text-align: left;
     height: 50px;
     padding-left: 20px;
@@ -32,7 +32,7 @@ a {
     text-decoration: none;
 }
 
-a:hover {
+#authoring > a:hover {
     text-decoration: underline;
 }
 

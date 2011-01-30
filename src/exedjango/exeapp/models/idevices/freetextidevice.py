@@ -25,7 +25,7 @@ from django.db import models
 from django.contrib.contenttypes import generic
 
 import logging
-from exeapp.models.idevices.idevice import Idevice, extern_action
+from exeapp.models.idevices.idevice import Idevice, IdeviceActionNotFound
 
 #from exe.engine.field   import TextAreaField
 from exeapp.views.blocks.freetextblock import FreeTextBlock
@@ -68,11 +68,13 @@ delivered."""
 
         return None
     
-    @extern_action
-    def apply_changes(self, content):
+    def apply_changes(self, arguments):
         '''Saves changes and sets idevice mode to non-edit'''
-        self.content = content
-        self.edit = False
+        if "content" in arguments:
+            self.content = arguments['content']
+            self.edit = False
+        else:
+            raise IdeviceActionNotFound("Arguments 'content' not found")
         
        
     def getRichTextFields(self):

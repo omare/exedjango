@@ -7,13 +7,17 @@
 {% block head%}
 <!-- CSS -->
 <link rel="stylesheet" type="text/css" href="/static/css/superfish.css" />
+<link rel="stylesheet" type="text/css" href="/static/css/editing.css">
 <link rel="stylesheet" type="text/css" href="/static/css/exe.css" />
 <link rel="stylesheet" type="text/css" href="/static/css/ui-lightness/jquery-ui-1.8.4.custom.css" />
+<link rel="stylesheet" type="text/css" href="/static/css/styles/base.css">
+<link rel="stylesheet" type="text/css" href="/static/css/styles/{{data_package.style}}/content.css">
 <!-- SCRIPTS -->
 <script n:render="liveid"></script>
 <script type="text/javascript" src="/static/scripts/jquery.min.js"></script>
 <script type="text/javascript" src="/static/scripts/jquery-ui.custom.min.js"></script>
 <script type="text/javascript" src="/static/scripts/mainpage.js"></script>
+<script type="text/javascript" src="/static/scripts/common.js"></script>
 <script type='text/javascript' src='/static/scripts/jquery.jsonrpc.js'></script>
 <script type="text/javascript" src="/static/scripts/superfish.js"></script>
 <script type="text/javascript" src="/static/scripts/jquery.cookie.js"></script>
@@ -21,6 +25,8 @@
 <script type="text/javascript" src="/static/scripts/jquery.confirm.js"></script>
 <script type="text/javascript" src="/static/scripts/jquery.alerts.js"></script>
 <script type="text/javascript" src="/static/scripts/jquery.blockUI.js"></script>
+<script type="text/javascript" src="/static/scripts/tiny_mce/tiny_mce.js"></script>
+<script type="text/javascript" src="/static/scripts/tiny_mce/jquery.tinymce.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -129,7 +135,7 @@
         <li><a href="#properties">Properties</a></li>
     </ul>
     <div id="authoring">
-        <iframe id="authoringIFrame1" ></iframe>
+        <div id="authoring" name="authoringIFrame1"></div>
     </div>
     <!--Properties pane will be rendered here-->
     <div id="properties">

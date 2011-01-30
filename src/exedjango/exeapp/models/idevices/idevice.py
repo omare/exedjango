@@ -29,19 +29,9 @@ import logging
 
 log = logging.getLogger(__name__)
 
-def extern_action(func):
-    '''Marks an function as an extern action, i.e. can be called via rpc.
-    Take caution, may be misused!'''
-    
-    def newFunc(self, *args, **kwargs):
-        # Get argument names of the function
-        arg_names = func.func_code.co_varnames
-        # Select only args relevant for this function
-        corrected_kwargs = dict(((k, v) for k,v in kwargs.items() \
-                    if k in arg_names[:func.func_code.co_argcount]))
-        return func(self, *args, **corrected_kwargs)
-    newFunc.extern_action = True
-    return newFunc
+class IdeviceActionNotFound(Exception):
+    '''Specified action with given arguments was not found'''
+    pass
 
 # ===========================================================================
 class Idevice(models.Model):
@@ -93,33 +83,51 @@ package
     @property
     def base_idevice(self):
         return Idevice.objects.get(pk=self.pk)
+    
+    def process(self, action, arguments):
+        
+        if action == 'delete':
+            self.delete()
+            # Don't save IDevice if it has to be deleted
+            return 
+        elif action == 'move_up':
+            self.move_up()
+        elif action == 'move_down':
+            self.move_down()
+        elif action == 'edit_mode':
+            self.edit_mode()
+        elif action == 'apply_changes':
+            self.apply_changes(arguments)
+        else:
+            raise IdeviceActionNotFound("Action %s not found" % action)
+        
+        self.save()
 
-    @extern_action
     def edit_mode(self):
         '''Sets idevice mode to edit'''
         self.edit = True
         
-    @extern_action    
     def delete(self):
         super(Idevice, self).delete()
+        
+    def apply_changes(self, agruments):
+        raise NotImplemented("Implement apply_changes in a subclass")
         
 
     def isFirst(self):
         """
         Return true if this is the first iDevice in this node
         """
-        index = self.parent_node.idevices.index(self)
-        return index == 0
+        return self._order == 0
 
 
     def isLast(self):
         """
         Return true if this is the last iDevice in this node
         """
-        index = self.parent_node.idevices.index(self)
-        return index == len(self.parent_node.idevices) - 1
+        return self._order == \
+            len(self.parent_node.idevices.get_query_set()) - 1       
 
-    @extern_action
     def move_up(self):
         """
         Move to the previous position
@@ -131,7 +139,6 @@ package
         prev_idevice._order, self._order = self._order, prev_idevice._order
         prev_idevice.save()
 
-    @extern_action
     def move_down(self):
         """
         Move to the next position

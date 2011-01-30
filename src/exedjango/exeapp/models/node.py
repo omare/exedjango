@@ -388,20 +388,10 @@ with it'''
                 resources[resource] = True
         return resources.keys()
     
-    def handle_action(self, idevice_id, action, **kwargs):
+    def handle_action(self, idevice_id, action, arguments):
         '''Removes an iDevice or delegates action to it'''
         idevice = self.idevices.get(pk=idevice_id).as_leaf_class()
-        if not hasattr(idevice, action) or \
-            not hasattr(getattr(idevice, action), 'extern_action') or\
-            not getattr(idevice, action).extern_action:
-            raise AttributeError("Idevice does not have " +\
-                                 "an extern action %s" % action)
-        
-        getattr(idevice, action)(**kwargs)
-        if action == "delete":
-            idevice = None
-        else:
-            idevice.save()
+        idevice.process(action, arguments)
 
 
     def create_child(self):

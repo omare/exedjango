@@ -85,8 +85,8 @@ jQuery(document).ready(function() {
                 $("#idevicePane").jstree({"plugins" : ["themes", "html_data", "ui"]})
                 $("#idevicePane").jstree('open_all', $('#idevicePane>ul'));
                                    
-                $("#authoringIFrame1").attr('src',
-                    document.location.pathname + "authoring/");
+                //$("#authoring").attr('src',
+                //    document.location.pathname + "authoring/");
                 $("#propertiesIFrame").attr('src',
                     document.location.pathname + "properties/");
                     
@@ -114,9 +114,6 @@ jQuery(document).ready(function() {
                 
             });
             
-// Set to false to stop selects doing page reloads
-var clickon = true 
-
 // Adds a new node to current one
 function add_child_node() {
   
@@ -125,6 +122,38 @@ function add_child_node() {
       callback_add_child_node(results.result.id, results.result.title);
     }
   })
+}
+
+function initialize_authoring() {
+  $("textarea.mce_editor").tinymce({   
+    content_css : "/static/css/extra.css", 
+    verify_html : false, 
+    apply_source_formatting : true, 
+    cleanup_on_startup : false, 
+    entity_encoding : "raw", 
+    gecko_spellcheck : true, 
+     mode : "textareas",
+     plugins : "table,save,advhr,advimage,advlink,emotions,media, contextmenu,paste,directionality",
+     theme : "advanced",
+     theme_advanced_layout_manager : "SimpleLayout",
+    theme_advanced_toolbar_location : "top",
+     theme_advanced_buttons1 : "newdocument,separator,bold,italic,underline,fontsizeselect,forecolor,backcolor,separator,sub,sup,separator,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,outdent,indent,separator,anchor,separator,cut,copy,paste,pastetext,pasteword,help",
+     theme_advanced_buttons2 : "image,media,exemath,advhr,fontselect,tablecontrols,separator,link,unlink,separator, undo,redo,separator,charmap,code,removeformat",
+     theme_advanced_buttons3 : "",
+    advimage_image_browser_callback : "chooseImage_viaTinyMCE",
+    advimage_image2insert_browser_callback : "chooseImage_viaTinyMCE",
+    media_media_browser_callback : "chooseImage_viaTinyMCE",
+    media_media2insert_browser_callback : "chooseImage_viaTinyMCE",
+    advlink_file_browser_callback : "chooseImage_viaTinyMCE",
+    advlink_file2insert_browser_callback : "chooseImage_viaTinyMCE",
+    theme_advanced_statusbar_location : "bottom",
+        theme_advanced_resize_horizontal : true,
+        theme_advanced_resizing : true,
+        width : "100%"
+ });
+ 
+ $(".action_button").bind("click", handle_action_button)
+
 }
 
 //Removes current node
@@ -357,7 +386,7 @@ function is_root(node) {
 }
 
 // called to synchronize current_node attribute of outline_pane with 
-// currently selected node. Refreshes authoringIFrame1
+// currently selected node. Refreshes authoring
 function set_current_node(node) {
   get_outline_pane().attr('current_node', get_current_node().attr('nodeid'));
   updateTitle();
@@ -375,7 +404,9 @@ function get_outline_pane() {
 
 // Reloads content of authoring part
 function reload_authoring(){
-  window.frames['authoringIFrame1'].location.reload();
+  $("#authoring").load("authoring/", function() {
+    initialize_authoring();
+  });
 }
 
 function setDocumentTitle(title) {

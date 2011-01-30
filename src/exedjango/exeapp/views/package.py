@@ -57,7 +57,7 @@ def export(request, package, format):
         exporter.exportZip()
         zip = file_obj.getvalue()
         file_obj.close()
-        response = HttpResponse(mimetype="application/zip")
+        response = HttpResponse(content_type="application/zip")
         response['Content-Disposition'] = 'attachment; filename=%s.zip'\
                                     % package.title
         response.write(zip)

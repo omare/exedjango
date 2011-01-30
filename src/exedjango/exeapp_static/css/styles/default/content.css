@@ -8,19 +8,19 @@ to modify this style for your needs.
 ===========================================================================
 */
 
-body {
-   margin: 10px 20px 10px 20px;
-   padding: 0px 0px 0px 0px;
+#authoring {
+   margin: 5px 5px 5px 5px;
+   padding: 10px 10px 10px 10px;
    color:#4d4d4d;
    background: #E0DFD8;
 }
 
 
-a {
+#authoring > a {
  color: #FF6600;
 }
 
-a:hover {
+#authoring > a:hover {
  color: #B34700;
 }
 

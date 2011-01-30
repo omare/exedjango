@@ -382,9 +382,9 @@ successful'''
 Throws KeyError, if idevice_type is not found'''
         self.current_node.addIdevice(idevice_type)
         
-    def handle_action(self, idevice_id, action, **kwargs):
+    def handle_action(self, idevice_id, action, arguments={}):
         '''Delegates a action to current_node'''
-        self.current_node.handle_action(idevice_id, action, **kwargs)
+        self.current_node.handle_action(idevice_id, action, arguments)
 
     def set_backgroundImg(self, value):
         """Set the background image for this package"""

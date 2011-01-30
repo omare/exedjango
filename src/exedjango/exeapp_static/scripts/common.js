@@ -63,17 +63,6 @@ YOUR_SCORE_IS      = "Your score is ";
 
 
 
-jQuery(document).ready(function() {
-  // Setup jsonRPC
-  $.jsonRPC.setup({
-                   endPoint: '/exeapp/json/',
-                   namespace: 'authoring',
-                });
-  //bind all apply buttons
-  $(".action_button").bind("click", handle_action_button)
-  return false;
-});
-
 function handle_action_button() {
   var idevice_id = get_idevice_id($(this));
   var action = $(this).attr("action");
@@ -96,10 +85,6 @@ function get_idevice(obj) {
 
 function get_package_id(){
   return $("#package_id").text()
-}
-
-function reload_page(){
-  location.reload();
 }
 
 // Returns a dictionary of all elements of the idevice with non-empty
@@ -785,7 +770,7 @@ function submitLink(action, idevice_id, changed, arguments)
 {
     $.jsonRPC.request("idevice_action",
       [get_package_id(), idevice_id, action, arguments],
-      {success: reload_page });
+      {success: reload_authoring });
 
 }
 
