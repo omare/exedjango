@@ -58,55 +58,6 @@ class WebsitePage(Page):
         current_page = self
         return render_to_string("exe/export/websitepage.html", locals())
 
-        
-    def leftNavigationBar(self, pages):
-        """
-        Generate the left navigation string for this page
-        """
-        depth    = 1
-        nodePath = [None] + list(self.node.ancestors()) + [self.node]
-
-        html = "<ul id=\"navlist\">\n"
-
-        for page in pages:
-            if page.node.parent in nodePath:
-                while depth < page.depth:
-                    html += "<div id=\"subnav\" "
-                    #if page.node.children:
-                        #    html += "class=\"withChild\""
-                        #else:
-                        #    html += "class=\"withoutChild\""
-                    html += ">\n"
-                    depth += 1
-                while depth > page.depth:
-                    html += "</div>\n"
-                    depth -= 1
-
-                if page.node == self.node:
-                    if page.node.children:
-                        html += "<div id=\"active\" "
-                    else:
-                        html += "<div id=\"activeWithoutChild\" "
-                    html += ">"
-                    html += page.node.titleShort
-                    html += "</div>\n"
-                else:
-                    html += "<div><a href=\""+quote(page.name)+".html\" "
-                    if page.node.children:
-                        html += "class=\"withChild\""
-                    else:
-                        html += "class=\"withoutChild\""
-                    html += ">"
-                    html += page.node.titleShort
-                    html += "</a></div>\n"
-
-        while depth > 1:
-            html += "</div>\n"
-            depth -= 1
-        html += "</ul>\n"
-        return html
-        
-        
     def getNavigationLink(self, prevPage, nextPage):
         """
         return the next link url of this page

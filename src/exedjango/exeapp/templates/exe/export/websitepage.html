@@ -27,7 +27,7 @@
         {% include navigation_links %}
         {% for idevice in current_page.node.idevices.all %}
           <div class="{{idevice.klass}}" id="id{{idevice.id}}">
-            {{idevice|export_idevice|process_internal_links:data_package}}
+            {{idevice|export_idevice}}
           </div>
         {% endfor %}
         {% include navigation_links %}

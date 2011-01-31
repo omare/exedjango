@@ -1,4 +1,4 @@
 {% extends 'exe/idevices/edit_base.html' %}
 {% block idevice %}
-<textarea id="area{{idevice.id}}" name="content" class="mce_editor">{{idevice.content}}</textarea>
+{{ idevice.textfield.controller.render_edit }}
 {% endblock %}

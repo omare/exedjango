@@ -8,8 +8,28 @@ def render_idevice(idevice):
 block'''
     
     leaf_idevice = idevice.as_leaf_class()
-    block = leaf_idevice.block
-    return block.render(leaf_idevice)
+    controller = leaf_idevice.controller
+    return controller.render(leaf_idevice)
 
+@register.filter
+def render_field_edit(field):
+    '''Convinience filter, just renders calls render_view function of field's 
+element'''
+
+    return field.controller.render_edit()
+
+@register.filter
+def render_field_preview(field):
+    '''Convinience filter, just renders calls render_view function of field's 
+element'''
+    
+    return field.controller.render_preview()
+
+@register.filter
+def render_field_export(field):
+    '''Convinience filter, just renders calls render_export function of field's 
+element'''
+    
+    return field.controller.render_export()
 
     
