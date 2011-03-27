@@ -98,14 +98,6 @@ class Block(object):
             self.processDone(request)
 
 
-    def processDone(self, request):
-        """
-        User has finished editing this block
-        """
-        log.debug(u"processDone id="+self.id)
-        self.idevice.edit = False
-
-
     def processEdit(self, request):
         """
         User has started editing this block
@@ -134,20 +126,6 @@ class Block(object):
             self.idevice.setParentNode(node)
         else:
             log.error(u"addChildNode cannot locate "+nodeId)
-
-
-    def processPromote(self, request):
-        """
-        Promote this node up the hierarchy tree
-        """
-        log.debug(u"processPromote id="+self.id)
-
-
-    def processDemote(self, request):
-        """
-        Demote this node down the hierarchy tree
-        """
-        log.debug(u"processDemote id="+self.id)
 
 
     def processMovePrev(self, request):

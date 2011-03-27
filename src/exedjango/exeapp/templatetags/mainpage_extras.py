@@ -84,7 +84,7 @@ def render_styles():
               os.listdir(settings.STYLE_DIR) \
               # style dir has to be joined because of a bug on windows 
               # with abapath resolving
-              if os.path.isdir(os.path.join(settings.STYLE_DIR, style))]
+              if os.path.isdir(os.path.join(settings.STYLE_DIR, style))].sort()
     return locals()
 
 def _create_children_list(node, template=None,):
