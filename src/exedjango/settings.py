@@ -114,4 +114,4 @@ INSTALLED_APPS = (
 )
 
 STATIC_ROOT = _get_file_from_root('exeapp_static')
-
+STYLE_DIR = "%s/css/styles/" % STATIC_ROOT

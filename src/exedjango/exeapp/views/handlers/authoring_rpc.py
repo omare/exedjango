@@ -1,7 +1,7 @@
 from jsonrpc import jsonrpc_method
 from exeapp.shortcuts import get_package_by_id_or_error
 
-__all__ = ['handle_action']
+__all__ = ['idevice_action']
 
 @jsonrpc_method('package.idevice_action', authenticated=True)
 @get_package_by_id_or_error

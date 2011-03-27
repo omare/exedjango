@@ -54,6 +54,16 @@ from exeapp.models import idevice_store
 
 log = logging.getLogger(__name__)
 
+@jsonrpc_method('package.get_current_style', authenticated=True)
+@get_package_by_id_or_error
+def get_current_style(request, package):
+    return {"style" : package.data_package.style}
+
+@jsonrpc_method('package.set_package_style', authenticated=True)
+@get_package_by_id_or_error
+def set_package_style(request, package, style_id):
+    package.data_package.set_style(style_id)
+
 @jsonrpc_method('package.add_idevice', authenticated=True)
 @get_package_by_id_or_error
 def add_idevice(request, package, idevice_type):
