@@ -1,0 +1,5 @@
+<select id="style_selector">
+	{% for style in styles %}
+	<option class="style_selector" value="{{style}}">{{style|capfirst}}</option>
+	{% endfor %}
+</select>

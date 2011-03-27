@@ -37,6 +37,8 @@ def package(request, package):
 def authoring(request, package):
     '''Handles calls to authoring iframe. Renders exe/authoring.html'''
     
+    # if partial is set return only content of body
+    partial = "partial" in request.GET and request.GET['partial'] == "true"
     data_package = package.get_data_package()
     return render_to_response('exe/authoring.html', locals())
 

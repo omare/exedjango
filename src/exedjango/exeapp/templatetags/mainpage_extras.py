@@ -5,6 +5,7 @@ from django.conf import settings
 
 from collections import defaultdict
 from logging import getLogger
+import os
 
 from exeapp.models.idevices.idevice import Idevice
 
@@ -75,6 +76,15 @@ def render_idevicepane(idevices):
             groups[Idevice.Unknown] += prototype
     # used to perserve the group order
     group_order = sorted(groups.keys())
+    return locals()
+
+@register.inclusion_tag("exe/styles.html")
+def render_styles():
+    styles = [os.path.basename(style) for style in \
+              os.listdir(settings.STYLE_DIR) \
+              # style dir has to be joined because of a bug on windows 
+              # with abapath resolving
+              if os.path.isdir(os.path.join(settings.STYLE_DIR, style))]
     return locals()
 
 def _create_children_list(node, template=None,):

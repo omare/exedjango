@@ -1,11 +1,30 @@
 {% load authoring_extras %}
 {% with data_package.current_node as current_node %}
-<div id="package_id" style="display: none">{{package.id}}</div>
-<p>Authoring for Package {{data_package.id}}</p>
-<p>Rendering node {{current_node.id}}</p>
-<h2>{{current_node.title}}</h2>
-{% for idevice in current_node.idevices.all %}
-  <p>Idevice found</p>
-  {{ idevice|render_idevice }}
-{% endfor %}
+{% if not partial %}
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="/static/css/editing.css">
+		<link rel="stylesheet" type="text/css" href="/static/css/styles/base.css">
+		<link rel="stylesheet" type="text/css" href="/static/css/styles/{{data_package.style}}/content.css">
+		
+		<script type="text/javascript" src="/static/scripts/jquery.min.js"></script>
+		<script type='text/javascript' src='/static/scripts/jquery.jsonrpc.js'></script>
+		<script type="text/javascript" src="/static/scripts/common.js"></script>
+		<script type="text/javascript" src="/static/scripts/tiny_mce/tiny_mce.js"></script>
+		<script type="text/javascript" src="/static/scripts/tiny_mce/jquery.tinymce.js"></script>
+	</head>
+	<body>
+{% endif %}
+			<div id="package_id" style="display: none">{{package.id}}</div>
+			<p>Authoring for Package {{data_package.id}}</p>
+			<p>Rendering node {{current_node.id}}</p>
+			<h2>{{current_node.title}}</h2>
+			{% for idevice in current_node.idevices.all %}
+			  <p>Idevice found</p>
+			  {{ idevice|render_idevice }}
+			{% endfor %}
+	{% if not partial %}
+	</body>
+</html>
+{% endif %}
 {% endwith %}

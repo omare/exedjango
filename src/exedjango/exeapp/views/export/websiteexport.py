@@ -50,7 +50,7 @@ class WebsiteExport(object):
         with the website
         """
         self.data_package = data_package
-        self.style_dir = Path("%s/css/styles/%s" % (settings.STATIC_ROOT, 
+        self.style_dir = Path("%s/%s" % (settings.STYLE_DIR, 
                                             data_package.style))
         self.scripts_dir = Path("%s/scripts/" % settings.STATIC_ROOT)
         self.file_obj = file_obj

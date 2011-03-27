@@ -62,9 +62,7 @@ jQuery(document).ready(function() {
                    endPoint: '/exeapp/json/',
                    namespace: 'package',
                 });
-                $("#filemenu").superfish();
                 $("a.bigButton, a.smallButton").button();
-                
                 // Initialize outline tree
                 $.jstree._themes = "/static/css/themes/"
                 get_outline_pane().jstree({
@@ -79,6 +77,9 @@ jQuery(document).ready(function() {
                 get_outline_pane().delegate("a", "dblclick", rename_current_node);
                 //bind renaming event
                 get_outline_pane().bind("rename_node.jstree", handle_renamed_current_node);
+                // handle theme selection
+                set_current_style()
+                $("#style_selector").change(handle_select_style);
                 
                 
                 // Initialize idevice Tree
@@ -124,37 +125,7 @@ function add_child_node() {
   })
 }
 
-function initialize_authoring() {
-  $("textarea.mce_editor").tinymce({   
-    content_css : "/static/css/extra.css", 
-    verify_html : false, 
-    apply_source_formatting : true, 
-    cleanup_on_startup : false, 
-    entity_encoding : "raw", 
-    gecko_spellcheck : true, 
-     mode : "textareas",
-     plugins : "table,save,advhr,advimage,advlink,emotions,media, contextmenu,paste,directionality",
-     theme : "advanced",
-     theme_advanced_layout_manager : "SimpleLayout",
-    theme_advanced_toolbar_location : "top",
-     theme_advanced_buttons1 : "newdocument,separator,bold,italic,underline,fontsizeselect,forecolor,backcolor,separator,sub,sup,separator,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,outdent,indent,separator,anchor,separator,cut,copy,paste,pastetext,pasteword,help",
-     theme_advanced_buttons2 : "image,media,exemath,advhr,fontselect,tablecontrols,separator,link,unlink,separator, undo,redo,separator,charmap,code,removeformat",
-     theme_advanced_buttons3 : "",
-    advimage_image_browser_callback : "chooseImage_viaTinyMCE",
-    advimage_image2insert_browser_callback : "chooseImage_viaTinyMCE",
-    media_media_browser_callback : "chooseImage_viaTinyMCE",
-    media_media2insert_browser_callback : "chooseImage_viaTinyMCE",
-    advlink_file_browser_callback : "chooseImage_viaTinyMCE",
-    advlink_file2insert_browser_callback : "chooseImage_viaTinyMCE",
-    theme_advanced_statusbar_location : "bottom",
-        theme_advanced_resize_horizontal : true,
-        theme_advanced_resizing : true,
-        width : "100%"
- });
- 
- $(".action_button").bind("click", handle_action_button)
 
-}
 
 //Removes current node
 function delete_current_node() {
@@ -170,7 +141,7 @@ function delete_current_node() {
 //Simply triggeds jstree's rename routine
 function rename_current_node(){
   if (get_current_node().attr('id') != "node" + current_outline_id()) {
-      alert("Somehow you managed to call dblclik event without a single click. Please, reload page!");
+      alert("Somehow you managed to call dblclik event without a single click. Please,  page!");
       return null;
   }
   get_outline_pane().jstree("rename");
@@ -275,6 +246,15 @@ function handle_select_node(event, data) {
         }
     });
     return false;
+}
+
+function handle_select_style() {
+	
+	$.jsonRPC.request("set_package_style", [get_package_id(), $("#style_selector").val()],
+	{success: function() {
+		// fully reload iframe to apply new style sheets
+		window.frames.authoringIFrame1.location = 'authoring/';
+	}});
 }
 
 //handle renamed node event. Calls package.rename_node over rpc.
@@ -393,6 +373,14 @@ function set_current_node(node) {
   reload_authoring();
 }
 
+function set_current_style() {
+	$.jsonRPC.request('get_current_style', [get_package_id()],
+		{success: function(results){
+			var style_val = results.result.style;
+			$("#style_selector").val(style_val);
+		}});
+}
+
 function get_current_node() {
     var selected = get_outline_pane().jstree("get_selected").find(">a");
     return selected;
@@ -402,11 +390,14 @@ function get_outline_pane() {
   return $("#outline_pane");
 }
 
-// Reloads content of authoring part
+// Reloads content of authoring part. Convinience function, just 
+// calls reload from authoring iframe
 function reload_authoring(){
-  $("#authoring").load("authoring/", function() {
-    initialize_authoring();
-  });
+	if ("reload_authoring" in window.frames['authoringIFrame1']) {
+  		window.frames['authoringIFrame1'].reload_authoring();
+	} else {
+		window.frames['authoringIFrame1'].location = 'authoring/';
+	}
 }
 
 function setDocumentTitle(title) {

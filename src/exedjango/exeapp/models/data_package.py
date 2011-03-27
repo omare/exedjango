@@ -434,6 +434,10 @@ Throws KeyError, if idevice_type is not found'''
         old_node.save()
         node.is_current_node = True
         node.save()
+
+    def set_style(self, style):
+        self.style = style
+        self.save()
         
     @property
     def root(self):

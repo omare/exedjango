@@ -27,6 +27,11 @@ div#sidebar {
     height: 600px;
 }
 
+#authoringIFrame1 {
+	width: 800px;
+	height: 600px;
+}
+
 #wrap {
     width: 1200px;
 }
