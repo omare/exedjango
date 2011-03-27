@@ -80,11 +80,11 @@ def render_idevicepane(idevices):
 
 @register.inclusion_tag("exe/styles.html")
 def render_styles():
-    styles = [os.path.basename(style) for style in \
+    styles = sorted([os.path.basename(style) for style in \
               os.listdir(settings.STYLE_DIR) \
               # style dir has to be joined because of a bug on windows 
               # with abapath resolving
-              if os.path.isdir(os.path.join(settings.STYLE_DIR, style))].sort()
+              if os.path.isdir(os.path.join(settings.STYLE_DIR, style))])
     return locals()
 
 def _create_children_list(node, template=None,):
