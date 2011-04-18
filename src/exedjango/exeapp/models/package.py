@@ -4,6 +4,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.db.models.fields.files import FieldFile
 
+from django.core.urlresolvers import reverse
 from exeapp.models import DataPackage
 
 import tempfile
@@ -31,6 +32,10 @@ class Package(models.Model):
     
     class Meta:
         app_label = "exeapp"
+        
+    def get_absolute_url(self):
+        return reverse('exeapp.views.package.package',
+                       kwargs={'package_id' : self.id})
     
     def __unicode__(self):
         return "Package %s: %s" % (self.id, self.title)

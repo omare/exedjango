@@ -1,4 +1,5 @@
 from django import template
+from exeapp.views.blocks.blockfactory import block_factory
 
 register = template.Library()
 
@@ -8,8 +9,8 @@ def render_idevice(idevice):
 block'''
     
     leaf_idevice = idevice.as_leaf_class()
-    controller = leaf_idevice.controller
-    return controller.render(leaf_idevice)
+    block = block_factory(leaf_idevice)
+    return block.render(leaf_idevice)
 
 @register.filter
 def render_field_edit(field):

@@ -2,20 +2,22 @@
 
 {% load mainpage_extras %}
 
+{% load static %}
+
 {% block title %}Package Page: {{ package.title }}{% endblock %}
 
 {% block head%}
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="/static/css/exe.css" />
-<link rel="stylesheet" type="text/css" href="/static/css/ui-lightness/jquery-ui-1.8.4.custom.css" />
+<link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/exe.css" />
+<link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/ui-lightness/jquery-ui-1.8.4.custom.css" />
 <!-- SCRIPTS -->
-<script type="text/javascript" src="/static/scripts/jquery.min.js"></script>
-<script type="text/javascript" src="/static/scripts/jquery-ui.custom.min.js"></script>
-<script type="text/javascript" src="/static/scripts/mainpage.js"></script>
-<script type='text/javascript' src='/static/scripts/jquery.jsonrpc.js'></script>
-<script type="text/javascript" src="/static/scripts/jquery.cookie.js"></script>
-<script type="text/javascript" src="/static/scripts/jquery.jstree.js"></script>
-<script type="text/javascript" src="/static/scripts/jquery.confirm.js"></script>
+<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.min.js"></script>
+<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery-ui.custom.min.js"></script>
+<script type="text/javascript" src="{% get_static_prefix %}scripts/mainpage.js"></script>
+<script type='text/javascript' src='{% get_static_prefix %}scripts/jquery.jsonrpc.js'></script>
+<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.cookie.js"></script>
+<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.jstree.js"></script>
+<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.confirm.js"></script>
 {% endblock %}
 
 {% block content %}

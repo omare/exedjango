@@ -1,17 +1,20 @@
 {% load authoring_extras %}
+
+{% load static %}
+
 {% with data_package.current_node as current_node %}
 {% if not partial %}
 <html>
 	<head>
-		<link rel="stylesheet" type="text/css" href="/static/css/editing.css">
-		<link rel="stylesheet" type="text/css" href="/static/css/styles/base.css">
-		<link rel="stylesheet" type="text/css" href="/static/css/styles/{{data_package.style}}/content.css">
+		<link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/editing.css">
+		<link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/styles/base.css">
+		<link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/styles/{{data_package.style}}/content.css">
 		
-		<script type="text/javascript" src="/static/scripts/jquery.min.js"></script>
-		<script type='text/javascript' src='/static/scripts/jquery.jsonrpc.js'></script>
-		<script type="text/javascript" src="/static/scripts/common.js"></script>
-		<script type="text/javascript" src="/static/scripts/tiny_mce/tiny_mce.js"></script>
-		<script type="text/javascript" src="/static/scripts/tiny_mce/jquery.tinymce.js"></script>
+		<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.min.js"></script>
+		<script type='text/javascript' src='{% get_static_prefix %}scripts/jquery.jsonrpc.js'></script>
+		<script type="text/javascript" src="{% get_static_prefix %}scripts/common.js"></script>
+		<script type="text/javascript" src="{% get_static_prefix %}scripts/tiny_mce/tiny_mce.js"></script>
+		<script type="text/javascript" src="{% get_static_prefix %}scripts/tiny_mce/jquery.tinymce.js"></script>
 	</head>
 	<body>
 {% endif %}

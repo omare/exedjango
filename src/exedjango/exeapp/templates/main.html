@@ -1,9 +1,12 @@
 {% extends "base.html" %}
+
+{% load static %}
+
 {% block title %}Main Page{% endblock %}
 {% block head %}
-<script type='text/javascript' src='/static/scripts/jquery.min.js'></script>
-<script type='text/javascript' src='/static/scripts/jquery.jsonrpc.js'></script>
-<script type='text/javascript' src='/static/scripts/main.js'></script>
+<script type='text/javascript' src='{% get_static_prefix %}scripts/jquery.min.js'></script>
+<script type='text/javascript' src='{% get_static_prefix %}scripts/jquery.jsonrpc.js'></script>
+<script type='text/javascript' src='{% get_static_prefix %}scripts/main.js'></script>
 {% endblock %}
 {% block content %} 
 <p>Logged in as {{ user.username }}</p>
@@ -13,7 +16,7 @@
   
     <li class='package' id="package{{ package.id }}">
       <input type="checkbox" class="package_checkbox" packageid="{{ package.id }}" />
-      <a href='package/{{ package.id }}/'>{{ package.title }}</a>
+      <a href="{{ package.get_absolute_url }}">{{ package.title }}</a>
     </li>
   {% endfor %}
 </ul>

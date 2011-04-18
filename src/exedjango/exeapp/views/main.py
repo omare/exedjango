@@ -15,8 +15,7 @@ def main(request):
     user = User.objects.get(username=request.user.username)
     package_list = Package.objects.filter(user=user)
     
-    c = RequestContext(request, locals())
-    return render_to_response('main.html', context_instance=c)
+    return render_to_response('main.html', locals())
 
 @jsonrpc_method('main.create_package', authenticated=True)
 def create_package(request, package_name):

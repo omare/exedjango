@@ -4,6 +4,7 @@ from django.template.loader import render_to_string
 from django.template.defaultfilters import unordered_list
 
 from exedjango.utils import common
+from exeapp.views.blocks.blockfactory import block_factory
 
 import re
 
@@ -14,8 +15,8 @@ def export_idevice(idevice):
     '''Convinience filter, just renders calls render function of a
 block'''
     
-    controller = idevice.as_leaf_class().controller
-    return controller.render_export(idevice.as_leaf_class())
+    block = block_factory(idevice.as_leaf_class())
+    return block.render_export(idevice.as_leaf_class())
 
 @register.inclusion_tag('navigation_bar.html')
 def navigation_bar(page_structure, current_page):

@@ -1,6 +1,7 @@
 {% spaceless %}
 {% load export_extras %}
-{# navigation_links: "exe/export/navigation_links.html" #}
+
+{% with NAVIGATION_LINKS="exe/export/navigation_links.html"%}
 <!DOCTYPE html>
 <html>
   <head>
@@ -24,13 +25,13 @@
         <div id="nodeDecoration">
           <p id="nodeTitle">{{current_page.node.title}}</p>
         </div>
-        {% include navigation_links %}
+        {% include NAVIGATION_LINKS %}
         {% for idevice in current_page.node.idevices.all %}
           <div class="{{idevice.klass}}" id="id{{idevice.id}}">
             {{idevice|export_idevice}}
           </div>
         {% endfor %}
-        {% include navigation_links %}
+        {% include NAVIGATION_LINKS %}
       </div>
     </div>
   </body>
@@ -38,4 +39,5 @@
   
   </head>
 </html>
+{% endwith %}
 {% endspaceless %}
