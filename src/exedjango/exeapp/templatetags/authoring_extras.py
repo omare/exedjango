@@ -1,7 +1,6 @@
 from django import template
-from django.utils.safestring import mark_safe
 
-from exeapp.views.blocks.blockfactory import block_factory
+from exeapp.shortcuts import render_idevice as shortcut_render_idevice
 
 register = template.Library()
 
@@ -10,8 +9,6 @@ def render_idevice(idevice):
     '''Convinience filter, just renders calls render function of a
 block'''
     
-    leaf_idevice = idevice.as_leaf_class()
-    block = block_factory(leaf_idevice)
-    return mark_safe(block.render())
+    return shortcut_render_idevice(idevice)
 
     

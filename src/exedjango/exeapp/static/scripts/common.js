@@ -61,6 +61,28 @@ SELECT_KPSE        = "Select kpsewhich"
 SELECT_A_PACKAGE   = "Select a package";
 YOUR_SCORE_IS      = "Your score is ";
 
+$('html').ajaxSend(function(event, xhr, settings) {
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+        // Only send the token to relative URLs i.e. locally.
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+    }
+});
+
 
 jQuery(document).ready(function() {
 	$.jsonRPC.setup({
@@ -68,13 +90,12 @@ jQuery(document).ready(function() {
            namespace: 'package',
         });
     initialize_authoring();
-     
 })
 
 function initialize_authoring() {
 	// separated from the ready-routine to be callable on ajax loading
             
-  $("textarea.mce_editor").tinymce({   
+  $("textarea.mceEditor").tinymce({   
     content_css : "/static/css/extra.css", 
     verify_html : false, 
     apply_source_formatting : true, 
@@ -100,7 +121,13 @@ function initialize_authoring() {
         theme_advanced_resizing : true,
         width : "100%"
  });
- $(".action_button").bind("click", handle_action_button)
+ //$(".action_button").bind("click", handle_action_button)
+ $(".idevice_form").ajaxForm(function(responseText, statusText, xhr, $form){
+ 	var idevice_id = $form.attr("idevice_id");
+ 	$form.load("./?idevice_id=" + idevice_id, function() {
+ 		initialize_authoring();
+ 		});
+ 	})
 }
 
 function reload_authoring() {

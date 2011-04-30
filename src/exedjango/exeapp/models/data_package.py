@@ -32,6 +32,7 @@ import logging
 import time
 import zipfile 
 import re
+from collections import defaultdict
 from xml.dom                   import minidom
 from exedjango.utils.path      import Path, TempDirPath, toUnicode
 from exeapp.models        import Node
@@ -387,9 +388,17 @@ successful'''
 Throws KeyError, if idevice_type is not found'''
         self.current_node.addIdevice(idevice_type)
         
-    def handle_action(self, idevice_id, action, request):
+    def get_idevice_for_partial(self, idevice_id):
+        '''Returns a idevice only in case its on the current node of this
+package'''
+        return self.current_node.idevices.get(id=idevice_id)
+            
+        
+    def handle_action(self, idevice_id, action, arguments={}):
         '''Delegates a action to current_node'''
-        self.current_node.handle_action(idevice_id, action, request)
+        self.current_node.handle_action(idevice_id,
+                                        action,
+                                        defaultdict(str, arguments))
 
     def set_backgroundImg(self, value):
         """Set the background image for this package"""

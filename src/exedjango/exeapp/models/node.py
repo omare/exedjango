@@ -388,12 +388,12 @@ with it'''
                 resources[resource] = True
         return resources.keys()
     
-    def handle_action(self, idevice_id, action, request):
+    def handle_action(self, idevice_id, action, data):
         '''Removes an iDevice or delegates action to it'''
         idevice = self.idevices.get(pk=idevice_id).as_leaf_class()
         from exeapp.views.blocks.blockfactory import block_factory
         block = block_factory(idevice)
-        block.process(action, request)
+        block.process(action, data)
 
 
     def create_child(self):

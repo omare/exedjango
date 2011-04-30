@@ -96,7 +96,7 @@ class TextAreaField(FieldWithResources):
     """
         Basic text field
     """
-    
+    name = "TextArea"
     content = models.TextField(default="")
     
     class Meta:

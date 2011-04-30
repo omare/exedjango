@@ -16,6 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
+from exeapp.models.idevices.idevice import Idevice
 """
 Block is the base class for the classes which are responsible for 
 rendering and processing Idevices in XHTML
@@ -25,9 +26,13 @@ import sys
 
 import logging
 from django.conf import settings
+from django.utils.safestring import mark_safe
 from exedjango.utils import common
 log = logging.getLogger(__name__)
 
+class IdeviceActionNotFound(Exception):
+    '''Specified action with given arguments was not found'''
+    pass
 
 def _(value):
     return value
@@ -57,43 +62,25 @@ class Block(object):
             self.mode = Block.Preview
 
 
-    def process(self, action, request):
-        """
-        Process the request arguments from the web server to see if any
-        apply to this block
-        """
+    def process(self, action, data):
         
-        # changing to a different node does not dirty package
-        if action != u"changeNode":
-            self.package.isChanged = 1
-            log.debug(u"package.isChanged action=%s" % action)
+        if action == 'delete':
+            self.delete()
+            # Don't save IDevice if it has to be deleted
+            return 
+        elif action == 'move_up':
+            self.idevice.move_up()
+        elif action == 'move_down':
+            self.idevice.move_down()
+        elif action == 'edit_mode':
+            self.idevice.edit_mode()
+        elif action == 'apply_changes':
+            self.idevice.apply_changes(data)
 
-        if action == u"done":               
-            self.processDone(request)
-            
-        elif action == u"edit":
-            self.processEdit(request)
-          
-        elif action == u"delete":
-            self.processDelete(request)
-            
-        elif action == u"move":
-            self.processMove(request)
-            
-        elif action == u"movePrev":
-            self.processMovePrev(request)
-            
-        elif action == u"moveNext":
-            self.processMoveNext(request)
-            
-        elif action == u"promote":
-            self.processPromote(request)
-            
-        elif action == u"demote":
-            self.processDemote(request)
-
-        elif action == u"cancel":
-            self.idevice.edit = False
+        else:
+            raise IdeviceActionNotFound("Action %s not found" % action)
+        
+        self.idevice.save()
 
 
     def processDone(self, request):
@@ -148,14 +135,6 @@ class Block(object):
         log.debug(u"processDemote id="+self.id)
 
 
-    def processMovePrev(self, request):
-        """
-        Move this block back to the previous position
-        """
-        log.debug(u"processMovePrev id="+self.id)
-        self.idevice.movePrev()
-
-
     def processMoveNext(self, request):
         """
         Move this block forward to the next position
@@ -166,21 +145,18 @@ class Block(object):
 
     def render(self):
         """
-        Returns the appropriate XHTML string for whatever mode this block is in
+        Returns the appropriate XHTML string for whatever mode this block is in.
+        Descendants should not override it.
         """
-        html = u''
+        html = '<input type="hidden" name="idevice_id" value="%s" />' % self.id
         broken = '<p><span style="font-weight: bold">%s:</span> %%s</p>' % _('IDevice broken')
         if self.mode == Block.Edit:
-            self.idevice.lastIdevice = True
-            html += u'<a "currentBlock"></a>\n'
             html += self.renderEdit()
         elif self.mode == Block.View:
             html += self.renderView()
         elif self.mode == Block.Preview:
-            if self.idevice.lastIdevice:
-                html += u'<a name="currentBlock"></a>\n'
             html += self.renderPreview()
-        return html
+        return mark_safe(html)
 
 
     def renderEdit(self):
@@ -196,7 +172,7 @@ class Block(object):
         Returns an XHTML string for the edit buttons
         """
         
-        html  = common.submitImage(u"done", self.id, 
+        html  = common.submitImage(u"apply_changes", self.id, 
                                    u"images/stock-apply.png", 
                                    _(u"Done"),1)
 
@@ -208,17 +184,17 @@ class Block(object):
             html  += common.submitImage(u"no_cancel", self.id, 
                                    u"images/stock-undoNOT.png", 
                                    _(u"Can NOT Undo Edits"),1)
-
-        html += common.confirmThenSubmitImage(
-            _(u"This will delete this iDevice."
-              u"\\n"
-              u"Do you really want to do this?"),
+        # TODO: change to ConfirmThenSubmitImage, when JS is ready
+        html += common.submitImage(
+            #_(u"This will delete this iDevice."
+            # u"\\n"
+            #  u"Do you really want to do this?"),
             u"delete",
             self.id, u"images/stock-cancel.png", 
             _(u"Delete"), 1)
 
         if self.idevice.isFirst():
-            html += common.image(u"movePrev", u"images/stock-go-up-off.png")
+            html += common.image(u"move_up", u"images/stock-go-up-off.png")
         else:
             html += common.submitImage(u"movePrev", self.id, 
                                        u"images/stock-go-up.png", 
@@ -227,7 +203,7 @@ class Block(object):
         if self.idevice.isLast():
             html += common.image(u"moveNext", u"images/stock-go-down-off.png")
         else:
-            html += common.submitImage(u"moveNext", self.id, 
+            html += common.submitImage(u"move_down", self.id, 
                                        u"images/stock-go-down.png", 
                                        _(u"Move Down"),1)
 
@@ -281,13 +257,13 @@ class Block(object):
         Returns an XHTML string for previewing this block during editing
         """
         html  = u"<div class=\"iDevice "
-        html += u"emphasis"+unicode(self.idevice.emphasis)+"\" "
-        html += u"ondblclick=\"submitLink('edit', "+self.id+", 0);\">\n"
+        html += u"emphasis%s\" " % self.idevice.emphasis
+        html += u"ondblclick=\"submitLink('edit', %s, 0);\">\n" % self.id
         if self.idevice.emphasis != Idevice.NoEmphasis:
             if self.idevice.icon:
                 html += u'<img alt="%s" class="iDevice_icon" ' % _('IDevice Icon')
-                html += u" src=\"/style/"+style
-                html += "/icon_"+self.idevice.icon+".gif\"/>\n"
+                html += u" src=\"/style/%s" % self.idevice.style
+                html += "/icon_"+self.idevice.icon.url()+".gif\"/>\n"
             html += u"<span class=\"iDeviceTitle\">"
             html += self.idevice.title
             html += u"</span>\n"
@@ -328,9 +304,9 @@ class Block(object):
         """
         Returns an XHTML string for the view buttons
         """
-        html  = common.submitImage(u"edit", self.id, 
+        html  = common.submitImage(u"edit_mode", self.id, 
                                    u"images/stock-edit.png", 
-                                   _(u"Edit"), self.package.isChanged)
+                                   _(u"Edit"), True)
         return html
 
 # ===========================================================================

@@ -5,6 +5,7 @@ from jsonrpc import jsonrpc_method
 
 from exeapp.models import Package
 from exedjango.base.http import Http403
+from exeapp.views.blocks.blockfactory import block_factory
 
 def get_package_by_id_or_error(func):
     '''Works on views with package_id argument.
@@ -32,6 +33,7 @@ Tested by exeapp.tests.ShortcutsTestCase.test_get_package_or_error. '''
     return permission_checking_view
 
 def jsonrpc_helper(*args, **kwargs):
+    """Chains jsonrpc_method and get_package_by_id_or_error decorators"""
     def decorator(func):
         if "authenticated" not in kwargs:
             kwargs['authenticated'] = True
@@ -40,3 +42,10 @@ def jsonrpc_helper(*args, **kwargs):
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
     return decorator
+
+def render_idevice(idevice):
+    """Finds the leaf idevice and renders it"""
+    leaf_idevice = idevice.as_leaf_class()
+    block = block_factory(leaf_idevice)
+    return block.render()
+    ""

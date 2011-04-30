@@ -24,6 +24,7 @@ from exeapp import models
 from exeapp.models import User, Package
 from exeapp.templatetags.tests import MainpageExtrasTestCase
 from exeapp.views.export.websiteexport import WebsiteExport, _generate_pages
+from exeapp import shortcuts
 from exedjango.exeapp.shortcuts import get_package_by_id_or_error
 from exedjango.base.http import Http403
 from exeapp.views.export.websitepage import WebsitePage
@@ -33,6 +34,8 @@ from django.core.urlresolvers import reverse
 
 PACKAGE_COUNT = 3
 PACKAGE_NAME_TEMPLATE = '%s\'s Package %s'
+TEST_USER = "admin"
+TEST_PASSWORD = "password"
     
 def _create_packages(user, package_count=PACKAGE_COUNT,
                       package_name_template=PACKAGE_NAME_TEMPLATE):
@@ -42,8 +45,8 @@ def _create_packages(user, package_count=PACKAGE_COUNT,
 
 def _create_basic_database():
     '''Creates 2 users (admin, user) with 5 packages each for testing'''
-    admin = User.objects.create_superuser(username='admin', email='admin@exe.org', 
-                                          password='admin')
+    admin = User.objects.create_superuser(username=TEST_USER, email='admin@exe.org', 
+                                          password=TEST_PASSWORD)
     admin.save()
     user = User.objects.create_user(username='user', email='admin@exe.org',
                                           password='user')
@@ -54,8 +57,6 @@ def _create_basic_database():
     
     
 class MainPageTestCase(TestCase):
-    TEST_USER = 'admin'
-    TEST_PASSWORD = 'admin'
     
     def _create_packages(self, user):
         for x in xrange(self.COUNT):
@@ -67,7 +68,7 @@ class MainPageTestCase(TestCase):
         _create_basic_database()
         self.c = Client()
         # login
-        self.c.login(username=self.TEST_USER, password=self.TEST_PASSWORD)
+        self.c.login(username=TEST_USER, password=TEST_PASSWORD)
         self.s = ServiceProxy('http://locahost:8000/json/')
     
     def test_basic_elements(self):
@@ -133,7 +134,7 @@ class PackagesPageTestCase(TestCase):
     def setUp(self):
         self.c = Client()
         _create_basic_database()
-        self.c.login(username='admin', password='admin')
+        self.c.login(username=TEST_USER, password=TEST_PASSWORD)
         
     def test_basic_structure(self):
         response = self.c.get(self.PAGE_URL % self.PACKAGE_ID)
@@ -157,14 +158,14 @@ class PackagesPageTestCase(TestCase):
         # mock package
         package = Mock()
         package.add_child_node.return_value = new_node
-        package.user.username = "admin"
+        package.user.username = TEST_USER
         
         #mock get query
         mock_get.return_value = package
         
         s = CustomServiceProxy(Client())
-        r = s.package.add_child_node(username="admin",
-                                            password="admin",
+        r = s.package.add_child_node(username=TEST_USER,
+                                            password=TEST_PASSWORD,
                                             package_id=1)
         result = r['result'] 
         self.assertEquals(result['id'], NODE_ID)
@@ -255,7 +256,7 @@ view, this tests should be also merged'''
     def setUp(self):
         self.c = Client()
         _create_basic_database()
-        self.c.login(username='admin', password='admin')
+        self.c.login(username=TEST_USER, password=TEST_PASSWORD)
         self.data_package = Package.objects.get(pk=self.TEST_PACKAGE_ID)
         self.root = self.data_package.root
 
@@ -273,17 +274,60 @@ view, this tests should be also merged'''
         
         self.root.addIdevice(self.IDEVICE_TYPE)
         response = self.c.get(self.VIEW_URL)
-        self.assertContains(response, 'id="idevice%s"' % IDEVICE_ID)
+        self.assertContains(response, 'idevice_id="%s"' % IDEVICE_ID)
         
-    def _test_idevice_move_up(self):
+        
+    def test_idevice_move_up(self):
         FIRST_IDEVICE_ID = 1
         SECOND_IDEVICE_ID = 2
         self.root.addIdevice(self.IDEVICE_TYPE)
         self.root.addIdevice(self.IDEVICE_TYPE)
         self.data_package.handle_action(SECOND_IDEVICE_ID, "move_up")
         content = self.c.get(self.VIEW_URL).content
-        self.assertTrue(content.index("idevice%s" % FIRST_IDEVICE_ID) \
-                        > content.index("idevice%s" % SECOND_IDEVICE_ID))
+        self.assertTrue(content.index('idevice_id="%s"' % FIRST_IDEVICE_ID) \
+                        > content.index('idevice_id="%s"' % SECOND_IDEVICE_ID))
+    
+    @mock.patch.object(Package.objects, 'get')    
+    def test_submit_idevice_action(self, mock_get):
+        '''Test if a POST request is delegated to package'''
+        IDEVICE_ID = 1
+        IDEVICE_ACTION = "save"
+        mock_get.return_value.user.username = TEST_USER
+        action_args = {"test" : ["a"], "test2" : ["1"]}
+        
+        response = self.c.post('%shandle_action/' % self.VIEW_URL,
+                               data=dict(action_args,
+                                         **{'idevice_id' : IDEVICE_ID,
+                                            'idevice_action' : IDEVICE_ACTION }
+                                         )
+                    )
+        self.assertEquals(response.status_code, 200)
+        mock_get.return_value.handle_action.assert_called_with(
+                                            unicode(IDEVICE_ID),
+                                            "save",
+                                            action_args)
+    @mock.patch.object(shortcuts, 'render_idevice')
+    @mock.patch.object(Package.objects, 'get')
+    def test_render_idevice_partial(self, mock_get, mock_render):
+        '''Test rendering of a single idevice if idevice_id is given'''
+        IDEVICE_ID = 1
+        IDEVICE_CONTENT = "Test idevice"
+        # patch render_idevice
+        def mock_render_idevice(idevice):
+            return idevice.content
+        mock_render.side_effect = mock_render_idevice
+        
+        # mock user
+        package = mock_get.return_value
+        package.user.username = TEST_USER
+        # mock package return function
+        package.get_idevice_for_partial.return_value.content = IDEVICE_CONTENT
+        
+        response = self.c.get(self.VIEW_URL, data={"idevice_id" : IDEVICE_ID})
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(package.get_idevice_for_partial.called)
+        self.assertEquals(response.content, IDEVICE_CONTENT)
+        
         
 class ExportTestCase(TestCase):
     

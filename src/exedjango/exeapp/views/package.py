@@ -1,10 +1,15 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequest,\
+    Http404
 from django.core.servers.basehttp import FileWrapper 
+from django.core.exceptions import ObjectDoesNotExist
 
 from exeapp.models import Package, User, idevice_store, Package
 from exeapp.views.export.websiteexport import WebsiteExport
+# let render_idevice be called in shortcuts namespace. Need it for patching
+# in tests
+from exeapp import shortcuts
 from exeapp.shortcuts import get_package_by_id_or_error
 
 try:
@@ -37,10 +42,29 @@ def package(request, package):
 def authoring(request, package):
     '''Handles calls to authoring iframe. Renders exe/authoring.html'''
     
+    if "idevice_id" in request.GET:
+        try:
+            idevice = package.get_idevice_for_partial\
+                        (request.GET['idevice_id'])
+            return HttpResponse(shortcuts.render_idevice(idevice))
+        except ObjectDoesNotExist, e:
+            raise Http404(e)
     # if partial is set return only content of body
     partial = "partial" in request.GET and request.GET['partial'] == "true"
     data_package = package
     return render_to_response('exe/authoring.html', locals())
+
+@login_required
+@get_package_by_id_or_error
+def handle_action(request, package):
+    '''Handles post action sent from authoring'''
+    if request.method == "POST":
+        post_dict = dict(request.POST)
+        idevice_id = post_dict.pop('idevice_id')[0]
+        action = post_dict.pop('idevice_action')[0]
+        package.handle_action(idevice_id, action, post_dict)
+    return HttpResponse()
+        
 
 @login_required
 def properties(request, package_id):

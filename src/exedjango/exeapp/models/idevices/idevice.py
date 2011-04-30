@@ -29,9 +29,6 @@ import logging
 
 log = logging.getLogger(__name__)
 
-class IdeviceActionNotFound(Exception):
-    '''Specified action with given arguments was not found'''
-    pass
 
 class IdeviceToFieldField(models.OneToOneField):
     """
@@ -40,7 +37,6 @@ class IdeviceToFieldField(models.OneToOneField):
     def __init__(self, field):
         super(IdeviceToFieldField, self).__init__(field, 
                                                   related_name="idevice")
-
 # ===========================================================================
 class Idevice(models.Model):
     """
@@ -92,25 +88,6 @@ package
     def base_idevice(self):
         return Idevice.objects.get(pk=self.pk)
     
-    def process(self, action, arguments):
-        
-        if action == 'delete':
-            self.delete()
-            # Don't save IDevice if it has to be deleted
-            return 
-        elif action == 'move_up':
-            self.move_up()
-        elif action == 'move_down':
-            self.move_down()
-        elif action == 'edit_mode':
-            self.edit_mode()
-        elif action == 'apply_changes':
-            self.apply_changes(arguments)
-        else:
-            raise IdeviceActionNotFound("Action %s not found" % action)
-        
-        self.save()
-
     def edit_mode(self):
         '''Sets idevice mode to edit'''
         self.edit = True
@@ -119,7 +96,7 @@ package
         super(Idevice, self).delete()
         
     def apply_changes(self, agruments):
-        raise NotImplemented("Implement apply_changes in a subclass")
+        self.edit = False
         
 
     def isFirst(self):

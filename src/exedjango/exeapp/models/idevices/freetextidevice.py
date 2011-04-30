@@ -76,13 +76,11 @@ delivered."""
 
         return None
     
-    def apply_changes(self, arguments):
+    def apply_changes(self, data):
         '''Saves changes and sets idevice mode to non-edit'''
-        if "content" in arguments:
-            self.content = arguments['content']
-            self.edit = False
-        else:
-            raise IdeviceActionNotFound("Arguments 'content' not found")
+        super(FreeTextIdevice, self).apply_changes(data)
+        print "#"
+        print self.edit
         
        
     def getRichTextFields(self):

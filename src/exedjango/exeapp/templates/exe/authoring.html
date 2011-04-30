@@ -12,6 +12,9 @@
 		
 		<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.min.js"></script>
 		<script type='text/javascript' src='{% get_static_prefix %}scripts/jquery.jsonrpc.js'></script>
+		<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.form.js"></script>
+		<script type="text/javascript" src="{% get_static_prefix %}tiny_mce/jquery.tinymce.js"></script>
+		<script type="text/javascript" src="{% get_static_prefix %}tiny_mce/tiny_mce.js"></script>
 		<script type="text/javascript" src="{% get_static_prefix %}scripts/common.js"></script>
 	</head>
 	<body>
@@ -21,10 +24,11 @@
 			<p>Rendering node {{current_node.id}}</p>
 			<h2>{{current_node.title}}</h2>
 			{% for idevice in current_node.idevices.all %}
-			  <div id="idevice{{idevice.id}}">
+			  <form idevice_id="{{idevice.id}}" class="idevice_form" action="handle_action/" method="post">
 				  <p>Idevice found</p>
 				  {{ idevice|render_idevice }}
-			  </div>"
+			  </form>
+			  </div>
 			{% endfor %}
 	{% if not partial %}
 	</body>

@@ -17,6 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
+from django.template.loader import render_to_string
 
 """
 This module is for the common HTML used in all webpages.
@@ -250,19 +251,10 @@ def feedbackButton(name, value=None, enabled=True, **kwparams):
 
 def submitImage(action, object_, imageFile, title=u"", isChanged=1):
     """
-    Adds an image link which will trigger the javascript needed to
-    post a form with the action and object passed in the args
+    Adds an image input element
     """
-    onclick = "submitLink('%s', '%s', %d);" % (action, object_, isChanged)
-    titleText = u''
-    if title:
-        titleText = u'title="%s" ' % title
-    html  = u'<a %s' % titleText
-    html += u' href="#" onclick="%s">' % onclick
-    html += u'<img alt="%s" class="submit" src="%s%s"/>' % (title, 
-                                                    settings.STATIC_URL, imageFile)
-    html += u'</a>\n' 
-    return html
+    STATIC_URL = settings.STATIC_URL
+    return render_to_string("common/submit_image.html", locals())
 
 def insertSymbol(name, image, title, string, text ='', num=0):
     """

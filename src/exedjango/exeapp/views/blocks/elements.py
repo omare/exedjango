@@ -170,19 +170,17 @@ class TextAreaElement(ElementWithResources):
             self.height = 100
 
 
-    def process(self, request):
+    def process(self, action, data):
         """
         Process arguments from the web server.
         """
-        is_cancel = common.requestHasCancel(request)
-
-        if is_cancel:
-            self.field.idevice.edit = False
-            # but double-check for first-edits, and ensure proper attributes:
-            self.field.content = ""
-            return
         
-        self.field.content = request.POST[self.id]
+        if action == "apply_changes":
+            print "#" * 10
+            print self.field.content
+            self.field.content = data[str(self.id)][0]
+            print self.field.content
+        self.field.save()
 
 
     def renderEdit(self):
@@ -204,7 +202,7 @@ class TextAreaElement(ElementWithResources):
         Returns an XHTML string for previewing this element
         """
         # to render, choose the content with the preview-able resource paths:
-        self.field.content = self.field.content_w_resourcePaths
+        # self.field.content = self.field.content_w_resourcePaths
 
         content = re.sub(r'(?i)<\s*a[^>]+>',
                 lambda mo: replaceLinks(mo, self.field.idevice.parentNode.package.name),

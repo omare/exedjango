@@ -48,38 +48,26 @@ class FreeTextBlock(Block):
             self.idevice.undo = True
 
 
-    def process(self, action, request):
+    def process(self, action, data):
         """
         Process the request arguments from the web server to see if any
         apply to this block
         """
-        is_cancel = common.requestHasCancel(request)
+        is_cancel = common.requestHasCancel(data)
 
-        if is_cancel:
-            self.idevice.edit = False
-            # but double-check for first-edits, and ensure proper attributes:
-            if not hasattr(self.idevice.content, 'content_w_resourcePaths'):
-                self.idevice.content.content_w_resourcePaths = ""
-            if not hasattr(self.idevice.content, 'content_wo_resourcePaths'):
-                self.idevice.content.content_wo_resourcePaths = ""
-            return
-
-        super(FreeTextBlock, self).process(self, request)
+        super(FreeTextBlock, self).process(action, data)
 
         if action != "delete": 
-            content = self.contentElement.process(request) 
-            if content: 
-                self.idevice.content = content
-        if "export" + self.id in request.args and not is_cancel:
-            self.idevice.exportType = request.args["export" + self.id][0]
+            self.contentElement.process(action, data) 
+        #if "export" + self.id in request.args and not is_cancel:
+        #    self.idevice.exportType = request.args["export" + self.id][0]
 
 
     def renderEdit(self):
         """
         Returns an XHTML string with the form element for editing this block
         """
-        html  = u"<div>\n"
-        html += self.contentElement.renderEdit()
+        html = self.contentElement.renderEdit()
         ## drop down menu defines if element is exported for presentation
         #html += common.formField('select', self.package,
         #    _("Custom export options"), "export%s" % self.id,
@@ -88,7 +76,6 @@ class FreeTextBlock(Block):
         #        [_('Handout'), freetextidevice.HANDOUT]],
         #    selection = self.idevice.exportType)
         html += self.renderEditButtons()
-        html += u"</div>\n"
         return html
 
 
@@ -98,7 +85,7 @@ class FreeTextBlock(Block):
         """
         html  = u"<div class=\"iDevice "
         html += u"emphasis"+unicode(self.idevice.emphasis)+"\" "
-        html += u"ondblclick=\"submitLink('edit',"+self.id+", 0);\">\n"
+        html += u"ondblclick=\"submitLink('edit',%s, 0);\">\n" % self.id
         html += self.contentElement.renderPreview()
         html += self.renderViewButtons()
         html += "</div>\n"
