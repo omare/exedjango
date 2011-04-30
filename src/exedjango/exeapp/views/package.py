@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequest
 from django.core.servers.basehttp import FileWrapper 
 
-from exeapp.models import DataPackage, User, idevice_store, DataPackage
+from exeapp.models import Package, User, idevice_store, Package
 from exeapp.views.export.websiteexport import WebsiteExport
 from exeapp.shortcuts import get_package_by_id_or_error
 
@@ -26,7 +26,7 @@ def package(request, package):
     if package.user.username != request.user.username:
         return HttpResponseForbidden("You don't have an access to this package")
     else:
-        data_package = package.get_data_package()
+        data_package = package
         log.info("%s accesses package of %s" % (request.user.username, 
                                                 package.user.username))
         idevices = idevice_store.values()
@@ -39,7 +39,7 @@ def authoring(request, package):
     
     # if partial is set return only content of body
     partial = "partial" in request.GET and request.GET['partial'] == "true"
-    data_package = package.get_data_package()
+    data_package = package
     return render_to_response('exe/authoring.html', locals())
 
 @login_required
@@ -54,7 +54,7 @@ def export(request, package, format):
     
     if format == "website":
         file_obj = StringIO()
-        data_package = package.get_data_package()
+        data_package = package
         exporter = WebsiteExport(data_package, file_obj)
         exporter.exportZip()
         zip = file_obj.getvalue()

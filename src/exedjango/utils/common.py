@@ -23,6 +23,7 @@ This module is for the common HTML used in all webpages.
 """
 
 import logging
+from django.conf import settings
 
 
 lastId = 0
@@ -137,8 +138,7 @@ def richTextArea(name, value="", width="0", height=100, package=None):
                 html += u'<exe_tmp_anchor title="%s" name="%s"></exe_tmp_anchor>'\
                     % (full_anchor_name, full_anchor_name)
     # and below the user-defined anchors, also show "auto_top" anchors for ALL:
-    if package is not None and package.root is not None \
-    and G.application.config.internalAnchors=="enable_all" :
+    if package is not None and package.root is not None :
         # only add auto_top anchors for 
         # config.internalAnchors = "enable_all"
         log.debug(u"richTextArea adding exe_tmp_anchor auto_top for ALL nodes.")
@@ -171,7 +171,7 @@ def image(name, value, width="", height="", alt=None):
         html += u"width=\"%s\" " % width
     if height:
         html += u"height=\"%s\" " % height
-    html += u"src=\"%s\" " % value
+    html += u"src=\"%s%s\" " % (settings.STATIC_URL, value)
     html += u"/>\n"
     return html
 
@@ -259,7 +259,8 @@ def submitImage(action, object_, imageFile, title=u"", isChanged=1):
         titleText = u'title="%s" ' % title
     html  = u'<a %s' % titleText
     html += u' href="#" onclick="%s">' % onclick
-    html += u'<img alt="%s" class="submit" src="%s"/>' % (title, imageFile)
+    html += u'<img alt="%s" class="submit" src="%s%s"/>' % (title, 
+                                                    settings.STATIC_URL, imageFile)
     html += u'</a>\n' 
     return html
 
@@ -273,7 +274,7 @@ def insertSymbol(name, image, title, string, text ='', num=0):
     html += u'title="%s">' % title
     html += text
     if image <> "":
-        html += u'<img alt="%s" src="%s"/>' % ('symbol', image)
+        html += u'<img alt="%s" src="%s%s"/>' % ('symbol', settings.STATIC_URL, image)
     html += u'</a>\n' 
     return html
 
@@ -288,8 +289,9 @@ def confirmThenSubmitImage(message, action, object_, imageFile,
         html += u"title=\""+title+"\" "
     html += " href=\"#\" "
     html += "onclick=\"confirmThenSubmitLink('"+message+"', '"+action+"', "
-    html += "'"+object_+"', "+unicode(isChanged)+");\" >"
-    html += u'<img alt="%s" class="submit" src="%s"/>' % (title, imageFile)
+    html += "'%s', " % object_ +unicode(isChanged)+");\" >"
+    html += u'<img alt="%s" class="submit" src="%s%s"/>' % (title, 
+                                            settings.STATIC_URL, imageFile)
     html += u'</a>\n' 
     return html
 
@@ -361,7 +363,8 @@ def formField(type_, package, caption, action, object_='', instruction='', \
     if type_ == 'select':
         html += select(action, object_, *args, **kwargs)
     elif type_ == 'richTextArea':
-        html += richTextArea(action+object_, package=package, *args, **kwargs)
+        html += richTextArea("%s%s" % (action, object_)
+                             , package=package, *args, **kwargs)
     elif type_ == 'textArea':
         html += textArea(action+object_, *args, **kwargs)
     elif type_ == 'textInput':
@@ -374,11 +377,11 @@ def formField(type_, package, caption, action, object_='', instruction='', \
 def select(action, object_='', options=[], selection=None):
     """Adds a dropdown selection to a form"""
     html  = u'<select '
-    html += u'name="'+action+object_+'" '
+    html += u'name="%s%s" ' % (action, object_)
 
     if action and object_:
         # If the user gives an object_ create an onchange handler
-        html += u'onchange="submitLink(\''+action+'\', \''+object_+'\');"'
+        html += u'onchange="submitLink(\'%s\', \'%s\');"' % (action, object_)
 
     html += u'>\n'
 
@@ -643,13 +646,10 @@ def renderInternalLinkNodeFilenames(package, html):
         
 
 
-def requestHasCancel(request):
+def requestHasCancel(action):
     """
     simply detect if the current request contains an action of type cancel.
     """
-    is_cancel = False
-    if u"action" in request.args \
-    and request.args[u"action"][0]==u"cancel": 
-        is_cancel = True
-    return is_cancel
+    CANCEL = "cancel"
+    return action == CANCEL
 

@@ -20,9 +20,13 @@
 from django.db import models
 
 """
-DataPackage represents the collection of resources the user is editing
+Package represents the collection of resources the user is editing
 i.e. the "package".
 """
+
+from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
+
 
 import logging
 import time
@@ -224,9 +228,9 @@ def loadNode(pass_num, resourceDir, zippedFile, node, doc, item, level):
 
 def loadCC(zippedFile, filename):
     """
-    Load an IMS Common Cartridge or Content DataPackage from filename
+    Load an IMS Common Cartridge or Content Package from filename
     """
-    package = DataPackage(Path(filename).namebase)
+    package = Package(Path(filename).namebase)
     xmldoc = minidom.parseString( zippedFile.read('imsmanifest.xml')) 
 
     organizations_list = xmldoc.getElementsByTagName('organizations')
@@ -269,10 +273,10 @@ class DublinCore(object):
     def __setattr__(self, name, value):
         self.__dict__[name] = toUnicode(value)
         
-class DataPackageManager(models.Manager):
+class PackageManager(models.Manager):
     
     def create(self, *args, **kwargs):
-        data_package = DataPackage(*args, **kwargs)
+        data_package = Package(*args, **kwargs)
         data_package.save()
         root = Node(package=data_package, parent=None,
                     title="Home", is_current_node=True, is_root=True)
@@ -280,17 +284,18 @@ class DataPackageManager(models.Manager):
         
         return data_package
 
-class DataPackage(models.Model):
+class Package(models.Model):
     """
-    DataPackage represents the collection of resources the user is editing
+    Package represents the collection of resources the user is editing
 i.e. the "package".
     """
     
     DEFAULT_LEVEL_NAMES  = ["Topic", "Section", "Unit"]
     
-    package = models.OneToOneField('Package', related_name="data_package")
     
     title = models.CharField(max_length=100)
+    
+    user = models.ForeignKey(User)
       
     author = models.CharField(max_length=50, blank=True)
     email = models.CharField(max_length=30, blank=True)
@@ -309,7 +314,7 @@ i.e. the "package".
     level2 = models.CharField(max_length=20, default=DEFAULT_LEVEL_NAMES[1])
     level3 = models.CharField(max_length=20, default=DEFAULT_LEVEL_NAMES[2])
     
-    objects = DataPackageManager()
+    objects = PackageManager()
     
         # self.dublinCore    = DublinCore()
         # self.license       = "None"
@@ -382,9 +387,9 @@ successful'''
 Throws KeyError, if idevice_type is not found'''
         self.current_node.addIdevice(idevice_type)
         
-    def handle_action(self, idevice_id, action, arguments={}):
+    def handle_action(self, idevice_id, action, request):
         '''Delegates a action to current_node'''
-        self.current_node.handle_action(idevice_id, action, arguments)
+        self.current_node.handle_action(idevice_id, action, request)
 
     def set_backgroundImg(self, value):
         """Set the background image for this package"""
@@ -479,7 +484,7 @@ Throws KeyError, if idevice_type is not found'''
         """
         Clones and extracts the currently selected node into a new package.
         """
-        newPackage = DataPackage('NoName') # Name will be set once it is saved..
+        newPackage = Package('NoName') # Name will be set once it is saved..
         newPackage.title  = self.current_node.title
         newPackage.style  = self.style
         newPackage.author = self.author
@@ -507,7 +512,7 @@ Throws KeyError, if idevice_type is not found'''
             # Get the jellied package data
             toDecode   = zippedFile.read(u"content.data")
         except KeyError:
-            log.info("no content.data, trying Common Cartridge/Content DataPackage")
+            log.info("no content.data, trying Common Cartridge/Content Package")
             newPackage = loadCC(zippedFile, filename)
             newPackage.tempFile = False
             newPackage.isChanged = False
@@ -643,11 +648,15 @@ Throws KeyError, if idevice_type is not found'''
                     return foundResource
         return foundResource
     
+    def get_absolute_url(self):
+        return reverse('exeapp.views.package.package',
+                       kwargs={'package_id' : self.id})
+    
+    def __unicode__(self):
+        return "Package %s: %s" % (self.id, self.title)
+    
     class Meta:
         app_label = "exeapp"
-        
-    def __unicode__(self):
-        return "DataPackage %s" % self.title
 
 
 # ===========================================================================

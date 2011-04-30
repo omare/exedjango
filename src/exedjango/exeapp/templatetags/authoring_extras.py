@@ -1,4 +1,6 @@
 from django import template
+from django.utils.safestring import mark_safe
+
 from exeapp.views.blocks.blockfactory import block_factory
 
 register = template.Library()
@@ -10,27 +12,6 @@ block'''
     
     leaf_idevice = idevice.as_leaf_class()
     block = block_factory(leaf_idevice)
-    return block.render(leaf_idevice)
-
-@register.filter
-def render_field_edit(field):
-    '''Convinience filter, just renders calls render_view function of field's 
-element'''
-
-    return field.controller.render_edit()
-
-@register.filter
-def render_field_preview(field):
-    '''Convinience filter, just renders calls render_view function of field's 
-element'''
-    
-    return field.controller.render_preview()
-
-@register.filter
-def render_field_export(field):
-    '''Convinience filter, just renders calls render_export function of field's 
-element'''
-    
-    return field.controller.render_export()
+    return mark_safe(block.render())
 
     

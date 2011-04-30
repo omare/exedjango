@@ -1,6 +1,7 @@
 from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 from functools import wraps
+from jsonrpc import jsonrpc_method
 
 from exeapp.models import Package
 from exedjango.base.http import Http403
@@ -16,6 +17,8 @@ Tested by exeapp.tests.ShortcutsTestCase.test_get_package_or_error. '''
     def permission_checking_view(request, package_id, *args, **kwargs):
         try:
             # assume we got a standard rpc package view
+            # if package_id isn't convertable 500 will be thrown
+            package_id = int(package_id)
             package = Package.objects.get(id=package_id)
         except ObjectDoesNotExist:
             raise Http404("Package %s not found" % package_id)
@@ -27,3 +30,13 @@ Tested by exeapp.tests.ShortcutsTestCase.test_get_package_or_error. '''
                            (username, package_id))
     # Set docstring and name
     return permission_checking_view
+
+def jsonrpc_helper(*args, **kwargs):
+    def decorator(func):
+        if "authenticated" not in kwargs:
+            kwargs['authenticated'] = True
+        @jsonrpc_method(*args, **kwargs)
+        @get_package_by_id_or_error
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+    return decorator

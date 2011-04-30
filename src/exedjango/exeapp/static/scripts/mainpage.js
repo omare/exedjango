@@ -118,7 +118,7 @@ jQuery(document).ready(function() {
 // Adds a new node to current one
 function add_child_node() {
   
-  $.jsonRPC.request('add_node', [get_package_id()], {
+  $.jsonRPC.request('add_child_node', [get_package_id()], {
     success: function(results) {
       callback_add_child_node(results.result.id, results.result.title);
     }
@@ -192,16 +192,10 @@ function move_current_node_up(){
   // Check if there are any nodes before the current one on the same level
   if (get_current_node().parent().prev().length == 0) {
     alert(CANT_MOVE_NODE_FURTHER);
-    return -1;
   }
   $.jsonRPC.request('move_current_node_up', [get_package_id()], {
-      success: function(results) {
-        if (results.result.moved != '1'){
-          alert(NODE_WAS_NOT_MOVED);
-        } else {
-          callback_move_current_node_up();
-        }
-      }
+      success: callback_move_current_node_up,
+      error: function(result) { alert (NODE_WAS_NOT_MOVED); }
     });
 }
 
@@ -315,7 +309,6 @@ function callback_add_child_node(nodeid, title) {
         'attr': {'id' : 'node' + nodeid, 'nodeid' : nodeid}}}
     get_outline_pane().jstree("create_node",current_li, "last", new_node);
     get_outline_pane().jstree("open_node", current_li);
-    set_current_node($("#nodeid" + nodeid));
     get_outline_pane().jstree("select_node", $("#node" + nodeid), true);
 }
 
@@ -329,31 +322,34 @@ function callback_delete_current_node() {
 
 // Move the node to the same level as it's parent and place it after.
 function callback_promote_current_node() {
-  var current_node = get_current_node();
   // Move through <li>, <ul> to parent's <li>
-  var parent_container = current_node.parent().parent().parent()
-  get_outline_pane().jstree("move_node", current_node, parent_container, "after")
+  var parent_container_node = get_current_node().parent().parent().parent()
+  move_current_node_to_neighbour(parent_container_node, "after")
 }
 
 function callback_demote_current_node() {
-  var current_node = get_current_node();
   var previous_node = get_current_node().parent().prev();
-  get_outline_pane().jstree("move_node", current_node, previous_node, "last");
+  move_current_node_to_neighbour(previous_node, "last")
 }
 
 // Move current node before the previous
 function callback_move_current_node_up() {
-  var current_node = get_current_node();
-  var neighbour_node = current_node.parent().prev();
-  get_outline_pane().jstree("move_node", current_node, neighbour_node, "before");
+  var neighbour_node = get_current_node().parent().prev();
+  move_current_node_to_neighbour(neighbour_node, "before")
 }
 
 // Move current node after the next
 function callback_move_current_node_down() {
-  var current_node = get_current_node();
-  var neighbour_node = current_node.parent().next();
-  get_outline_pane().jstree("move_node", current_node, neighbour_node, "after");
+  var neighbour_node = get_current_node().parent().next();
+  move_current_node_to_neighbour(neighbour_node, "after");
 }
+
+// places the current node to position relatively to neighbour
+function move_current_node_to_neighbour(neighbour_node, position) {
+	var current_node = get_current_node();
+	get_outline_pane().jstree("move_node", current_node, neighbour_node, position);
+}
+
 
 
 // Checks if node is root, saves a lot parent() in the code
@@ -410,15 +406,6 @@ function checkDirty(ifClean, ifDirty) {
     $.jsonRPC('isPackageDirty', [get_package_id(),'',ifClean,ifDirty]);
 }
 
-// Call this to ask the server if the package is dirty
-// This is higher level than checkDirty; if the package is dirty, the user will 
-// be asked if they want to save their changes
-// 'nextStep' is a string that will be evaled if the package is clean, or if the user wants to
-// discard the changes, or after the package has been saved, if the user chooses cancel
-// nextStep will not be called
-function askDirty(nextStep) {
-    checkDirty(nextStep, 'askSave("'+nextStep+'")')
-}
 
 // This is called by the server to ask the user if they want to save their
 // package before changing filenew/fileopen

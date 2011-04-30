@@ -1,12 +1,16 @@
-from jsonrpc import jsonrpc_method
-from exeapp.shortcuts import get_package_by_id_or_error
+from exeapp.shortcuts import jsonrpc_helper
 
 __all__ = ['idevice_action']
 
-@jsonrpc_method('package.idevice_action', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.idevice_action')
 def idevice_action(request, package, idevice_id, action, arguments={}):
     
     # have to circumvent a bug in python < 2.7
-    package.get_data_package().handle_action(idevice_id, 
-                                             action, arguments);
+    # TODO replace it with normal form request
+    class Request(object):
+        POST = {}
+        
+        def __init__(self, POST):
+            self.POST = POST
+    package.handle_action(idevice_id, 
+                                             action, Request(arguments));

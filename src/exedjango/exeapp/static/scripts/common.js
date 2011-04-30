@@ -68,6 +68,7 @@ jQuery(document).ready(function() {
            namespace: 'package',
         });
     initialize_authoring();
+     
 })
 
 function initialize_authoring() {
@@ -99,10 +100,7 @@ function initialize_authoring() {
         theme_advanced_resizing : true,
         width : "100%"
  });
- 
  $(".action_button").bind("click", handle_action_button)
-
-	return "test";
 }
 
 function reload_authoring() {

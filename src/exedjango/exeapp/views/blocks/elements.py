@@ -25,6 +25,7 @@ import os
 import logging
 import re
 import urllib
+from exeapp.models.idevices import freetextidevice
 from exedjango.utils       import common
 from exedjango.utils.path import Path
 
@@ -61,27 +62,8 @@ class Element(object):
     """
     
     def __init__(self, field):
+        self.id = field.id
         self.field = field
-        
-    def process(self, request):
-        pass
-    
-    def render_edit(self):
-        return self._render("edit_template_path")
-    
-    def render_preview(self):
-        return self._render("preview_template_path")
-    
-    def render_export(self):
-        return self._render("export_template_path")            
-    
-    def _render(self, template):
-        try:
-            return render_to_string(getattr(self, template), 
-                                    {"field" : self.field})
-        except AttributeError:
-            raise AttributeError("Please specify %s in %s" % \
-                                 (template, self.__class__))
 
 
 # ===========================================================================
@@ -177,9 +159,9 @@ class TextAreaElement(ElementWithResources):
         """
         Initialize
         """
-        ElementWithResources.__init__(self, field)
-
-        self.width  = "0"
+        
+        super(TextAreaElement, self).__init__(field)
+        self.width=800
         if (hasattr(field.idevice, 'class_') and
             field.idevice.class_ in \
                     ("activity", "objectives", "preknowledge")):
@@ -197,24 +179,10 @@ class TextAreaElement(ElementWithResources):
         if is_cancel:
             self.field.idevice.edit = False
             # but double-check for first-edits, and ensure proper attributes:
-            if not hasattr(self.field, 'content_w_resourcePaths'):
-                self.field.content_w_resourcePaths = ""
-            if not hasattr(self.field, 'content_wo_resourcePaths'):
-                self.field.content_wo_resourcePaths = ""
-                self.field.content = self.field.content_wo_resourcePaths
+            self.field.content = ""
             return
-
-        if self.id in request.args:
-            # process any new images and other resources courtesy of tinyMCE:
-
-            self.field.content_w_resourcePaths \
-                = self.field.ProcessPreviewed(request.args[self.id][0])
-            # likewise determining the paths for exports, etc.:
-            self.field.content_wo_resourcePaths \
-                    = self.field.MassageContentForRenderView( \
-                                         self.field.content_w_resourcePaths)
-            # and begin by choosing the content for preview mode, WITH paths:
-            self.field.content = self.field.content_w_resourcePaths
+        
+        self.field.content = request.POST[self.id]
 
 
     def renderEdit(self):
@@ -222,14 +190,8 @@ class TextAreaElement(ElementWithResources):
         Returns an XHTML string with the form element for editing this field
         """
         # to render, choose the content with the preview-able resource paths:
-        self.field.content = self.field.content_w_resourcePaths
 
-        log.debug("renderEdit content="+self.field.content+
-                  ", height="+unicode(self.height))
-        this_package = None
-        if self.field_idevice is not None \
-        and self.field_idevice.parentNode is not None:
-            this_package = self.field_idevice.parentNode.package
+        this_package = self.field_idevice.parent_node.package 
         html = common.formField('richTextArea', this_package, 
                                 self.field.name,'',
                                 self.id, self.field.instruc,

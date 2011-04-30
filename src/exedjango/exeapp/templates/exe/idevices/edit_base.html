@@ -1,7 +1,10 @@
 <div class="block" {% include 'exe/idevices/idevice_id.html' %}>
-{% block idevice %}{% endblock %}
+{% block idevice %}
+{{ form.media }}
+{{ form.as_p|safe }}
+{% endblock %}
   <div>
-    <a class="action_button" href='#' action="apply_changes">Apply</a>
+    <a class="action_button" href='#' action="done">Apply</a>
     {% if idevice.undo %}
       <a href='#'>Cancel</a>
     {% endif %}

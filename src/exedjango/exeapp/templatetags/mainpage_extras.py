@@ -26,12 +26,14 @@ def idevice_ul(groups, group_order):
     
     return unordered_list(idevice_list)
         
-@register.filter
-def outline_nodes_ul(root):
-    template = "exe/node_link.html"
-    node_list = [render_to_string(template, {"node" : root}),
-                 _create_children_list(root, "exe/node_link.html")]
-    return unordered_list(node_list)
+@register.inclusion_tag('exe/outlinepane.html')
+def render_outline(data_package):
+    NODE_TEMPLATE = "exe/node_link.html"
+    
+    node_list = [render_to_string(NODE_TEMPLATE, {"node" : data_package.root}),
+                 _create_children_list(data_package.root, NODE_TEMPLATE)]
+    
+    return locals()
 
 
     

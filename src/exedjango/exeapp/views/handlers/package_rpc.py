@@ -47,37 +47,33 @@ from tempfile                    import mkdtemp
 import re, subprocess, shutil
 
 from jsonrpc import jsonrpc_method
-from exeapp.shortcuts import get_package_by_id_or_error
+from exeapp.shortcuts import jsonrpc_helper
 from exeapp.views.handlers import package_outline_rpc
 from exeapp.views.handlers import authoring_rpc
 from exeapp.models import idevice_store
 
 log = logging.getLogger(__name__)
 
-@jsonrpc_method('package.get_current_style', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.get_current_style')
 def get_current_style(request, package):
-    return {"style" : package.data_package.style}
+    return {"style" : package.style}
 
-@jsonrpc_method('package.set_package_style', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.set_package_style')
 def set_package_style(request, package, style_id):
     package.data_package.set_style(style_id)
 
-@jsonrpc_method('package.add_idevice', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.add_idevice')
 def add_idevice(request, package, idevice_type):
     '''Adds a idevice of given type to the current node'''
     
     try:
-        package.get_data_package().add_idevice(idevice_type)
+        package.add_idevice(idevice_type)
         success = 1
     except KeyError:
         success = 0
     return {'success' : success}
     
-@jsonrpc_method('package.testPrintMessage', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.testPrintMessage')
 def testPrintMessage(request, package, message):
 
     """ 
@@ -85,8 +81,7 @@ def testPrintMessage(request, package, message):
     """ 
     print "Test Message: ", message, " [eol, eh!]"
 
-@jsonrpc_method('package.handleDblNode', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.handleDblNode')
 def handleDblNode (request, package):
 
     """
@@ -103,8 +98,7 @@ def handleDblNode (request, package):
         client.sendScript(u'top.location = "/%s"' % \
                       package.name)
 
-@jsonrpc_method('package.setEditorsWidth', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.setEditorsWidth')
 def setEditorsWidth(request, package, width):
 
     """
@@ -118,8 +112,7 @@ def setEditorsWidth(request, package, width):
     except ValueError, e:
         client.sendScript(u"alert('Please, enter a number');")
         
-@jsonrpc_method('package.serveDocument', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.serveDocument')
 def serveDocument(request, package):
 
     """
@@ -143,8 +136,7 @@ def serveDocument(request, package):
 
 
 
-@jsonrpc_method('package.stopServing', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.stopServing')
 def stopServing(request, package):
 
     """
@@ -160,8 +152,7 @@ def stopServing(request, package):
 
 
 
-@jsonrpc_method('package.openNewTab', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.openNewTab')
 def openNewTab(request, package):
 
     """
@@ -184,8 +175,7 @@ def openNewTab(request, package):
     os.remove(portFile)
     client.sendScript(u"openNewTab('%s')" % port)
 
-@jsonrpc_method('package.importStyle', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.importStyle')
 def importStyle(request, package, src):
 
     '''imports a user style in config directory'''
@@ -199,8 +189,7 @@ def importStyle(request, package, src):
 
     
 
-@jsonrpc_method('package.outlineClicked', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.outlineClicked')
 def outlineClicked(request, package):
 
     """
@@ -211,8 +200,7 @@ def outlineClicked(request, package):
     
 
 
-@jsonrpc_method('package.importPDF', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.importPDF')
 def importPDF(request, package, path, importString):
 
     """
@@ -247,8 +235,7 @@ def importPDF(request, package, path, importString):
     client.sendScript((u'top.location = "/%s"' % package.name).encode('utf8'))
 
 
-@jsonrpc_method('package.is_package_dirty', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.is_package_dirty')
 def is_package_dirty(request, package):
 
     """
@@ -258,11 +245,10 @@ def is_package_dirty(request, package):
     ifDirty is JavaScript to be evaled on the client if the package has not
     been changed
     """
-    return {"dirty" : package.get_data_package().isChanged}
+    return {"dirty" : package.isChanged}
 
 
-@jsonrpc_method('package.getPackageFileName', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.getPackageFileName')
 def getPackageFileName(request, package, onDone, onDoneParam):
 
     """
@@ -274,19 +260,16 @@ def getPackageFileName(request, package, onDone, onDoneParam):
     """
     client.call(onDone, unicode(package.filename), onDoneParam)
 
-@jsonrpc_method('package.save_data_package', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.save_data_package')
 def save_data_package(request, package):
     package.save_data_package()
     
-@jsonrpc_method('package.unload_data_package', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.unload_data_package')
 def unload_data_package(request, package):
     '''Handles event "package.stopServing'. Unloads given data packages'''
     package.unload_data_package()
 
-@jsonrpc_method('package.loadPackage', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.loadPackage')
 def loadPackage(request, package, filename):
 
     """Load the package named 'filename'"""
@@ -297,8 +280,7 @@ def loadPackage(request, package, filename):
     client.sendScript((u'top.location = "/%s"' % \
                       package.name).encode('utf8'))
 
-@jsonrpc_method('package.loadRecent', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.loadRecent')
 def loadRecent(request, package, number):
 
     """
@@ -307,8 +289,7 @@ def loadRecent(request, package, number):
     filename = self.config.recentProjects[int(number) - 1]
     self.handleLoadPackage(client, filename)
 
-@jsonrpc_method('package.loadTutorial', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.loadTutorial')
 def loadTutorial(request, package):
 
     """
@@ -318,8 +299,7 @@ def loadTutorial(request, package):
             .joinpath("eXe-tutorial.elp")
     self.handleLoadPackage(client, filename)
 
-@jsonrpc_method('package.clearRecent', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.clearRecent')
 def clearRecent(request, package):
 
     """
@@ -330,8 +310,7 @@ def clearRecent(request, package):
     # rerender the menus
     client.sendScript('top.location = "/%s"' % package.name.encode('utf8'))
 
-@jsonrpc_method('package.setLocale', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.setLocale')
 def setLocale(request, package, locale):
 
     """
@@ -343,8 +322,7 @@ def setLocale(request, package, locale):
     client.sendScript((u'top.location = "/%s"' % \
                       package.name).encode('utf8'))
 
-@jsonrpc_method('package.setInternalAnchors', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.setInternalAnchors')
 def setInternalAnchors(request, package, internalAnchors):
 
     """
@@ -355,8 +333,7 @@ def setInternalAnchors(request, package, internalAnchors):
     client.sendScript((u'top.location = "/%s"' % \
                       package.name).encode('utf8'))
 
-@jsonrpc_method('package.removeTempDir', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.removeTempDir')
 def removeTempDir(request, package, tempdir, rm_top_dir):
 
     """
@@ -475,8 +452,7 @@ def ClearParentTempPrintDirs(request, client, log_dir_warnings):
 
     return under_dirname, dir_warnings
 
-@jsonrpc_method('package.makeTempPrintDir', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.makeTempPrintDir')
 def makeTempPrintDir(request, package, suffix, prefix, \
                                     callback):
 
@@ -497,8 +473,7 @@ def makeTempPrintDir(request, package, suffix, prefix, \
     # Finally, pass the created temp_dir back to the expecting callback:
     client.call(callback, temp_dir, dir_warnings)
 
-@jsonrpc_method('package.previewTinyMCEimage', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.previewTinyMCEimage')
 def previewTinyMCEimage(request, package, tinyMCEwin, tinyMCEwin_name, \
                          tinyMCEfield, local_filename, preview_filename):
 
@@ -610,8 +585,7 @@ def previewTinyMCEimage(request, package, tinyMCEwin, tinyMCEwin_name, \
                 +"file to server prevew, error = " + str(e))
         raise
 
-@jsonrpc_method('package.generateTinyMCEmath', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.generateTinyMCEmath')
 def generateTinyMCEmath(request, package, tinyMCEwin, tinyMCEwin_name, \
                          tinyMCEfield, latex_source, math_fontsize, \
                          preview_image_filename, preview_math_srcfile):
@@ -695,8 +669,7 @@ def generateTinyMCEmath(request, package, tinyMCEwin, tinyMCEwin_name, \
         Path(tempFileName).remove()
     return
 
-@jsonrpc_method('package.quickExport', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.quickExport')
 def quickExport(request, package):
 
     """
@@ -708,8 +681,7 @@ def quickExport(request, package):
         self.handleExport(client, G.application.lastExportType, 
                     G.application.lastExportPath, quick=True) 
 
-@jsonrpc_method('package.exportPackage', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.exportPackage')
 def exportPackage(request, package, exportType, filename, print_callback='', quick=False):
 
     """
@@ -801,8 +773,8 @@ def exportPackage(request, package, exportType, filename, print_callback='', qui
         filename = self.b4save(client, filename, '.zip', _(u'EXPORT FAILED!'))
         self.exportIMS(client, filename, stylesDir)
 
-@jsonrpc_method('package.quit', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.quit')
+
 def quit(request, package):
 
     """
@@ -819,8 +791,7 @@ def quit(request, package):
 #       self.servController.stopServing()
     reactor.stop()
 
-@jsonrpc_method('package.browseURL', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.browseURL')
 def browseURL(request, package, url):
 
     """visit the specified URL using the system browser
@@ -858,8 +829,7 @@ def browseURL(request, package, url):
     else:
         os.system("firefox " + url + "&")
 
-@jsonrpc_method('package.insertPackage', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.insertPackage')
 def insertPackage(request, package, filename):
 
     """
@@ -880,8 +850,7 @@ def insertPackage(request, package, filename):
                       package.name).encode('utf8'))
 
 
-@jsonrpc_method('package.extractPackage', authenticated=True)
-@get_package_by_id_or_error
+@jsonrpc_helper('package.extractPackage')
 def extractPackage(request, package, filename, existOk):
 
     """

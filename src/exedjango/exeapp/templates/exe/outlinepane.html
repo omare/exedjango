@@ -1,8 +1,7 @@
 <!-- Start outlinePane -->
-{% load mainpage_extras %}
 <div id="outline_pane" current_node="{{data_package.current_node.id}}">
   <ul id="outline_tree">
-  {{ data_package.root|outline_nodes_ul}}
+  {{ node_list|unordered_list}}
   </ul>
 </div>
 <!-- End outlinePane -->

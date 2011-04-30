@@ -24,6 +24,7 @@ from django.db import models
 
 from exeapp.models import idevice_store
 
+
 import logging
 from copy               import deepcopy
 from urllib             import quote
@@ -52,7 +53,7 @@ class Node(models.Model):
     """
     Nodes provide the structure to the package hierarchy
     """
-    package = models.ForeignKey('DataPackage', related_name='nodes')
+    package = models.ForeignKey('Package', related_name='nodes')
     parent = models.ForeignKey('self', related_name='children', 
                                blank=True, null=True)
     title = models.CharField(max_length=50)
@@ -109,15 +110,14 @@ with it'''
                 #   but continue on, since it was probably one of the top nodes 
                 #   above the extraction that is None. 
                 # but this node IS valid, so add it to the path:
-                full_path = full_path + ":" \
-                        + quote(node.getTitle().encode('utf8'))
+                full_path = "%s:%s" % (full_path, self.title)
 
         # and finally, add this node itself:
         if new_node_title == "":
-            full_path = full_path + ":" + quote(self.getTitle().encode('utf8'))
+            full_path = "%s:%s" % (full_path, self.title)
         else:
             # a new_node_title was specified, create this path with the new name
-            full_path = full_path + ":" + quote(new_node_title.encode('utf8'))
+            full_path = "%s:%s" % (full_path, new_node_title)
         return full_path
 
 
@@ -388,10 +388,12 @@ with it'''
                 resources[resource] = True
         return resources.keys()
     
-    def handle_action(self, idevice_id, action, arguments):
+    def handle_action(self, idevice_id, action, request):
         '''Removes an iDevice or delegates action to it'''
         idevice = self.idevices.get(pk=idevice_id).as_leaf_class()
-        idevice.process(action, arguments)
+        from exeapp.views.blocks.blockfactory import block_factory
+        block = block_factory(idevice)
+        block.process(action, request)
 
 
     def create_child(self):
@@ -512,7 +514,7 @@ Returns True is successful
         """
         Generator that walks all descendant nodes
         """
-        for child in self.children:
+        for child in self.children.all():
             yield child
             for descendant in child.walkDescendants():
                 yield descendant

@@ -16,19 +16,23 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
-from django.template.loader import render_to_string
 """
 FreeTextBlock can render and process FreeTextIdevices as XHTML
 """
 
 import logging
 from exeapp.views.blocks.block import Block
-#from exe.webui.element          import TextAreaElement
-#from exe.engine                 import freetextidevice
-#from exe.webui                     import common
+from exeapp.views.blocks.elements import TextAreaElement
+from exeapp.models.idevices import freetextidevice
+
+from exedjango.utils import common
+# from exe.webui                     import common
 
 log = logging.getLogger(__name__)
 
+
+def _(value):
+    return value
 
 # ===========================================================================
 class FreeTextBlock(Block):
@@ -37,10 +41,14 @@ class FreeTextBlock(Block):
     GenericBlock will replace it..... one day
     """
     def __init__(self, idevice):
-        Block.__init__(self, idevice)
+        super(FreeTextBlock, self).__init__(idevice)
+        
+        self.contentElement = TextAreaElement(field=self.idevice.content)
+        if not hasattr(self.idevice,'undo'): 
+            self.idevice.undo = True
 
 
-    def process(self, request):
+    def process(self, action, request):
         """
         Process the request arguments from the web server to see if any
         apply to this block
@@ -56,35 +64,56 @@ class FreeTextBlock(Block):
                 self.idevice.content.content_wo_resourcePaths = ""
             return
 
-        IdeviceBlock.process(self, request)
+        super(FreeTextBlock, self).process(self, request)
 
-        if (u"action" not in request.args or 
-            request.args[u"action"][0] != u"delete"): 
+        if action != "delete": 
             content = self.contentElement.process(request) 
             if content: 
                 self.idevice.content = content
         if "export" + self.id in request.args and not is_cancel:
             self.idevice.exportType = request.args["export" + self.id][0]
 
-    @staticmethod
-    def render_edit(idevice):
-        """
-        Returns an HTML string with the form element for editing this block
-        """
-        return render_to_string('exe/idevices/freetext/edit.html', locals())
 
-    @staticmethod
-    def render_preview(idevice):
+    def renderEdit(self):
         """
-        Returns an HTML string for previewing this block
+        Returns an XHTML string with the form element for editing this block
         """
-        return render_to_string('exe/idevices/freetext/preview.html', locals())
+        html  = u"<div>\n"
+        html += self.contentElement.renderEdit()
+        ## drop down menu defines if element is exported for presentation
+        #html += common.formField('select', self.package,
+        #    _("Custom export options"), "export%s" % self.id,
+        #    options = [[_('Don\'t export'), freetextidevice.NOEXPORT],
+        #        [_('Presentation'), freetextidevice.PRESENTATION],
+        #        [_('Handout'), freetextidevice.HANDOUT]],
+        #    selection = self.idevice.exportType)
+        html += self.renderEditButtons()
+        html += u"</div>\n"
+        return html
 
-    
-    @staticmethod
-    def render_export(idevice):
+
+    def renderPreview(self):
+        """
+        Returns an XHTML string for previewing this block
+        """
+        html  = u"<div class=\"iDevice "
+        html += u"emphasis"+unicode(self.idevice.emphasis)+"\" "
+        html += u"ondblclick=\"submitLink('edit',"+self.id+", 0);\">\n"
+        html += self.contentElement.renderPreview()
+        html += self.renderViewButtons()
+        html += "</div>\n"
+        return html
+
+
+    def renderView(self):
         """
         Returns an XHTML string for viewing this block
         """
-        return render_to_string('exe/idevices/freetext/export.html', locals())
+        html  = u"<div class=\"iDevice "
+        html += u"emphasis"+unicode(self.idevice.emphasis) + "\">\n"
+        #html += u" presentable=" + unicode(self.idevice.presentable) + "\">\n"
+        html += self.contentElement.renderView()
+        html += u"</div>\n"
+        return html
     
+# ===========================================================================

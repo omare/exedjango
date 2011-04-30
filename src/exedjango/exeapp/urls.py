@@ -15,6 +15,7 @@ urlpatterns = patterns('',
             (r'^$', main.main),
             
             url(r'^json/$', jsonrpc_site.dispatch, name="jsonrpc_mountpoint"),
+            (r'^tinymce/', include('tinymce.urls')),
             (r'package/$', redirect_to, {'url' : '/exeapp/'}),
             (r'package/(?P<package_id>\d+)/', include('exeapp.package_urls')),
         )

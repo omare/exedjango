@@ -2,8 +2,10 @@ import unittest
 from mock import Mock
 from BeautifulSoup import BeautifulSoup
 
-from exeapp.templatetags.mainpage_extras import idevice_ul, outline_nodes_ul
+from exeapp.templatetags.mainpage_extras import idevice_ul
 from exeapp.templatetags.authoring_extras import *
+from django import template
+from django.template.loader import render_to_string
 
 class MainpageExtrasTestCase(unittest.TestCase):
     
@@ -37,14 +39,30 @@ class MainpageExtrasTestCase(unittest.TestCase):
             
         def is_current_node(self):
             return self.current
+        
+    class Package(object):
+        '''Mock for the package'''
+        def __init__(self, root):
+            self.root = root
             
     root = Node(1, 'Root' ,
         [Node(2, 'Child1', [Node(3, 'Grandchild1', []), Node(4, 'Grandchild2', [])]),
         Node(5, 'Child2', [])], current=True)
+    
+    data_package = Package(root)
 
-    def test_nodes_ul(self):
-        soup = BeautifulSoup(outline_nodes_ul(self.root))
+    def test_render_outline (self):
+        c = template.Context({"data_package" : self.data_package})
+        
+        t = template.Template('''
+        {% load mainpage_extras %}
+        {% render_outline data_package %}
+        ''')
+        output = t.render(c)
+        
+        soup = BeautifulSoup(output)
         root = soup.find(attrs={'nodeid' : '1'})
         self.assertTrue('Root' in root.contents[0])
         self.assertEquals(len(soup.fetch('li')), 5)
-        self.assertEquals(len(soup.fetch('ul')), 2)
+        self.assertEquals(len(soup.fetch('a')), 5)
+        self.assertEquals(len(soup.fetch('ul')), 3)

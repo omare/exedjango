@@ -14,4 +14,4 @@ blocks = {
           FreeTextIdevice : FreeTextBlock
           }
     
-block_factory = lambda idevice : blocks[idevice.__class__]
+block_factory = lambda idevice : blocks[idevice.__class__](idevice)

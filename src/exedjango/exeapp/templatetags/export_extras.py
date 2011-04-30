@@ -16,7 +16,7 @@ def export_idevice(idevice):
 block'''
     
     block = block_factory(idevice.as_leaf_class())
-    return block.render_export(idevice.as_leaf_class())
+    return block.renderView()
 
 @register.inclusion_tag('navigation_bar.html')
 def navigation_bar(page_structure, current_page):

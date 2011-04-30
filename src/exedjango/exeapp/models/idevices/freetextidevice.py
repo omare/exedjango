@@ -25,10 +25,10 @@ from django.db import models
 from django.contrib.contenttypes import generic
 
 import logging
-from exeapp.models.idevices.idevice import Idevice, IdeviceActionNotFound
+from exeapp.models.idevices.idevice import Idevice, IdeviceToFieldField
+from exeapp.models.idevices.field import TextAreaField
 
 #from exe.engine.field   import TextAreaField
-from exeapp.views.blocks.freetextblock import FreeTextBlock
 log = logging.getLogger(__name__)
 
 # ===========================================================================
@@ -39,12 +39,19 @@ def x_(arg):
     '''Placeholder for translation'''
     return arg
 
+class FreeTextIdeviceManager(models.Manager):
+    
+    def create(self, parent_node, content=""):
+        content_field = TextAreaField.objects.create(content=content)
+        idevice = FreeTextIdevice(parent_node=parent_node,
+                                   content=content_field)
+        idevice.save()
+
 class FreeTextIdevice(Idevice):
     """
     FreeTextIdevice: just has a block of text
     """
     group = Idevice.Content
-    block = FreeTextBlock
     title="Free Text"
     author="University of Auckland"
     purpose="""The majority of a learning resource will be 
@@ -52,8 +59,9 @@ establishing context, delivering instructions and providing general information.
 This provides the framework within which the learning activities are built and 
 delivered."""
     emphasis=Idevice.NoEmphasis
+    content = IdeviceToFieldField('TextAreaField')
     
-    content = models.CharField(max_length=2048, default="")
+    objects = FreeTextIdeviceManager()
     
     def getResourcesField(self, this_resource):
         """

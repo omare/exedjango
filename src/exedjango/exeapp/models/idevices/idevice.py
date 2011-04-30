@@ -33,6 +33,14 @@ class IdeviceActionNotFound(Exception):
     '''Specified action with given arguments was not found'''
     pass
 
+class IdeviceToFieldField(models.OneToOneField):
+    """
+    Simply is a field with related_name "idevice".
+    """
+    def __init__(self, field):
+        super(IdeviceToFieldField, self).__init__(field, 
+                                                  related_name="idevice")
+
 # ===========================================================================
 class Idevice(models.Model):
     """

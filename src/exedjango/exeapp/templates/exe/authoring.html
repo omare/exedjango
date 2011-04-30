@@ -13,8 +13,6 @@
 		<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.min.js"></script>
 		<script type='text/javascript' src='{% get_static_prefix %}scripts/jquery.jsonrpc.js'></script>
 		<script type="text/javascript" src="{% get_static_prefix %}scripts/common.js"></script>
-		<script type="text/javascript" src="{% get_static_prefix %}scripts/tiny_mce/tiny_mce.js"></script>
-		<script type="text/javascript" src="{% get_static_prefix %}scripts/tiny_mce/jquery.tinymce.js"></script>
 	</head>
 	<body>
 {% endif %}
@@ -23,8 +21,10 @@
 			<p>Rendering node {{current_node.id}}</p>
 			<h2>{{current_node.title}}</h2>
 			{% for idevice in current_node.idevices.all %}
-			  <p>Idevice found</p>
-			  {{ idevice|render_idevice }}
+			  <div id="idevice{{idevice.id}}">
+				  <p>Idevice found</p>
+				  {{ idevice|render_idevice }}
+			  </div>"
 			{% endfor %}
 	{% if not partial %}
 	</body>

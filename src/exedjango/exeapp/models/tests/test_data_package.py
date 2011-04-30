@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 from exeapp.models import Package
 
-class DataPackageTestCase(TestCase):
+class PackageTestCase(TestCase):
     TEST_USER = 'admin'
     TEST_EMAIL = 'admin@exe.org'
     TEST_PASSWORD = 'admin'
@@ -17,7 +17,7 @@ class DataPackageTestCase(TestCase):
                                     self.TEST_PASSWORD)
         Package.objects.create(title=self.PACKAGE_TITLE, user=self.user)
         self.data_package = Package.objects.\
-            get(id=self.PACKAGE_ID).get_data_package()
+            get(id=self.PACKAGE_ID)
         self.root = self.data_package.root
         for x in range(3):
             child = self.root.create_child()

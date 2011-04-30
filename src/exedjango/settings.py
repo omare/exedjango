@@ -110,9 +110,39 @@ INSTALLED_APPS = (
     'jsonrpc',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'tinymce',
     'exeapp',
 )
 
 STATIC_ROOT = _get_file_from_root('static')
 STATIC_URL = '/static/'
 STYLE_DIR = "%s/css/styles/" % STATIC_ROOT
+
+TINYMCE_JS_URL = os.path.join(STATIC_URL, 'tiny_mce/tiny_mce.js')
+TINYMCE_JS_ROOT = os.path.join(STATIC_ROOT, 'tiny_mce')
+
+TINYMCE_DEFAULT_CONFIG = {   
+    "content_css" : "/static/css/extra.css", 
+    "verify_html" : False, 
+    "apply_source_formatting" : True, 
+    "cleanup_on_startup" : False, 
+    "entity_encoding" : "raw", 
+    "gecko_spellcheck" : True, 
+     "plugins" : "table,save,advhr,advimage,advlink,emotions,media, contextmenu,paste,directionality",
+     "theme" : "advanced",
+     "theme_advanced_layout_manager" : "SimpleLayout",
+    "theme_advanced_toolbar_location" : "top",
+     "theme_advanced_buttons1" : "newdocument,separator,bold,italic,underline,fontsizeselect,forecolor,backcolor,separator,sub,sup,separator,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,outdent,indent,separator,anchor,separator,cut,copy,paste,pastetext,pasteword,help",
+     "theme_advanced_buttons2" : "image,media,exemath,advhr,fontselect,tablecontrols,separator,link,unlink,separator, undo,redo,separator,charmap,code,removeformat",
+     "theme_advanced_buttons3" : "",
+    "advimage_image_browser_callback" : "chooseImage_viaTinyMCE",
+    "advimage_image2insert_browser_callback" : "chooseImage_viaTinyMCE",
+    "media_media_browser_callback" : "chooseImage_viaTinyMCE",
+    "media_media2insert_browser_callback" : "chooseImage_viaTinyMCE",
+    "advlink_file_browser_callback" : "chooseImage_viaTinyMCE",
+    "advlink_file2insert_browser_callback" : "chooseImage_viaTinyMCE",
+    "theme_advanced_statusbar_location" : "bottom",
+        "theme_advanced_resize_horizontal" : True,
+        "theme_advanced_resizing" : True,
+        "width" : "100%"
+ }
