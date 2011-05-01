@@ -63,6 +63,8 @@ def handle_action(request, package):
         idevice_id = post_dict.pop('idevice_id')[0]
         action = post_dict.pop('idevice_action')[0]
         package.handle_action(idevice_id, action, post_dict)
+        idevice = package.get_idevice_for_partial(idevice_id)
+        return HttpResponse(shortcuts.render_idevice(idevice))
     return HttpResponse()
         
 

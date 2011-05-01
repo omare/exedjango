@@ -17,7 +17,7 @@ from django.contrib import auth
 from django.utils.html import escape
 from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseForbidden, Http404
-from jsonrpc.proxy import ServiceProxy
+from jsonrpc.proxy import TestingServiceProxy
 from jsonrpc.types import *
 
 from exeapp import models
@@ -69,7 +69,6 @@ class MainPageTestCase(TestCase):
         self.c = Client()
         # login
         self.c.login(username=TEST_USER, password=TEST_PASSWORD)
-        self.s = ServiceProxy('http://locahost:8000/json/')
     
     def test_basic_elements(self):
         response = self.c.get('/exeapp/')
@@ -88,41 +87,7 @@ class MainPageTestCase(TestCase):
         response = self.c.get('/exeapp/main')
         self.assertFalse('Main Page' in response.content)
         
-class CustomServiceProxy(object):
-    '''Works with Django client'''
-    def __init__(self, client, service_url="", service_name=None,
-                    version='2.0'):
-        self.__version = str(version)
-        if not service_url:
-            service_url = reverse("jsonrpc_mountpoint")
-        self.__service_url = service_url
-        self.__service_name = service_name
-        self.client = client
 
-        
-    def __getattr__(self, name):
-        if self.__service_name != None:
-            name = "%s.%s" % (self.__service_name, name)
-        return CustomServiceProxy(self.client, self.__service_url,
-                                  name, self.__version)
-  
-    def __call__(self, *args, **kwargs):
-
-        params = kwargs if len(kwargs) else args
-        if Any.kind(params) == Object and self.__version != '2.0':
-          raise Exception('Unsupport arg type for JSON-RPC 1.0 '
-                         '(the default version for this client, '
-                         'pass version="2.0" to use keyword arguments)')
-        dump = json.dumps({"jsonrpc" : self.__version,
-                           "method" : self.__service_name,
-                           "params" : params,
-                           "id" : str(uuid.uuid1())
-                           })
-        dump_payload = FakePayload(dump)
-        r = self.client.post(self.__service_url,
-                              **{"wsgi.input" : dump_payload,
-                              'CONTENT_LENGTH' : len(dump)})
-        return json.loads(r.content)
 
         
 class PackagesPageTestCase(TestCase):
@@ -146,6 +111,7 @@ class PackagesPageTestCase(TestCase):
         self.assertContains(response, "outlinePane")
         self.assertContains(response, 'current_node="%s"' % self.NODE_ID)
     
+    
     @mock.patch.object(Package.objects, 'get')
     def test_rpc_calls(self, mock_get):
         NODE_ID = 42
@@ -163,9 +129,12 @@ class PackagesPageTestCase(TestCase):
         #mock get query
         mock_get.return_value = package
         
-        s = CustomServiceProxy(Client())
-        r = s.package.add_child_node(username=TEST_USER,
-                                            password=TEST_PASSWORD,
+        
+        s = TestingServiceProxy(self.c,
+                                reverse("jsonrpc_mountpoint"),
+                                version="2.0")
+        r = s.package.add_child_node(#username=TEST_USER,
+                                     #       password=TEST_PASSWORD,
                                             package_id=1)
         result = r['result'] 
         self.assertEquals(result['id'], NODE_ID)
@@ -287,13 +256,18 @@ view, this tests should be also merged'''
         self.assertTrue(content.index('idevice_id="%s"' % FIRST_IDEVICE_ID) \
                         > content.index('idevice_id="%s"' % SECOND_IDEVICE_ID))
     
+    @mock.patch.object(shortcuts, 'render_idevice')
     @mock.patch.object(Package.objects, 'get')    
-    def test_submit_idevice_action(self, mock_get):
+    def test_submit_idevice_action(self, mock_get, mock_render):
         '''Test if a POST request is delegated to package'''
         IDEVICE_ID = 1
         IDEVICE_ACTION = "save"
         mock_get.return_value.user.username = TEST_USER
         action_args = {"test" : ["a"], "test2" : ["1"]}
+        
+        def mock_render_idevice(idevice):
+            return idevice.content
+        mock_render.side_effect = mock_render_idevice
         
         response = self.c.post('%shandle_action/' % self.VIEW_URL,
                                data=dict(action_args,

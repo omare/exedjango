@@ -124,9 +124,11 @@ function initialize_authoring() {
  //$(".action_button").bind("click", handle_action_button)
  $(".idevice_form").ajaxForm(function(responseText, statusText, xhr, $form){
  	var idevice_id = $form.attr("idevice_id");
- 	$form.load("./?idevice_id=" + idevice_id, function() {
+ 	/*$form.load("./?idevice_id=" + idevice_id, function() {
  		initialize_authoring();
- 		});
+ 		});*/
+ 		$form.html(responseText);
+ 		initialize_authoring();
  	})
 }
 
