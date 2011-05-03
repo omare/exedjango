@@ -1,1 +1,2 @@
-<input type="image" title="{{ title }}" name="idevice_action" value="{{ action }}" src="{{ STATIC_URL }}{{ imageFile }}" />
+{% load static %}
+<input type="image" title="{{ title }}" name="idevice_action" value="{{ action }}" src="{% get_static_prefix %}{{ imageFile }}" />

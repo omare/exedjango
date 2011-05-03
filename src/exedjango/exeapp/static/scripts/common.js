@@ -92,10 +92,8 @@ jQuery(document).ready(function() {
     initialize_authoring();
 })
 
-function initialize_authoring() {
-	// separated from the ready-routine to be callable on ajax loading
-            
-  $("textarea.mceEditor").tinymce({   
+function initialize_tinymce() {
+	$("textarea.mceEditor").tinymce({   
     content_css : "/static/css/extra.css", 
     verify_html : false, 
     apply_source_formatting : true, 
@@ -121,30 +119,43 @@ function initialize_authoring() {
         theme_advanced_resizing : true,
         width : "100%"
  });
+}
+
+function initialize_authoring() {
+
  //$(".action_button").bind("click", handle_action_button)
  $(".idevice_form").ajaxForm(function(responseText, statusText, xhr, $form){
  	var idevice_id = $form.attr("idevice_id");
  	/*$form.load("./?idevice_id=" + idevice_id, function() {
  		initialize_authoring();
  		});*/
- 		$form.html(responseText);
+ 		if (responseText){
+	 		$form.html(responseText);
+ 		} else {
+ 			reload_authoring();
+ 		}
  		initialize_authoring();
  	})
 }
 
 function reload_authoring() {
-	$("body").load('authoring/?partial=true', function() {
+	$("body").load('./?partial=true', function() {
 		initialize_authoring();
 		});
 }
 
-function handle_action_button() {
-  var idevice_id = get_idevice_id($(this));
-  var action = $(this).attr("action");
-  var idevice_block = get_idevice($(this))
-  submitLink(action, idevice_id, true, get_arguments(idevice_block));
-  return false;
+function add_idevice(idevice_id) {
+    $.ajax({
+    url: "./?idevice_id=" + idevice_id,
+    success: function (data) {
+    	 $('body').append(data);
+    	 initialize_authoring();
+    	 },
+    dataType: 'text/html'
+	});
+	initialize_authoring();
 }
+
 
 // Takes a jQuery object and returns the id of the idevice it
 // belongs to

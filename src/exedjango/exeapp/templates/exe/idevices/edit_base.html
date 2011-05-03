@@ -1,19 +1,29 @@
-<div class="block" {% include 'exe/idevices/idevice_id.html' %}>
-{% block idevice %}
-{{ form.media }}
-{{ form.as_p|safe }}
-{% endblock %}
-  <div>
-    <a class="action_button" href='#' action="done">Apply</a>
-    {% if idevice.undo %}
-      <a href='#'>Cancel</a>
-    {% endif %}
-    <a class="action_button" href='#' action="delete">Remove</a>
-    {% if not idevice.isFirst %}
-      <a class="action_button" href='#' action="move_up">Move Up</a>
-    {% endif %}
-    {% if not idevice.isLast %}
-      <a class="action_button" href='#' action="move_down">Move Down</a>
-    {% endif %}
-  </div>
-</div>
+{% load static %}
+{% load common %}
+{% block idevice %}{% endblock %}
+{% get_static_prefix as STATIC_PREFIX %}
+{% submit_image "apply_changes" self.id "images/stock-apply.png" "Done" %}
+{% if no_undo %}
+	{% submit_image "cancel" self.id "images/stock-undo.png" "Undo Edits") %}
+{% else %}
+	{% submit_image "no_cancel" self.id "images/stock-undoNOT.png" "Can NOT Undo Edits" %}
+{% endif %}
+
+{% submit_image "delete" self.id "images/stock-cancel.png" "Delete" %}
+{% if self.idevice.is_first %}
+	{% image "move_up" self.id "images/stock-go-up-off.png" %}
+{% else %}
+	{% submit_image "move_up" self.id "images/stock-go-up.png" "Move Up" %}
+{% endif %}
+
+{% if self.idevice.is_last %}
+	{% image "move_down" self.id "images/stock-go-down-off.png" %}
+{% else %}
+	{% submit_image "move_down" self.id "images/stock-go-down.png" "Move Down" %}
+{% endif %}
+{% if self.idevice.purpose %}
+	<a class="info">
+		<img src="{{ STATIC_PREFIX }}images/info.png" alt="Information"/>
+		<span>{{self.idevice.purpose}}</span>
+	</a> 
+{% endif %}

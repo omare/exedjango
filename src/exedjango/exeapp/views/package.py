@@ -7,8 +7,6 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from exeapp.models import Package, User, idevice_store, Package
 from exeapp.views.export.websiteexport import WebsiteExport
-# let render_idevice be called in shortcuts namespace. Need it for patching
-# in tests
 from exeapp import shortcuts
 from exeapp.shortcuts import get_package_by_id_or_error
 
@@ -60,11 +58,13 @@ def handle_action(request, package):
     '''Handles post action sent from authoring'''
     if request.method == "POST":
         post_dict = dict(request.POST)
+        if 'content' in request.POST:
+            content = request.POST['content']
         idevice_id = post_dict.pop('idevice_id')[0]
         action = post_dict.pop('idevice_action')[0]
-        package.handle_action(idevice_id, action, post_dict)
-        idevice = package.get_idevice_for_partial(idevice_id)
-        return HttpResponse(shortcuts.render_idevice(idevice))
+        response = package.handle_action(idevice_id,
+                                          action, request.POST)
+        return HttpResponse(response)
     return HttpResponse()
         
 

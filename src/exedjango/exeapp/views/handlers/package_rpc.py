@@ -66,12 +66,8 @@ def set_package_style(request, package, style_id):
 def add_idevice(request, package, idevice_type):
     '''Adds a idevice of given type to the current node'''
     
-    try:
-        package.add_idevice(idevice_type)
-        success = 1
-    except KeyError:
-        success = 0
-    return {'success' : success}
+    idevice_id = package.add_idevice(idevice_type)
+    return {'idevice_id' : idevice_id }
     
 @jsonrpc_helper('package.testPrintMessage')
 def testPrintMessage(request, package, message):
@@ -224,7 +220,7 @@ def importPDF(request, package, path, importString):
         "Page: %d" % (x + 1))
         # 2 is code of PdfIdevice
         PdfIdeviceCode = '2'
-        package.currentNode.addIdevice(
+        package.currentNode.add_idevice(
             self.idevicePane.prototypes.get(PdfIdeviceCode).clone())
         package.currentNode.idevices[0].path = path
         # + 1 here to use uploadFile just as if we would have set page

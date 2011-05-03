@@ -13,23 +13,20 @@
 		<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.min.js"></script>
 		<script type='text/javascript' src='{% get_static_prefix %}scripts/jquery.jsonrpc.js'></script>
 		<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.form.js"></script>
-		<script type="text/javascript" src="{% get_static_prefix %}tiny_mce/jquery.tinymce.js"></script>
-		<script type="text/javascript" src="{% get_static_prefix %}tiny_mce/tiny_mce.js"></script>
 		<script type="text/javascript" src="{% get_static_prefix %}scripts/common.js"></script>
+		
+		{% render_form_media current_node %}
 	</head>
 	<body>
 {% endif %}
 			<div id="package_id" style="display: none">{{package.id}}</div>
-			<p>Authoring for Package {{data_package.id}}</p>
-			<p>Rendering node {{current_node.id}}</p>
-			<h2>{{current_node.title}}</h2>
-			{% for idevice in current_node.idevices.all %}
-			  <form idevice_id="{{idevice.id}}" class="idevice_form" action="handle_action/" method="post">
-				  <p>Idevice found</p>
-				  {{ idevice|render_idevice }}
-			  </form>
-			  </div>
-			{% endfor %}
+				<p>Authoring for Package {{data_package.id}}</p>
+				<p>Rendering node {{current_node.id}}</p>
+				<h2>{{current_node.title}}</h2>
+				{% for idevice in current_node.idevices.all %}
+				  {% render_idevice idevice %}
+				{% endfor %}
+            </div>
 	{% if not partial %}
 	</body>
 </html>

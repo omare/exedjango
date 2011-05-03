@@ -38,7 +38,7 @@ class Resource(models.Model):
     Contains reference to a file with some meta information
     """
     
-    content_type = models.ForeignKey(ContentType)
+    child_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     resource = models.FileField(upload_to="resource", blank=True, null=True)
     field = generic.GenericForeignKey()

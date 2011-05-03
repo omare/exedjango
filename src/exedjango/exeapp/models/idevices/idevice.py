@@ -30,13 +30,6 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class IdeviceToFieldField(models.OneToOneField):
-    """
-    Simply is a field with related_name "idevice".
-    """
-    def __init__(self, field):
-        super(IdeviceToFieldField, self).__init__(field, 
-                                                  related_name="idevice")
 # ===========================================================================
 class Idevice(models.Model):
     """
@@ -64,10 +57,8 @@ package
     icon = models.ImageField(upload_to="icons", blank=True, null=True)
     parent_node = models.ForeignKey('Node', related_name='idevices')
     
-    content_type = models.ForeignKey(ContentType, editable=False, null=True,
-                                     related_name="base_idevice")
+    child_type = models.CharField(max_length=32, editable=False, blank=True)
     
-
 #    rawTitle = lateTranslate('title')
 #    author   = lateTranslate('author')
 #    purpose  = lateTranslate('purpose')
@@ -80,7 +71,7 @@ package
             else:
                 return self.class_ + u'Idevice'
         else:
-            klass = str(self.as_leaf_class().__class__).split('.')[-1]
+            klass = str(self.as_child().__class__).split('.')[-1]
             return klass[:-2]
     klass = property(get_klass)
     
@@ -95,18 +86,20 @@ package
     def delete(self):
         super(Idevice, self).delete()
         
-    def apply_changes(self, agruments):
+    def apply_changes(self, agruments, commit=True):
         self.edit = False
+        if commit:
+            self.save()
         
 
-    def isFirst(self):
+    def is_first(self):
         """
         Return true if this is the first iDevice in this node
         """
         return self._order == 0
 
 
-    def isLast(self):
+    def is_last(self):
         """
         Return true if this is the last iDevice in this node
         """
@@ -120,9 +113,12 @@ package
         # Had to access _order directly because of a strange bug
         # May be reverted to use normal set_idevice_order routine
         # get_previous_in_order doesn't work either.
-        prev_idevice = self.base_idevice.get_previous_in_order()
-        prev_idevice._order, self._order = self._order, prev_idevice._order
+        base_idevice = self.base_idevice
+        prev_idevice = base_idevice.get_previous_in_order()
+        prev_idevice._order, self._order =\
+                 self._order, prev_idevice._order
         prev_idevice.save()
+        self.save()
 
     def move_down(self):
         """
@@ -131,17 +127,17 @@ package
         prev_idevice = self.base_idevice.get_next_in_order()
         prev_idevice._order, self._order = self._order, prev_idevice._order
         prev_idevice.save()
+        self.save()
             
     # Kudos to crucialfelix for djangosnippet 1031
     # http://djangosnippets.org/snippets/1031/        
     def save(self, *args, **kwargs):
-        if (not self.content_type):
-            self.content_type = ContentType.objects.\
-                    get_for_model(self.__class__)
+        if (not self.child_type):
+            self.child_type = self.__class__.__name__.lower()
         self.save_base(*args, **kwargs)
-        
-    def as_leaf_class(self):
-        return getattr(self, self.content_type.model)
+    
+    def as_child(self):
+        return getattr(self, self.child_type)
 
 
     def setParentNode(self, parentNode):
@@ -153,7 +149,7 @@ package
         if self.parentNode:
             old_node = self.parentNode
             self.parentNode.idevices.remove(self)
-        parentNode.addIdevice(self)
+        parentNode.add_idevice(self)
         # and update any internal anchors and their links:
         self.ChangedParentNode(old_node, parentNode)
 

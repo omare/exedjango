@@ -25,8 +25,7 @@ from django.db import models
 from django.contrib.contenttypes import generic
 
 import logging
-from exeapp.models.idevices.idevice import Idevice, IdeviceToFieldField
-from exeapp.models.idevices.field import TextAreaField
+from exeapp.models.idevices.idevice import Idevice
 
 #from exe.engine.field   import TextAreaField
 log = logging.getLogger(__name__)
@@ -38,14 +37,6 @@ NOEXPORT, PRESENTATION, HANDOUT = "1", "2", "3"
 def x_(arg):
     '''Placeholder for translation'''
     return arg
-
-class FreeTextIdeviceManager(models.Manager):
-    
-    def create(self, parent_node, content=""):
-        content_field = TextAreaField.objects.create(content=content)
-        idevice = FreeTextIdevice(parent_node=parent_node,
-                                   content=content_field)
-        idevice.save()
 
 class FreeTextIdevice(Idevice):
     """
@@ -59,9 +50,7 @@ establishing context, delivering instructions and providing general information.
 This provides the framework within which the learning activities are built and 
 delivered."""
     emphasis=Idevice.NoEmphasis
-    content = IdeviceToFieldField('TextAreaField')
-    
-    objects = FreeTextIdeviceManager()
+    content = models.TextField(blank=True, default="")
     
     def getResourcesField(self, this_resource):
         """
@@ -76,13 +65,6 @@ delivered."""
 
         return None
     
-    def apply_changes(self, data):
-        '''Saves changes and sets idevice mode to non-edit'''
-        super(FreeTextIdevice, self).apply_changes(data)
-        print "#"
-        print self.edit
-        
-       
     def getRichTextFields(self):
         """
         Like getResourcesField(), a general helper to allow nodes to search 

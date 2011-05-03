@@ -161,21 +161,11 @@ def richTextArea(name, value="", width="0", height=100, package=None):
     html += u'</textarea><br/>'
     return html
 
-
-def image(name, value, width="", height="", alt=None):
+@register.inclusion_tag("common/image.html")
+def image(name, id, value):
     """Returns the XHTML for an image"""
-    if alt is None:
-        alt = name
-    log.debug(u"image %s" % value)
-    html  = u"<img id=\"%s\" " % name
-    html += u'alt="%s" ' % alt
-    if width:
-        html += u"width=\"%s\" " % width
-    if height:
-        html += u"height=\"%s\" " % height
-    html += u"src=\"%s%s\" " % (settings.STATIC_URL, value)
-    html += u"/>\n"
-    return html
+    alt = name.replace("_", " ").title()
+    return locals()
 
 def flash(src, width, height, id_=None, params=None, **kwparams):
     """Returns the XHTML for flash.
@@ -250,7 +240,7 @@ def feedbackButton(name, value=None, enabled=True, **kwparams):
     return button(name, value, enabled, **kwparams)
 
 @register.inclusion_tag("common/submit_image.html")
-def submit_image(action, object_, imageFile, title=u"", isChanged=1):
+def submit_image(action, object_, imageFile, title):
     """
     Adds an image input element
     """

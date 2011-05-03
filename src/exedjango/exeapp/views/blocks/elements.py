@@ -1270,7 +1270,7 @@ class TermElement(Element):
         html  = u"<div class=\"iDevice\">\n"
         html += u"<b>" + _("Term:") + " </b>" 
         html += common.elementInstruc(self.field.termInstruc)
-        html += u" " + common.submitImage("del" + self.id, 
+        html += u" " + common.submit_image("del" + self.id, 
                                    self.field.idevice.id, 
                                    "/images/stock-cancel.png",
                                    _("Delete question"))
@@ -1713,7 +1713,7 @@ class SelectOptionElement(Element):
         html += common.checkbox("c"+self.id, 
                               self.field.isCorrect, self.index)
         html += "<br><br><br><br>\n"
-        html += common.submitImage("del"+self.id, self.field.idevice.id, 
+        html += common.submit_image("del"+self.id, self.field.idevice.id, 
                                    "/images/stock-cancel.png",
                                    _(u"Delete option"))
         html += "</td></tr>\n"
@@ -1821,7 +1821,7 @@ class SelectquestionElement(Element):
         html  = u"<div class=\"iDevice\">\n"
         html += u"<b>" + _("Question:") + " </b>" 
         html += common.elementInstruc(self.field.questionInstruc)
-        html += u" " + common.submitImage("del" + self.id, 
+        html += u" " + common.submit_image("del" + self.id, 
                                    self.field.idevice.id, 
                                    "/images/stock-cancel.png",
                                    _("Delete question"))
@@ -2010,7 +2010,7 @@ class QuizOptionElement(Element):
         html += common.option("c"+self.field.question.id, 
                               self.field.isCorrect, self.index)   
         html += "<br><br><br><br>\n"
-        html += common.submitImage("del"+self.id, self.field.idevice.id, 
+        html += common.submit_image("del"+self.id, self.field.idevice.id, 
                                    "/images/stock-cancel.png",
                                    _(u"Delete option"))
         html += "</td></tr>\n"
@@ -2169,7 +2169,7 @@ class QuizQuestionElement(Element):
         """
         Returns an XHTML string with the form element for editing this element
         """
-        html = u" "+common.submitImage("del"+self.id, self.field.idevice.id,  
+        html = u" "+common.submit_image("del"+self.id, self.field.idevice.id,  
                 "/images/stock-cancel.png", 
                 _("Delete question")) 
 

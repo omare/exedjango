@@ -6,6 +6,7 @@ from jsonrpc import jsonrpc_method
 from exeapp.models import Package
 from exedjango.base.http import Http403
 from exeapp.views.blocks.blockfactory import block_factory
+from django.template.loader import render_to_string
 
 def get_package_by_id_or_error(func):
     '''Works on views with package_id argument.
@@ -45,7 +46,6 @@ def jsonrpc_helper(*args, **kwargs):
 
 def render_idevice(idevice):
     """Finds the leaf idevice and renders it"""
-    leaf_idevice = idevice.as_leaf_class()
-    block = block_factory(leaf_idevice)
-    return block.render()
-    ""
+    leaf_idevice = idevice.as_child()
+    block_content = block_factory(leaf_idevice).render()
+    return render_to_string("exe/authoring_idevice_form.html", locals())

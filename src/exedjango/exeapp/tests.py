@@ -16,7 +16,7 @@ from django.test.client import FakePayload
 from django.contrib import auth
 from django.utils.html import escape
 from django.conf import settings
-from django.http import HttpResponseNotFound, HttpResponseForbidden, Http404
+from django.http import HttpResponseNotFound, HttpResponseForbidden, Http404, QueryDict
 from jsonrpc.proxy import TestingServiceProxy
 from jsonrpc.types import *
 
@@ -241,7 +241,7 @@ view, this tests should be also merged'''
         IDEVICE_ID = 1
         
         
-        self.root.addIdevice(self.IDEVICE_TYPE)
+        self.root.add_idevice(self.IDEVICE_TYPE)
         response = self.c.get(self.VIEW_URL)
         self.assertContains(response, 'idevice_id="%s"' % IDEVICE_ID)
         
@@ -249,9 +249,9 @@ view, this tests should be also merged'''
     def test_idevice_move_up(self):
         FIRST_IDEVICE_ID = 1
         SECOND_IDEVICE_ID = 2
-        self.root.addIdevice(self.IDEVICE_TYPE)
-        self.root.addIdevice(self.IDEVICE_TYPE)
-        self.data_package.handle_action(SECOND_IDEVICE_ID, "move_up")
+        self.root.add_idevice(self.IDEVICE_TYPE)
+        self.root.add_idevice(self.IDEVICE_TYPE)
+        self.data_package.handle_action(SECOND_IDEVICE_ID, "move_up", QueryDict(""))
         content = self.c.get(self.VIEW_URL).content
         self.assertTrue(content.index('idevice_id="%s"' % FIRST_IDEVICE_ID) \
                         > content.index('idevice_id="%s"' % SECOND_IDEVICE_ID))
@@ -260,26 +260,26 @@ view, this tests should be also merged'''
     @mock.patch.object(Package.objects, 'get')    
     def test_submit_idevice_action(self, mock_get, mock_render):
         '''Test if a POST request is delegated to package'''
-        IDEVICE_ID = 1
+        IDEVICE_ID = "1"
         IDEVICE_ACTION = "save"
         mock_get.return_value.user.username = TEST_USER
-        action_args = {"test" : ["a"], "test2" : ["1"]}
+        action_args = {"test" : "a", "test2" : "1",
+                       'idevice_id' : IDEVICE_ID,
+                       'idevice_action' : IDEVICE_ACTION}
         
         def mock_render_idevice(idevice):
             return idevice.content
         mock_render.side_effect = mock_render_idevice
         
         response = self.c.post('%shandle_action/' % self.VIEW_URL,
-                               data=dict(action_args,
-                                         **{'idevice_id' : IDEVICE_ID,
-                                            'idevice_action' : IDEVICE_ACTION }
-                                         )
-                    )
+                               data=action_args)
         self.assertEquals(response.status_code, 200)
+        test_args = QueryDict("").copy()
+        test_args.update(action_args)
         mock_get.return_value.handle_action.assert_called_with(
                                             unicode(IDEVICE_ID),
                                             "save",
-                                            action_args)
+                                            test_args)
     @mock.patch.object(shortcuts, 'render_idevice')
     @mock.patch.object(Package.objects, 'get')
     def test_render_idevice_partial(self, mock_get, mock_render):

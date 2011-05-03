@@ -16,6 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
+from django.template.loader import render_to_string
 """
 Nodes provide the structure to the package hierarchy
 """
@@ -390,10 +391,10 @@ with it'''
     
     def handle_action(self, idevice_id, action, data):
         '''Removes an iDevice or delegates action to it'''
-        idevice = self.idevices.get(pk=idevice_id).as_leaf_class()
+        idevice = self.idevices.get(pk=idevice_id).as_child()
         from exeapp.views.blocks.blockfactory import block_factory
         block = block_factory(idevice)
-        block.process(action, data)
+        return block.process(action, data)
 
 
     def create_child(self):
@@ -404,19 +405,20 @@ with it'''
         return Node.objects.create(package=self.package, parent=self)
 
 
-    def addIdevice(self, idevice_type):
+    def add_idevice(self, idevice_type):
         """
         Add the idevice to this node, sets idevice's parentNode. Throws
 KeyError, if idevice_type is not found
         """
-        log.debug(u"addIdevice %s" % idevice_type)
+        log.debug(u"add_idevice %s" % idevice_type)
         try:
             idevice_class = idevice_store[idevice_type]
         except KeyError:
             KeyError("Idevice type %s does not exist." % idevice_type)
         for edited_device in self.idevices.filter(edit=True):
             edited_device.edit = False
-        idevice_class.objects.create(parent_node=self)
+        idevice = idevice_class.objects.create(parent_node=self)
+        return idevice.id
         
     def move(self, new_parent, next_sibling=None):
         """

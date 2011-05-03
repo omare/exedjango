@@ -16,16 +16,23 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 """
 FreeTextBlock can render and process FreeTextIdevices as XHTML
 """
 
+from django import forms
+
 import logging
+from tinymce.widgets import TinyMCE
+
 from exeapp.views.blocks.block import Block
 from exeapp.views.blocks.elements import TextAreaElement
-from exeapp.models.idevices import freetextidevice
+from exeapp.models.idevices import FreeTextIdevice
 
 from exedjango.utils import common
+
 # from exe.webui                     import common
 
 log = logging.getLogger(__name__)
@@ -33,6 +40,14 @@ log = logging.getLogger(__name__)
 
 def _(value):
     return value
+
+class FreeTextForm(forms.ModelForm):
+    content = forms.CharField(widget=TinyMCE(attrs={"class" : "mceEditor"}))
+    
+    class Meta:
+        fields = ('content',)
+        model = FreeTextIdevice
+    
 
 # ===========================================================================
 class FreeTextBlock(Block):
@@ -43,64 +58,30 @@ class FreeTextBlock(Block):
     def __init__(self, idevice):
         super(FreeTextBlock, self).__init__(idevice)
         
-        self.contentElement = TextAreaElement(field=self.idevice.content)
+        self.form = FreeTextForm
         if not hasattr(self.idevice,'undo'): 
             self.idevice.undo = True
-
-
-    def process(self, action, data):
-        """
-        Process the request arguments from the web server to see if any
-        apply to this block
-        """
-        is_cancel = common.requestHasCancel(data)
-
-        super(FreeTextBlock, self).process(action, data)
-
-        if action != "delete": 
-            self.contentElement.process(action, data) 
-        #if "export" + self.id in request.args and not is_cancel:
-        #    self.idevice.exportType = request.args["export" + self.id][0]
-
 
     def renderEdit(self):
         """
         Returns an XHTML string with the form element for editing this block
         """
-        html = self.contentElement.renderEdit()
-        ## drop down menu defines if element is exported for presentation
-        #html += common.formField('select', self.package,
-        #    _("Custom export options"), "export%s" % self.id,
-        #    options = [[_('Don\'t export'), freetextidevice.NOEXPORT],
-        #        [_('Presentation'), freetextidevice.PRESENTATION],
-        #        [_('Handout'), freetextidevice.HANDOUT]],
-        #    selection = self.idevice.exportType)
-        html += self.renderEditButtons()
-        return html
-
+        form = self.form(instance=self.idevice, auto_id=False)
+        return render_to_string("exe/idevices/freetext/edit.html",
+                                 locals())
 
     def renderPreview(self):
         """
         Returns an XHTML string for previewing this block
         """
-        html  = u"<div class=\"iDevice "
-        html += u"emphasis"+unicode(self.idevice.emphasis)+"\" "
-        html += u"ondblclick=\"submitLink('edit',%s, 0);\">\n" % self.id
-        html += self.contentElement.renderPreview()
-        html += self.renderViewButtons()
-        html += "</div>\n"
-        return html
-
+        idevice = self.idevice
+        return render_to_string("exe/idevices/freetext/preview.html",
+                                 locals())
 
     def renderView(self):
         """
         Returns an XHTML string for viewing this block
         """
-        html  = u"<div class=\"iDevice "
-        html += u"emphasis"+unicode(self.idevice.emphasis) + "\">\n"
-        #html += u" presentable=" + unicode(self.idevice.presentable) + "\">\n"
-        html += self.contentElement.renderView()
-        html += u"</div>\n"
-        return html
-    
+        return render_to_string("exe/idevices/freetext/export.html",
+                                locals())
 # ===========================================================================

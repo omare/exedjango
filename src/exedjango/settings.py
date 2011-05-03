@@ -126,6 +126,7 @@ TINYMCE_DEFAULT_CONFIG = {
     "verify_html" : False, 
     "apply_source_formatting" : True, 
     "cleanup_on_startup" : False, 
+    "mode" : "textareas",
     "entity_encoding" : "raw", 
     "gecko_spellcheck" : True, 
      "plugins" : "table,save,advhr,advimage,advlink,emotions,media, contextmenu,paste,directionality",

@@ -164,7 +164,7 @@ class WebsiteExport(object):
             if isBreak:
                 break
             for idevice in page.node.idevices.all():
-                resources = idevice.as_leaf_class().system_resources
+                resources = idevice.as_child().system_resources
                 if (hasFlowplayer and hasMagnifier and hasXspfplayer):
                     isBreak = True
                     break

@@ -437,7 +437,7 @@ class MainPage(RenderableLivePage):
             "Page: %d" % (x + 1))
             # 2 is code of PdfIdevice
             PdfIdeviceCode = '2'
-            self.package.currentNode.addIdevice(
+            self.package.currentNode.add_idevice(
                 self.idevicePane.prototypes.get(PdfIdeviceCode).clone())
             self.package.currentNode.idevices[0].path = path
             # + 1 here to use uploadFile just as if we would have set page

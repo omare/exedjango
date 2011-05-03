@@ -17,6 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
 from exeapp.models.idevices.idevice import Idevice
+from django.template.loader import render_to_string
 """
 Block is the base class for the classes which are responsible for 
 rendering and processing Idevices in XHTML
@@ -56,31 +57,29 @@ class Block(object):
         self.tip     = idevice.tip
         self.package = self.idevice.parent_node.package
 
-        if idevice.edit:
-            self.mode = Block.Edit
-        else:
-            self.mode = Block.Preview
-
-
     def process(self, action, data):
         
         if action == 'delete':
-            self.delete()
+            self.idevice.delete()
             # Don't save IDevice if it has to be deleted
-            return 
+            return ""
         elif action == 'move_up':
             self.idevice.move_up()
+            return ""
         elif action == 'move_down':
             self.idevice.move_down()
+            return ""
         elif action == 'edit_mode':
             self.idevice.edit_mode()
         elif action == 'apply_changes':
-            self.idevice.apply_changes(data)
-
+            form = self.form(data, instance=self.idevice)
+            form.save(commit=False)
+            self.idevice.apply_changes(form.cleaned_data)
         else:
             raise IdeviceActionNotFound("Action %s not found" % action)
         
         self.idevice.save()
+        return self.render()
 
 
     def processDone(self, request):
@@ -150,11 +149,9 @@ class Block(object):
         """
         html = '<input type="hidden" name="idevice_id" value="%s" />' % self.id
         broken = '<p><span style="font-weight: bold">%s:</span> %%s</p>' % _('IDevice broken')
-        if self.mode == Block.Edit:
+        if self.idevice.edit == True:
             html += self.renderEdit()
-        elif self.mode == Block.View:
-            html += self.renderView()
-        elif self.mode == Block.Preview:
+        else:
             html += self.renderPreview()
         return mark_safe(html)
 
@@ -172,20 +169,20 @@ class Block(object):
         Returns an XHTML string for the edit buttons
         """
         
-        html  = common.submitImage(u"apply_changes", self.id, 
+        html  = common.submit_image(u"apply_changes", self.id, 
                                    u"images/stock-apply.png", 
                                    _(u"Done"),1)
 
         if undo:
-            html  += common.submitImage(u"cancel", self.id, 
+            html  += common.submit_image(u"cancel", self.id, 
                                    u"images/stock-undo.png", 
                                    _(u"Undo Edits"),1)
         else:
-            html  += common.submitImage(u"no_cancel", self.id, 
+            html  += common.submit_image(u"no_cancel", self.id, 
                                    u"images/stock-undoNOT.png", 
                                    _(u"Can NOT Undo Edits"),1)
         # TODO: change to ConfirmThenSubmitImage, when JS is ready
-        html += common.submitImage(
+        html += common.submit_image(
             #_(u"This will delete this iDevice."
             # u"\\n"
             #  u"Do you really want to do this?"),
@@ -193,17 +190,17 @@ class Block(object):
             self.id, u"images/stock-cancel.png", 
             _(u"Delete"), 1)
 
-        if self.idevice.isFirst():
+        if self.idevice.is_first():
             html += common.image(u"move_up", u"images/stock-go-up-off.png")
         else:
-            html += common.submitImage(u"movePrev", self.id, 
+            html += common.submit_image(u"movePrev", self.id, 
                                        u"images/stock-go-up.png", 
                                        _(u"Move Up"),1)
 
-        if self.idevice.isLast():
+        if self.idevice.is_last():
             html += common.image(u"moveNext", u"images/stock-go-down-off.png")
         else:
-            html += common.submitImage(u"move_down", self.id, 
+            html += common.submit_image(u"move_down", self.id, 
                                        u"images/stock-go-down.png", 
                                        _(u"Move Down"),1)
 
@@ -256,21 +253,7 @@ class Block(object):
         """
         Returns an XHTML string for previewing this block during editing
         """
-        html  = u"<div class=\"iDevice "
-        html += u"emphasis%s\" " % self.idevice.emphasis
-        html += u"ondblclick=\"submitLink('edit', %s, 0);\">\n" % self.id
-        if self.idevice.emphasis != Idevice.NoEmphasis:
-            if self.idevice.icon:
-                html += u'<img alt="%s" class="iDevice_icon" ' % _('IDevice Icon')
-                html += u" src=\"/style/%s" % self.idevice.style
-                html += "/icon_"+self.idevice.icon.url()+".gif\"/>\n"
-            html += u"<span class=\"iDeviceTitle\">"
-            html += self.idevice.title
-            html += u"</span>\n"
-        html += self.renderViewContent()
-        html += self.renderViewButtons()
-        html += u"</div>\n"
-        return html
+        raise NotImplemented
 
     
     def renderView(self):
@@ -304,7 +287,7 @@ class Block(object):
         """
         Returns an XHTML string for the view buttons
         """
-        html  = common.submitImage(u"edit_mode", self.id, 
+        html  = common.submit_image(u"edit_mode", self.id, 
                                    u"images/stock-edit.png", 
                                    _(u"Edit"), True)
         return html

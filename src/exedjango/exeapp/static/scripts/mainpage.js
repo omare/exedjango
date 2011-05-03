@@ -220,9 +220,9 @@ function add_idevice() {
   var ideviceid = $("#idevicePane").jstree("get_selected").find(">a").attr('ideviceid');
   $.jsonRPC.request('add_idevice', [get_package_id(), ideviceid],{
     success: function(results) {
-      if (results.result.success == '1'){
-        reload_authoring();
-        }
+    	window.frames['authoringIFrame1'].add_idevice(
+    		results.result.idevice_id
+    	);
     }
   });
   return false;

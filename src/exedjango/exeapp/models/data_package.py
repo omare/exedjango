@@ -73,7 +73,7 @@ def burstIdevice(idev_type, i, node):
 
     # For idevices such as GalleryImage, where resources are being attached,
     # the idevice should already be attached to a node before bursting it open:
-    node.addIdevice(idevice)
+    node.add_idevice(idevice)
 
     idevice.burstHTML(i)
     return idevice
@@ -386,19 +386,19 @@ successful'''
     def add_idevice(self, idevice_type):
         '''Adds idevice by a given type to the current node.
 Throws KeyError, if idevice_type is not found'''
-        self.current_node.addIdevice(idevice_type)
+        return self.current_node.add_idevice(idevice_type)
         
     def get_idevice_for_partial(self, idevice_id):
         '''Returns a idevice only in case its on the current node of this
 package'''
-        return self.current_node.idevices.get(id=idevice_id)
+        return self.current_node.idevices.get(id=int(idevice_id))
             
         
-    def handle_action(self, idevice_id, action, arguments={}):
+    def handle_action(self, idevice_id, action, data):
         '''Delegates a action to current_node'''
-        self.current_node.handle_action(idevice_id,
+        return self.current_node.handle_action(idevice_id,
                                         action,
-                                        defaultdict(str, arguments))
+                                        data)
 
     def set_backgroundImg(self, value):
         """Set the background image for this package"""

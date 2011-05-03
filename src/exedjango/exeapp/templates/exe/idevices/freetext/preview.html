@@ -1,4 +1,4 @@
 {% extends 'exe/idevices/preview_base.html' %}
 {% block idevice %}
-{{ idevice.textfield.controller.render_preview }}
+{{ idevice.content|safe }}
 {% endblock %}
