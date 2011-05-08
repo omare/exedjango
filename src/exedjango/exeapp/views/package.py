@@ -86,8 +86,10 @@ def export(request, package, format):
         zip = file_obj.getvalue()
         file_obj.close()
         response = HttpResponse(content_type="application/zip")
+        response = HttpResponse()
         response['Content-Disposition'] = 'attachment; filename=%s.zip'\
                                     % package.title
+        response['Content-Length'] = len(zip)
         response.write(zip)
         return response
     else:

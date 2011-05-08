@@ -53,6 +53,11 @@ div#sidebar {
     border: 1px solid;
 }
 
+#style_selection{
+	float: left;
+	
+}
+
 
 /* styles for iDevice Editor */
 

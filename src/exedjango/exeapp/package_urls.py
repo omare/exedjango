@@ -8,5 +8,5 @@ urlpatterns = patterns('exeapp.views',
                        (r'authoring/$', 'package.authoring'),
                        (r'authoring/handle_action/$', 'package.handle_action'),
                        (r'properties/$', 'package.properties'),
-                       (r'download/(?P<format>\w+)/$', 'package.export'),
+                       (r'download/(?P<format>\w*)/$', 'package.export'),
                        )

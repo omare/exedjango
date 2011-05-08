@@ -82,6 +82,7 @@ class FreeTextBlock(Block):
         """
         Returns an XHTML string for viewing this block
         """
+        idevice = self.idevice
         return render_to_string("exe/idevices/freetext/export.html",
                                 locals())
 # ===========================================================================

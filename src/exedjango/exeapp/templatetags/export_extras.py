@@ -10,7 +10,7 @@ import re
 
 register = template.Library()
 
-@register.filter
+@register.simple_tag
 def export_idevice(idevice):
     '''Convinience filter, just renders calls render function of a
 block'''

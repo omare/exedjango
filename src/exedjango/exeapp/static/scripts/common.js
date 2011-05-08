@@ -151,7 +151,7 @@ function add_idevice(idevice_id) {
     	 $('body').append(data);
     	 initialize_authoring();
     	 },
-    dataType: 'text/html'
+    dataType: 'html'
 	});
 	initialize_authoring();
 }

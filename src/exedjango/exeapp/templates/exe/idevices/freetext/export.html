@@ -1,4 +1,4 @@
 {% extends "exe/idevices/export_base.html" %}
 {% block idevice %}
-  {{ idevice.textfield.controller.render_export }}
+  {{ idevice.content|safe }}
 {% endblock %}

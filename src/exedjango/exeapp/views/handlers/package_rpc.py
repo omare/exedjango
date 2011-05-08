@@ -60,7 +60,7 @@ def get_current_style(request, package):
 
 @jsonrpc_helper('package.set_package_style')
 def set_package_style(request, package, style_id):
-    package.data_package.set_style(style_id)
+    package.set_style(style_id)
 
 @jsonrpc_helper('package.add_idevice')
 def add_idevice(request, package, idevice_type):

@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/exe.css" />
 <link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/ui-lightness/jquery-ui-1.8.4.custom.css" />
 <!-- SCRIPTS -->
-<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.min.js"></script>
+<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.js"></script>
 <script type="text/javascript" src="{% get_static_prefix %}scripts/jquery-ui.custom.min.js"></script>
 <script type="text/javascript" src="{% get_static_prefix %}scripts/mainpage.js"></script>
 <script type='text/javascript' src='{% get_static_prefix %}scripts/jquery.jsonrpc.js'></script>
@@ -25,8 +25,13 @@
     {{package.id}}
 </div>
 <div id="header">
-	<a href="./download/website/">Download Zip File</a>
 	{% render_styles %} 
+	<div id="export_selection">
+		<a id="export_link" href="{% url exeapp.views.package.export package.id "" %}">Export as</a>
+		<select id="export_selector">
+			<option class="export_select" value="website">Zip File</option>
+		</select>
+	</div>
 </div>
 <div id="wrap">
 <div id="sidebar">

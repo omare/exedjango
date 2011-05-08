@@ -80,6 +80,7 @@ jQuery(document).ready(function() {
                 // handle theme selection
                 set_current_style()
                 $("#style_selector").change(handle_select_style);
+                $("#export_link").click(handle_export);
                 
                 
                 // Initialize idevice Tree
@@ -141,7 +142,7 @@ function delete_current_node() {
 //Simply triggeds jstree's rename routine
 function rename_current_node(){
   if (get_current_node().attr('id') != "node" + current_outline_id()) {
-      alert("Somehow you managed to call dblclik event without a single click. Please,  page!");
+      alert("Somehow you managed to call dblclik event without a single click. Please, reload page!");
       return null;
   }
   get_outline_pane().jstree("rename");
@@ -249,6 +250,21 @@ function handle_select_style() {
 		// fully reload iframe to apply new style sheets
 		window.frames.authoringIFrame1.location = 'authoring/';
 	}});
+}
+
+function handle_export(e) {
+	var export_type = $("#export_selector").val();
+	var url = $("#export_link").attr("href").slice(0, -1) + export_type + "/";
+	alert(url); 
+	/*var download_iframe = $("<iframe />")
+		.attr("src", url)
+		.hide().
+		appendTo(document);
+	
+	// download_iframe.delete();*/
+	// e.preventDefault();
+	window.location.href = url;
+	return false;
 }
 
 //handle renamed node event. Calls package.rename_node over rpc.
