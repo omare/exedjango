@@ -2,6 +2,7 @@ from django import template
 
 from exeapp.views.blocks.blockfactory import block_factory
 from exeapp.shortcuts import render_idevice as shortcut_render_idevice
+from exeapp.views.authoring import get_media_list
 
 register = template.Library()
 
@@ -13,15 +14,6 @@ block'''
     return shortcut_render_idevice(idevice)
 
 @register.simple_tag
-def render_form_media(node, media_types=("js", "css")):
+def render_form_media(node):
     '''Rendern media for very form on the given node'''
-    idevices = node.idevices.all()
-    output = set()
-    for media_type in media_types:
-        for idevice in idevices:
-            idevice = idevice.as_child()
-            block = block_factory(idevice)
-            media = str(block.form().media) 
-            output.update(media.split('\n'))
-    
-    return "\n".join(output)
+    return get_media_list(node)

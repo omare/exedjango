@@ -46,7 +46,9 @@ class Block(object):
     """
     nextId = 0
     Edit, Preview, View, Hidden = range(4)
-
+    form = None # redefined by the child
+    
+    
     def __init__(self, idevice):
         """
         Initialize a new Block object
@@ -56,6 +58,8 @@ class Block(object):
         self.purpose = idevice.purpose
         self.tip     = idevice.tip
         self.package = self.idevice.parent_node.package
+        form = self.form()
+        self._media = form.media
 
     def process(self, action, data):
         
@@ -80,6 +84,14 @@ class Block(object):
         
         self.idevice.save()
         return self.render()
+    
+    @property
+    def media(self):
+        '''Returns a list of media files used in iDevice's HTML'''
+        if self.idevice.edit:
+            return self._media
+        else:
+            return []
 
 
     def processDone(self, request):
@@ -147,6 +159,7 @@ class Block(object):
         Returns the appropriate XHTML string for whatever mode this block is in.
         Descendants should not override it.
         """
+        self._media = None
         html = '<input type="hidden" name="idevice_id" value="%s" />' % self.id
         broken = '<p><span style="font-weight: bold">%s:</span> %%s</p>' % _('IDevice broken')
         if self.idevice.edit == True:

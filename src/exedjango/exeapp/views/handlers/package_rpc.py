@@ -47,29 +47,28 @@ from tempfile                    import mkdtemp
 import re, subprocess, shutil
 
 from jsonrpc import jsonrpc_method
-from exeapp.shortcuts import jsonrpc_helper
+from exeapp.shortcuts import jsonrpc_authernticating_method, render_idevice
 from exeapp.views.handlers import package_outline_rpc
-from exeapp.views.handlers import authoring_rpc
 from exeapp.models import idevice_store
 
 log = logging.getLogger(__name__)
 
-@jsonrpc_helper('package.get_current_style')
+@jsonrpc_authernticating_method('package.get_current_style')
 def get_current_style(request, package):
     return {"style" : package.style}
 
-@jsonrpc_helper('package.set_package_style')
+@jsonrpc_authernticating_method('package.set_package_style')
 def set_package_style(request, package, style_id):
     package.set_style(style_id)
 
-@jsonrpc_helper('package.add_idevice')
+@jsonrpc_authernticating_method('package.add_idevice')
 def add_idevice(request, package, idevice_type):
     '''Adds a idevice of given type to the current node'''
     
-    idevice_id = package.add_idevice(idevice_type)
-    return {'idevice_id' : idevice_id }
+    idevice = package.add_idevice(idevice_type)
+    return {'idevice_id' : idevice.id}
     
-@jsonrpc_helper('package.testPrintMessage')
+@jsonrpc_authernticating_method('package.testPrintMessage')
 def testPrintMessage(request, package, message):
 
     """ 
@@ -77,7 +76,7 @@ def testPrintMessage(request, package, message):
     """ 
     print "Test Message: ", message, " [eol, eh!]"
 
-@jsonrpc_helper('package.handleDblNode')
+@jsonrpc_authernticating_method('package.handleDblNode')
 def handleDblNode (request, package):
 
     """
@@ -94,7 +93,7 @@ def handleDblNode (request, package):
         client.sendScript(u'top.location = "/%s"' % \
                       package.name)
 
-@jsonrpc_helper('package.setEditorsWidth')
+@jsonrpc_authernticating_method('package.setEditorsWidth')
 def setEditorsWidth(request, package, width):
 
     """
@@ -108,7 +107,7 @@ def setEditorsWidth(request, package, width):
     except ValueError, e:
         client.sendScript(u"alert('Please, enter a number');")
         
-@jsonrpc_helper('package.serveDocument')
+@jsonrpc_authernticating_method('package.serveDocument')
 def serveDocument(request, package):
 
     """
@@ -132,7 +131,7 @@ def serveDocument(request, package):
 
 
 
-@jsonrpc_helper('package.stopServing')
+@jsonrpc_authernticating_method('package.stopServing')
 def stopServing(request, package):
 
     """
@@ -148,7 +147,7 @@ def stopServing(request, package):
 
 
 
-@jsonrpc_helper('package.openNewTab')
+@jsonrpc_authernticating_method('package.openNewTab')
 def openNewTab(request, package):
 
     """
@@ -171,7 +170,7 @@ def openNewTab(request, package):
     os.remove(portFile)
     client.sendScript(u"openNewTab('%s')" % port)
 
-@jsonrpc_helper('package.importStyle')
+@jsonrpc_authernticating_method('package.importStyle')
 def importStyle(request, package, src):
 
     '''imports a user style in config directory'''
@@ -185,7 +184,7 @@ def importStyle(request, package, src):
 
     
 
-@jsonrpc_helper('package.outlineClicked')
+@jsonrpc_authernticating_method('package.outlineClicked')
 def outlineClicked(request, package):
 
     """
@@ -196,7 +195,7 @@ def outlineClicked(request, package):
     
 
 
-@jsonrpc_helper('package.importPDF')
+@jsonrpc_authernticating_method('package.importPDF')
 def importPDF(request, package, path, importString):
 
     """
@@ -231,7 +230,7 @@ def importPDF(request, package, path, importString):
     client.sendScript((u'top.location = "/%s"' % package.name).encode('utf8'))
 
 
-@jsonrpc_helper('package.is_package_dirty')
+@jsonrpc_authernticating_method('package.is_package_dirty')
 def is_package_dirty(request, package):
 
     """
@@ -244,7 +243,7 @@ def is_package_dirty(request, package):
     return {"dirty" : package.isChanged}
 
 
-@jsonrpc_helper('package.getPackageFileName')
+@jsonrpc_authernticating_method('package.getPackageFileName')
 def getPackageFileName(request, package, onDone, onDoneParam):
 
     """
@@ -256,16 +255,16 @@ def getPackageFileName(request, package, onDone, onDoneParam):
     """
     client.call(onDone, unicode(package.filename), onDoneParam)
 
-@jsonrpc_helper('package.save_data_package')
+@jsonrpc_authernticating_method('package.save_data_package')
 def save_data_package(request, package):
     package.save_data_package()
     
-@jsonrpc_helper('package.unload_data_package')
+@jsonrpc_authernticating_method('package.unload_data_package')
 def unload_data_package(request, package):
     '''Handles event "package.stopServing'. Unloads given data packages'''
     package.unload_data_package()
 
-@jsonrpc_helper('package.loadPackage')
+@jsonrpc_authernticating_method('package.loadPackage')
 def loadPackage(request, package, filename):
 
     """Load the package named 'filename'"""
@@ -276,7 +275,7 @@ def loadPackage(request, package, filename):
     client.sendScript((u'top.location = "/%s"' % \
                       package.name).encode('utf8'))
 
-@jsonrpc_helper('package.loadRecent')
+@jsonrpc_authernticating_method('package.loadRecent')
 def loadRecent(request, package, number):
 
     """
@@ -285,7 +284,7 @@ def loadRecent(request, package, number):
     filename = self.config.recentProjects[int(number) - 1]
     self.handleLoadPackage(client, filename)
 
-@jsonrpc_helper('package.loadTutorial')
+@jsonrpc_authernticating_method('package.loadTutorial')
 def loadTutorial(request, package):
 
     """
@@ -295,7 +294,7 @@ def loadTutorial(request, package):
             .joinpath("eXe-tutorial.elp")
     self.handleLoadPackage(client, filename)
 
-@jsonrpc_helper('package.clearRecent')
+@jsonrpc_authernticating_method('package.clearRecent')
 def clearRecent(request, package):
 
     """
@@ -306,7 +305,7 @@ def clearRecent(request, package):
     # rerender the menus
     client.sendScript('top.location = "/%s"' % package.name.encode('utf8'))
 
-@jsonrpc_helper('package.setLocale')
+@jsonrpc_authernticating_method('package.setLocale')
 def setLocale(request, package, locale):
 
     """
@@ -318,7 +317,7 @@ def setLocale(request, package, locale):
     client.sendScript((u'top.location = "/%s"' % \
                       package.name).encode('utf8'))
 
-@jsonrpc_helper('package.setInternalAnchors')
+@jsonrpc_authernticating_method('package.setInternalAnchors')
 def setInternalAnchors(request, package, internalAnchors):
 
     """
@@ -329,7 +328,7 @@ def setInternalAnchors(request, package, internalAnchors):
     client.sendScript((u'top.location = "/%s"' % \
                       package.name).encode('utf8'))
 
-@jsonrpc_helper('package.removeTempDir')
+@jsonrpc_authernticating_method('package.removeTempDir')
 def removeTempDir(request, package, tempdir, rm_top_dir):
 
     """
@@ -448,7 +447,7 @@ def ClearParentTempPrintDirs(request, client, log_dir_warnings):
 
     return under_dirname, dir_warnings
 
-@jsonrpc_helper('package.makeTempPrintDir')
+@jsonrpc_authernticating_method('package.makeTempPrintDir')
 def makeTempPrintDir(request, package, suffix, prefix, \
                                     callback):
 
@@ -469,7 +468,7 @@ def makeTempPrintDir(request, package, suffix, prefix, \
     # Finally, pass the created temp_dir back to the expecting callback:
     client.call(callback, temp_dir, dir_warnings)
 
-@jsonrpc_helper('package.previewTinyMCEimage')
+@jsonrpc_authernticating_method('package.previewTinyMCEimage')
 def previewTinyMCEimage(request, package, tinyMCEwin, tinyMCEwin_name, \
                          tinyMCEfield, local_filename, preview_filename):
 
@@ -581,7 +580,7 @@ def previewTinyMCEimage(request, package, tinyMCEwin, tinyMCEwin_name, \
                 +"file to server prevew, error = " + str(e))
         raise
 
-@jsonrpc_helper('package.generateTinyMCEmath')
+@jsonrpc_authernticating_method('package.generateTinyMCEmath')
 def generateTinyMCEmath(request, package, tinyMCEwin, tinyMCEwin_name, \
                          tinyMCEfield, latex_source, math_fontsize, \
                          preview_image_filename, preview_math_srcfile):
@@ -665,7 +664,7 @@ def generateTinyMCEmath(request, package, tinyMCEwin, tinyMCEwin_name, \
         Path(tempFileName).remove()
     return
 
-@jsonrpc_helper('package.quickExport')
+@jsonrpc_authernticating_method('package.quickExport')
 def quickExport(request, package):
 
     """
@@ -677,7 +676,7 @@ def quickExport(request, package):
         self.handleExport(client, G.application.lastExportType, 
                     G.application.lastExportPath, quick=True) 
 
-@jsonrpc_helper('package.exportPackage')
+@jsonrpc_authernticating_method('package.exportPackage')
 def exportPackage(request, package, exportType, filename, print_callback='', quick=False):
 
     """
@@ -769,7 +768,7 @@ def exportPackage(request, package, exportType, filename, print_callback='', qui
         filename = self.b4save(client, filename, '.zip', _(u'EXPORT FAILED!'))
         self.exportIMS(client, filename, stylesDir)
 
-@jsonrpc_helper('package.quit')
+@jsonrpc_authernticating_method('package.quit')
 
 def quit(request, package):
 
@@ -787,7 +786,7 @@ def quit(request, package):
 #       self.servController.stopServing()
     reactor.stop()
 
-@jsonrpc_helper('package.browseURL')
+@jsonrpc_authernticating_method('package.browseURL')
 def browseURL(request, package, url):
 
     """visit the specified URL using the system browser
@@ -825,7 +824,7 @@ def browseURL(request, package, url):
     else:
         os.system("firefox " + url + "&")
 
-@jsonrpc_helper('package.insertPackage')
+@jsonrpc_authernticating_method('package.insertPackage')
 def insertPackage(request, package, filename):
 
     """
@@ -846,7 +845,7 @@ def insertPackage(request, package, filename):
                       package.name).encode('utf8'))
 
 
-@jsonrpc_helper('package.extractPackage')
+@jsonrpc_authernticating_method('package.extractPackage')
 def extractPackage(request, package, filename, existOk):
 
     """

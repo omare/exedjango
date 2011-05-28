@@ -93,14 +93,18 @@ jQuery(document).ready(function() {
 })
 
 function initialize_tinymce() {
+	tinyMCE.baseURL = "/static/tiny_mce/";
 	$("textarea.mceEditor").tinymce({   
+	script_url: '/tinymce/compressor/',
     content_css : "/static/css/extra.css", 
     verify_html : false, 
+     strict_loading_mode : true,
     apply_source_formatting : true, 
     cleanup_on_startup : false, 
     entity_encoding : "raw", 
     gecko_spellcheck : true, 
      mode : "textareas",
+     relative_urls: false,
      plugins : "table,save,advhr,advimage,advlink,emotions,media, contextmenu,paste,directionality",
      theme : "advanced",
      theme_advanced_layout_manager : "SimpleLayout",
@@ -126,9 +130,6 @@ function initialize_authoring() {
  //$(".action_button").bind("click", handle_action_button)
  $(".idevice_form").ajaxForm(function(responseText, statusText, xhr, $form){
  	var idevice_id = $form.attr("idevice_id");
- 	/*$form.load("./?idevice_id=" + idevice_id, function() {
- 		initialize_authoring();
- 		});*/
  		if (responseText){
 	 		$form.html(responseText);
  		} else {
@@ -145,15 +146,24 @@ function reload_authoring() {
 }
 
 function add_idevice(idevice_id) {
-    $.ajax({
-    url: "./?idevice_id=" + idevice_id,
-    success: function (data) {
-    	 $('body').append(data);
-    	 initialize_authoring();
-    	 },
-    dataType: 'html'
-	});
-	initialize_authoring();
+	// dynamically load scripts for idevices
+	/*$.ajax({
+		url: "./?idevice_id=" + idevice_id + "&media=true",
+		dataType: 'json',
+		async: false,
+		success: function(data){
+			$.each(data, function(key, val) {
+				$.getScript(val);
+			});
+			}});*/	
+	    $.ajax({
+	    url: "./?idevice_id=" + idevice_id,
+	    dataType: 'html',
+	    success: function (data) {
+	    	 $('body').append(data);
+	    	 initialize_authoring();
+	    	 }
+		});
 }
 
 

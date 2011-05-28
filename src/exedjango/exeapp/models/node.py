@@ -417,8 +417,8 @@ KeyError, if idevice_type is not found
             KeyError("Idevice type %s does not exist." % idevice_type)
         for edited_device in self.idevices.filter(edit=True):
             edited_device.edit = False
-        idevice = idevice_class.objects.create(parent_node=self)
-        return idevice.id
+        idevice = idevice_class.objects.create(parent_node=self) 
+        return idevice
         
     def move(self, new_parent, next_sibling=None):
         """

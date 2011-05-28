@@ -7,6 +7,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^$', redirect_to, {'url': '/exeapp/'}),
+    (r'tinymce/', include('tinymce.urls')),
     (r'^exeapp/', include('exeapp.urls')),
     (r'^admin/', include(admin.site.urls)),
     (r'^accounts/', include('exedjango.accountsurl')),

@@ -29,6 +29,7 @@ from exedjango.exeapp.shortcuts import get_package_by_id_or_error
 from exedjango.base.http import Http403
 from exeapp.views.export.websitepage import WebsitePage
 from django.core.urlresolvers import reverse
+from exeapp.views import authoring
 
 
 
@@ -100,6 +101,9 @@ class PackagesPageTestCase(TestCase):
         self.c = Client()
         _create_basic_database()
         self.c.login(username=TEST_USER, password=TEST_PASSWORD)
+        self.s = TestingServiceProxy(self.c,
+                                reverse("jsonrpc_mountpoint"),
+                                version="2.0")
         
     def test_basic_structure(self):
         response = self.c.get(self.PAGE_URL % self.PACKAGE_ID)
@@ -130,10 +134,8 @@ class PackagesPageTestCase(TestCase):
         mock_get.return_value = package
         
         
-        s = TestingServiceProxy(self.c,
-                                reverse("jsonrpc_mountpoint"),
-                                version="2.0")
-        r = s.package.add_child_node(#username=TEST_USER,
+        
+        r = self.s.package.add_child_node(#username=TEST_USER,
                                      #       password=TEST_PASSWORD,
                                             package_id=1)
         result = r['result'] 
@@ -280,6 +282,7 @@ view, this tests should be also merged'''
                                             unicode(IDEVICE_ID),
                                             "save",
                                             test_args)
+   
     @mock.patch.object(shortcuts, 'render_idevice')
     @mock.patch.object(Package.objects, 'get')
     def test_render_idevice_partial(self, mock_get, mock_render):
@@ -295,13 +298,13 @@ view, this tests should be also merged'''
         package = mock_get.return_value
         package.user.username = TEST_USER
         # mock package return function
-        package.get_idevice_for_partial.return_value.content = IDEVICE_CONTENT
+        package.get_idevice_for_partial.return_value.content\
+                         = IDEVICE_CONTENT
         
         response = self.c.get(self.VIEW_URL, data={"idevice_id" : IDEVICE_ID})
         self.assertEquals(response.status_code, 200)
         self.assertTrue(package.get_idevice_for_partial.called)
-        self.assertEquals(response.content, IDEVICE_CONTENT)
-        
+        self.assertTrue(IDEVICE_CONTENT in response.content)
         
 class ExportTestCase(TestCase):
     

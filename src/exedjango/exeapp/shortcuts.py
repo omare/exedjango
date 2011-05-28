@@ -33,7 +33,7 @@ Tested by exeapp.tests.ShortcutsTestCase.test_get_package_or_error. '''
     # Set docstring and name
     return permission_checking_view
 
-def jsonrpc_helper(*args, **kwargs):
+def jsonrpc_authernticating_method(*args, **kwargs):
     """Chains jsonrpc_method and get_package_by_id_or_error decorators"""
     def decorator(func):
         if "authenticated" not in kwargs:
@@ -47,5 +47,6 @@ def jsonrpc_helper(*args, **kwargs):
 def render_idevice(idevice):
     """Finds the leaf idevice and renders it"""
     leaf_idevice = idevice.as_child()
-    block_content = block_factory(leaf_idevice).render()
-    return render_to_string("exe/authoring_idevice_form.html", locals())
+    block = block_factory(leaf_idevice)
+    return render_to_string("exe/authoring_idevice_form.html", 
+                            {'block' : block})

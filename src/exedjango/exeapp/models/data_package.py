@@ -342,7 +342,8 @@ i.e. the "package".
     def add_child_node(self):
         '''Creates a child node of the current node, current node stays
 the same'''
-        return self.current_node.create_child()
+        node = self.current_node.create_child() 
+        return node
             
     def delete_current_node(self):
         '''Removes current node. Sets current node to deleted node's 
@@ -386,7 +387,8 @@ successful'''
     def add_idevice(self, idevice_type):
         '''Adds idevice by a given type to the current node.
 Throws KeyError, if idevice_type is not found'''
-        return self.current_node.add_idevice(idevice_type)
+        idevice = self.current_node.add_idevice(idevice_type) 
+        return idevice
         
     def get_idevice_for_partial(self, idevice_id):
         '''Returns a idevice only in case its on the current node of this

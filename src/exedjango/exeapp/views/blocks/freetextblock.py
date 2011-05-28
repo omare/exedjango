@@ -55,10 +55,12 @@ class FreeTextBlock(Block):
     FreeTextBlock can render and process FreeTextIdevices as XHTML
     GenericBlock will replace it..... one day
     """
+    form = FreeTextForm
+    
+    
     def __init__(self, idevice):
         super(FreeTextBlock, self).__init__(idevice)
         
-        self.form = FreeTextForm
         if not hasattr(self.idevice,'undo'): 
             self.idevice.undo = True
 
@@ -67,6 +69,7 @@ class FreeTextBlock(Block):
         Returns an XHTML string with the form element for editing this block
         """
         form = self.form(instance=self.idevice, auto_id=False)
+        self._media = form.media
         return render_to_string("exe/idevices/freetext/edit.html",
                                  locals())
 

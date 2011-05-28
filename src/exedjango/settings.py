@@ -122,14 +122,17 @@ STYLE_DIR = "%s/css/styles/" % STATIC_ROOT
 TINYMCE_JS_URL = os.path.join(STATIC_URL, 'tiny_mce/tiny_mce.js')
 TINYMCE_JS_ROOT = os.path.join(STATIC_ROOT, 'tiny_mce')
 
+TINYMCE_COMPRESSOR = True
+
 TINYMCE_DEFAULT_CONFIG = {   
     "content_css" : "/static/css/extra.css", 
-    "verify_html" : False, 
+     "strict_loading_mode" : True,
     "apply_source_formatting" : True, 
     "cleanup_on_startup" : False, 
-    "mode" : "textareas",
     "entity_encoding" : "raw", 
     "gecko_spellcheck" : True, 
+     #"mode" : "specific_textareas",
+     #"editor_selector" : "mceEditor",
      "plugins" : "table,save,advhr,advimage,advlink,emotions,media, contextmenu,paste,directionality",
      "theme" : "advanced",
      "theme_advanced_layout_manager" : "SimpleLayout",
