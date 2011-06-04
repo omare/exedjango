@@ -70,7 +70,7 @@ MEDIA_URL = '/media/'
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'g4c9r)uzvpig@%g5mc+6i$6o6tm-qh@^l=*8=#hw+jo_j_*fl_'
@@ -105,6 +105,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.staticfiles',
     'django_extensions',
@@ -113,6 +114,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'tinymce',
     'exeapp',
+    'filebrowser',
 )
 
 STATIC_ROOT = _get_file_from_root('static')
@@ -151,3 +153,10 @@ TINYMCE_DEFAULT_CONFIG = {
         "theme_advanced_resizing" : True,
         "width" : "100%"
  }
+
+# filebrowser settings
+FILEBROWSER_PATH_FILEBROWSER_MEDIA = "%s/filebrowser/" % STATIC_ROOT
+FILEBROWSER_URL_FILEBROWSER_MEDIA = "%sfilebrowser/" % STATIC_URL
+
+FILEBROWSER_URL_TINYMCE = "%stiny_mce/" % STATIC_URL
+FILEBROWSER_PATH_TINYMCE = "/tinymce/" 

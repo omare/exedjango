@@ -23,8 +23,10 @@ FreeTextBlock can render and process FreeTextIdevices as XHTML
 """
 
 from django import forms
+from django.conf import settings
 
 import logging
+import re
 from tinymce.widgets import TinyMCE
 
 from exeapp.views.blocks.block import Block
@@ -44,9 +46,28 @@ def _(value):
 class FreeTextForm(forms.ModelForm):
     content = forms.CharField(widget=TinyMCE(attrs={"class" : "mceEditor"}))
     
+
+        
+    def render_edit(self):
+        return str(self.visible_fields()[0])
+    
+    def render_preview(self):
+        return mark_safe(self.instance.content)
+    
+    def render_export(self):
+        content = self.instance.content
+        # replace resources
+        reg_exp = r'src=".*%s.*/(.*?)"' % settings.MEDIA_URL
+        result_content = re.sub(reg_exp, r'src="\g<1>"', content)
+        return mark_safe(result_content)
+        
+        
+    
     class Meta:
         fields = ('content',)
         model = FreeTextIdevice
+        
+    
     
 
 # ===========================================================================
@@ -78,6 +99,7 @@ class FreeTextBlock(Block):
         Returns an XHTML string for previewing this block
         """
         idevice = self.idevice
+        form = self.form(instance=self.idevice, auto_id=False)
         return render_to_string("exe/idevices/freetext/preview.html",
                                  locals())
 
@@ -86,6 +108,7 @@ class FreeTextBlock(Block):
         Returns an XHTML string for viewing this block
         """
         idevice = self.idevice
+        form = self.form(instance=self.idevice, auto_id=False)
         return render_to_string("exe/idevices/freetext/export.html",
                                 locals())
 # ===========================================================================

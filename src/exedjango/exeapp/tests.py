@@ -30,6 +30,8 @@ from exedjango.base.http import Http403
 from exeapp.views.export.websitepage import WebsitePage
 from django.core.urlresolvers import reverse
 from exeapp.views import authoring
+from exeapp.views.blocks.freetextblock import FreeTextForm
+from exeapp.models.idevices.idevice import Idevice
 
 
 
@@ -305,6 +307,30 @@ view, this tests should be also merged'''
         self.assertEquals(response.status_code, 200)
         self.assertTrue(package.get_idevice_for_partial.called)
         self.assertTrue(IDEVICE_CONTENT in response.content)
+        
+    def test_resource_finding(self):
+        RESOURCE = 'uploads/user/test.jpg'
+        CONTENT = 'src="../../media/%s"' % RESOURCE
+        IDEVICE_ID = 1
+        
+        self.root.add_idevice(self.IDEVICE_TYPE)
+        test_idevice = Idevice.objects.get(id=IDEVICE_ID).as_child()
+        test_idevice.content = CONTENT
+        self.assertEquals(test_idevice.get_resources(), [RESOURCE])
+        
+    def test_export_resource_substitution(self):
+        RESOURCE = 'test.jpg'
+        CONTENT = 'src="../../media/uploads/user/%s"' % RESOURCE
+        IDEVICE_ID = 1
+        
+        self.root.add_idevice(self.IDEVICE_TYPE)
+        test_idevice = Idevice.objects.get(id=IDEVICE_ID).as_child()
+        test_idevice.content = CONTENT
+        test_form = FreeTextForm(instance=test_idevice)
+        print test_form.render_export()
+        self.assertTrue(RESOURCE in test_form.render_export())
+        
+        
         
 class ExportTestCase(TestCase):
     

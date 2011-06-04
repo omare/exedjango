@@ -17,6 +17,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
+import settings
+import re
 
 """
 FreeTextIdevice: just has a block of text
@@ -65,6 +67,16 @@ delivered."""
 
         return None
     
+    def get_resources(self):
+        print self.content
+        reg_exp = r'src=".*%s(.*?)"' % settings.MEDIA_URL
+        print reg_exp
+        media_list = []
+        for medium in re.findall(reg_exp, self.content):
+            print medium
+            media_list.append(medium)
+        return media_list
+
     def getRichTextFields(self):
         """
         Like getResourcesField(), a general helper to allow nodes to search 

@@ -60,7 +60,7 @@ includes tinymce compressor, since it can't be loaded dynamically'''
     for idevice in node.idevices.all():
         idevice = idevice.as_child()
         block = block_factory(idevice) 
-        media + block.media
+        media += block.media
     return str(media)
 
 def get_unique_media_list(node, idevice):

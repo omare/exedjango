@@ -17,6 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
+from exeapp.models.idevices.idevice import Idevice
 """
 WebsiteExport will export a package as a website of HTML pages
 """
@@ -148,7 +149,11 @@ class WebsiteExport(object):
         self.style_dir.copylist(styleFiles, outputDir)
 
         # copy the package's resource files
-#        package.resourceDir.copyfiles(outputDir)
+        resources = []
+        media_dir = Path(settings.MEDIA_ROOT)
+        for idevice in Idevice.objects.filter(parent_node__package=package):
+            resources += idevice.as_child().get_resources()
+        media_dir.copylist(resources, outputDir)
             
         # copy script files.
         self.scripts_dir.copylist(('libot_drag.js',), 

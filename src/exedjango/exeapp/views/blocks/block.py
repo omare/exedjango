@@ -88,10 +88,7 @@ class Block(object):
     @property
     def media(self):
         '''Returns a list of media files used in iDevice's HTML'''
-        if self.idevice.edit:
-            return self._media
-        else:
-            return []
+        return self._media
 
 
     def processDone(self, request):
