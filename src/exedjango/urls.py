@@ -7,7 +7,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^$', redirect_to, {'url': '/exeapp/'}),
-#    (r'grappelli', include('grappelli.urls')),
+    (r'grappelli', include('grappelli.urls')),
     (r'filebrowser/', include('filebrowser.urls')),
     (r'tinymce/', include('tinymce.urls')),
     (r'^exeapp/', include('exeapp.urls')),
