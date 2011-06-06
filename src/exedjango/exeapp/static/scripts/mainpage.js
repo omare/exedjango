@@ -56,6 +56,30 @@ CANT_MOVE_NODE_FURTHER = "Can't move up any farther"
 NOT_IMPLEMENTED = "This function is not implemented yet."
 SAVE_DIRTY_PACKAGE = "Package has been changed. Do you want to save it, before you leave?"
 
+
+// set crfs cookie
+$('html').ajaxSend(function(event, xhr, settings) {
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+        // Only send the token to relative URLs i.e. locally.
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+    }
+});
+
 // initialize
 jQuery(document).ready(function() {
                 $.jsonRPC.setup({
@@ -104,6 +128,15 @@ jQuery(document).ready(function() {
                 $("#btnUp").click(move_current_node_up);
                 $("#btnDown").click(move_current_node_down);
                 
+                // init ajax forms
+                 $(".property_form").ajaxForm(function (responseText, statusText, xhr, $form){
+                 	$(".errorlist").hide();
+                 	if (responseText != ""){
+                 		$form.find("table").html(responseText);
+                 	}
+                 });
+
+                
                 //$(".bigButton:not(#btnRename), .smallButton").each(function(index) {
                 //    bindButtonClicked(this);
                 //});
@@ -111,8 +144,8 @@ jQuery(document).ready(function() {
                 $("#idevicePane").delegate(".ideviceItem", "click", add_idevice);
                 $("#middle").tabs();
                 updateTitle();
-                //uncomment to block UI. Quite slow
-                //$(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+                
+                
                 
             });
             

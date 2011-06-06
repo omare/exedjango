@@ -32,6 +32,8 @@ from django.core.urlresolvers import reverse
 from exeapp.views import authoring
 from exeapp.views.blocks.freetextblock import FreeTextForm
 from exeapp.models.idevices.idevice import Idevice
+from exeapp.views.package import PackagePropertiesForm
+from exeapp.views.export.imsexport import IMSExport
 
 
 
@@ -155,12 +157,6 @@ class PackagesPageTestCase(TestCase):
         self.assertContains(response, "Authoring")
         self.assertContains(response, self.PACKAGE_ID)
         
-    def test_properties(self):
-        response = self.c.get(self.PAGE_URL % self.PACKAGE_ID + "properties/")
-        self.assertContains(response, "Properties")
-        self.assertContains(response, self.PACKAGE_ID)
-        
-        
     def test_404_on_wrong_package(self):
         ## this id shouldn't be created
         WRONG_PACKAGE_ID = PACKAGE_COUNT * 2 + 1
@@ -172,6 +168,28 @@ class PackagesPageTestCase(TestCase):
         USERS_PACKAGE_ID = PACKAGE_COUNT + 1
         response = self.c.get(self.PAGE_URL % USERS_PACKAGE_ID)
         self.assertTrue(isinstance(response, HttpResponseForbidden))
+        
+            
+    def test_properties(self):
+        '''Test if the properties page is rendered propertly'''
+        response = self.c.get(self.PAGE_URL % self.PACKAGE_ID)
+        self.assertContains(response, 'properties_form')
+        
+    def test_change_properties(self):
+        AUTHOR_NAME = "Meeee"
+        PACKAGE_TITLE = "Sample_Title"
+        
+        response = self.c.post(self.PAGE_URL % self.PACKAGE_ID ,
+                               data = {'title' : PACKAGE_TITLE, 
+                                       'author' : AUTHOR_NAME,
+                                       'form_type_field' : PackagePropertiesForm.form_type})
+        self.assertEquals(response.status_code, 302)
+        self.assertTrue(response['location'].endswith(
+                           self.PAGE_URL % self.PACKAGE_ID))
+        package = Package.objects.get(id=self.PACKAGE_ID)
+        self.assertTrue(package.author == AUTHOR_NAME)
+        self.assertTrue(package.title == PACKAGE_TITLE)
+        
         
 class ShortcutTestCase(TestCase):
     PACKAGE_ID = 1
@@ -327,14 +345,15 @@ view, this tests should be also merged'''
         test_idevice = Idevice.objects.get(id=IDEVICE_ID).as_child()
         test_idevice.content = CONTENT
         test_form = FreeTextForm(instance=test_idevice)
-        print test_form.render_export()
         self.assertTrue(RESOURCE in test_form.render_export())
+
         
         
         
 class ExportTestCase(TestCase):
     
     TEST_PACKAGE_ID = 1
+    IDEVICE_TYPE = "FreeTextIdevice"
     
     def setUp(self):
         _create_basic_database()
@@ -347,6 +366,13 @@ class ExportTestCase(TestCase):
         '''Exports a package'''
         
         exporter = WebsiteExport(self.data, settings.MEDIA_ROOT + "/111.zip")
+        exporter.exportZip()
+        
+    def test_ims_export(self):
+        '''Exports a package'''
+        
+        self.data.root.add_idevice(self.IDEVICE_TYPE)
+        exporter = IMSExport(self.data, settings.MEDIA_ROOT + "/111.zip")
         exporter.exportZip()
         
     def test_pages_generation(self):

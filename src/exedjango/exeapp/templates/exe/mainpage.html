@@ -15,6 +15,7 @@
 <script type="text/javascript" src="{% get_static_prefix %}scripts/jquery-ui.custom.min.js"></script>
 <script type="text/javascript" src="{% get_static_prefix %}scripts/mainpage.js"></script>
 <script type='text/javascript' src='{% get_static_prefix %}scripts/jquery.jsonrpc.js'></script>
+<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.form.js"></script>
 <script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.cookie.js"></script>
 <script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.jstree.js"></script>
 <script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.confirm.js"></script>
@@ -30,6 +31,7 @@
 		<a id="export_link" href="{% url exeapp.views.package.export package.id "" %}">Export as</a>
 		<select id="export_selector">
 			<option class="export_select" value="website">Zip File</option>
+			<option class="export_select" value="ims">IMS Package</option>
 		</select>
 	</div>
 </div>
@@ -58,11 +60,34 @@
         <li><a href="#properties">Properties</a></li>
     </ul>
     <div id="authoring">
-        <iframe id="authoringIFrame1" name="authoringIFrame1"></div>
+        <iframe id="authoringIFrame1" name="authoringIFrame1"></iframe>
     </div>
     <!--Properties pane will be rendered here-->
     <div id="properties">
-        <iframe id="propertiesIFrame"></iframe>
+    	<div id="package_properties" />
+    	<form id="properties_form" class="property_form" method="post" action="#properties">
+    	{% if properties_form.errors %}
+    		<p>Please correct following error{{ properties_form.errors|pluralize }}</p>
+    	{% endif %}
+    	<table>
+        {{ properties_form.as_table }}
+        </table>
+        <input type="submit" value="Apply" />
+        </form>
+    </div>
+    <div id="dublincore">
+    	<form id="dublincore_form" class="property_form" method="post" action="#properties">
+		{% if dublincore_form.errors %}
+    		<p>Please correct following error{{ dublincore_form.errors|pluralize }}</p>
+    	{% endif %}
+    	<table>
+    		{{ dublincore_form.as_table }}
+    	</table>
+        <input type="submit" value="Apply" />
+        
+    	</form>
+    </div>
+    
     </div>
 </div>
 </div>

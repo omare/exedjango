@@ -44,15 +44,15 @@ class WebsiteExport(object):
     """
     WebsiteExport will export a package as a website of HTML pages
     """
-    def __init__(self, data_package, file_obj):
+    def __init__(self, package, file_obj):
         """
         'style_dir' is the directory where we can copy the stylesheets from
         'outputDir' is the directory that will be [over]written
         with the website
         """
-        self.data_package = data_package
+        self.data_package = package
         self.style_dir = Path("%s/%s" % (settings.STYLE_DIR, 
-                                            data_package.style))
+                                            package.style))
         self.scripts_dir = Path("%s/scripts/" % settings.STATIC_ROOT)
         self.file_obj = file_obj
 

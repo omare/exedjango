@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequest,\
-    Http404
+    Http404, HttpResponseRedirect, HttpResponseNotAllowed
 from django.core.servers.basehttp import FileWrapper 
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -9,6 +9,10 @@ from exeapp.models import Package, User, idevice_store, Package
 from exeapp.views.export.websiteexport import WebsiteExport
 from exeapp import shortcuts
 from exeapp.shortcuts import get_package_by_id_or_error
+from django import forms
+from django.core.urlresolvers import reverse
+from exeapp.models.data_package import DublinCore
+from exeapp.views.export.imsexport import IMSExport
 
 try:
     from cStringIO import StringIO
@@ -21,45 +25,88 @@ log = logging.getLogger(__name__)
 
 __all__ = ['package', 'authoring', 'properties']
 
+
+class PackagePropertiesForm(forms.ModelForm):
+    form_type = "properties_form"
+    form_type_field = forms.CharField(initial=form_type,
+                                  widget=forms.HiddenInput())
+    
+    class Meta:
+        model = Package
+        fields = ('title', 'author', 'email', 'description')
+        
+class DublinCoreForm(forms.ModelForm):
+    form_type = "dublincore_form"
+    form_type_field = forms.CharField(initial=form_type,
+                                  widget=forms.HiddenInput())
+    
+    class Meta:
+        model = DublinCore
+
+def generate_package_main(request, package, **kwargs):
+    '''Generates main page, can take additional keyword args to
+    create forms'''
+
+    
+    data_package = package
+    log.info("%s accesses package of %s" % (request.user.username, 
+                                            package.user.username))
+    idevices = idevice_store.values()
+    properties_form = kwargs.get(PackagePropertiesForm.form_type,
+                                 PackagePropertiesForm(instance=package))
+    dublincore_form = kwargs.get(DublinCoreForm.form_type,
+                                 DublinCoreForm(instance=package.dublincore))
+    return render_to_response('exe/mainpage.html', locals())
+
+def change_properties(request, package):
+    '''Parses post requests and applies changes to the package'''
+    form_type = request.POST['form_type_field'] 
+    if form_type == PackagePropertiesForm.form_type:
+        form = PackagePropertiesForm(request.POST, instance=package)
+    elif form_type == DublinCoreForm.form_type:
+        form = DublinCoreForm(request.POST, instance=package.dublincore)
+    if form.is_valid():
+        form.save()
+        if request.is_ajax():
+            return HttpResponse("")
+        else:
+            return HttpResponseRedirect(reverse('exeapp.views.package.package_main',
+                                             args=[package.id]))
+    else:
+        if request.is_ajax():
+            return HttpResponse(form.as_table())
+        else:
+            return generate_package_main(request, package,
+                                         **{form.form_type : form})
+    
 @login_required
 @get_package_by_id_or_error
-def package(request, package):
+def package_main(request, package, properties_form=None):
     '''Handle calls to package site. Renders exe/mainpage.html.'''
-    
-    if package.user.username != request.user.username:
-        return HttpResponseForbidden("You don't have an access to this package")
+    if request.method == 'POST':
+        return change_properties(request, package)
     else:
-        data_package = package
-        log.info("%s accesses package of %s" % (request.user.username, 
-                                                package.user.username))
-        idevices = idevice_store.values()
-        return render_to_response('exe/mainpage.html', locals())
-
-
-
-@login_required
-def properties(request, package_id):
-    '''Handles calls to properties iframe.'''
-    
-    return HttpResponse("<h1>Properties for %s</h1>" % package_id)
+        return generate_package_main(request, package)
 
 @login_required
 @get_package_by_id_or_error
 def export(request, package, format):
     
+    file_obj = StringIO()
     if format == "website":
-        file_obj = StringIO()
-        data_package = package
-        exporter = WebsiteExport(data_package, file_obj)
-        exporter.exportZip()
-        zip = file_obj.getvalue()
-        file_obj.close()
-        response = HttpResponse(content_type="application/zip")
-        response = HttpResponse()
-        response['Content-Disposition'] = 'attachment; filename=%s.zip'\
-                                    % package.title
-        response['Content-Length'] = len(zip)
-        response.write(zip)
-        return response
+        exporter = WebsiteExport(package, file_obj)
+    elif format == "ims":
+        exporter = IMSExport(package, file_obj)
     else:
-        return HttpResponseBadRequest
+        return HttpResponseBadRequest("Invalid export type")
+    exporter.exportZip()
+    zip = file_obj.getvalue()
+    len_zip = len(zip)
+    file_obj.close()
+    response = HttpResponse(content_type="application/zip")
+    response = HttpResponse()
+    response['Content-Disposition'] = 'attachment; filename=%s.zip'\
+                                % package.title
+    response['Content-Length'] = len(zip)
+    response.write(zip)
+    return response

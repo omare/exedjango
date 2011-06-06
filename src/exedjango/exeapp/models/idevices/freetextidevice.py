@@ -68,12 +68,9 @@ delivered."""
         return None
     
     def get_resources(self):
-        print self.content
         reg_exp = r'src=".*%s(.*?)"' % settings.MEDIA_URL
-        print reg_exp
         media_list = []
         for medium in re.findall(reg_exp, self.content):
-            print medium
             media_list.append(medium)
         return media_list
 

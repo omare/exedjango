@@ -382,12 +382,10 @@ with it'''
         Return the resource files used by this node
         """
         log.debug(u"getResources ")
-        resources = {}
-        for idevice in self.idevices:
-            reses = [(res.storageName, 'utf8') for res in idevice.userResources]
-            for resource in (idevice.systemResources + reses):
-                resources[resource] = True
-        return resources.keys()
+        resources = []
+        for idevice in self.idevices.all():
+            resources += idevice.as_child().get_resources()
+        return resources
     
     def handle_action(self, idevice_id, action, data):
         '''Removes an iDevice or delegates action to it'''

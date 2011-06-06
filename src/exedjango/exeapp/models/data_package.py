@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
 from django.db import models
+import datetime
 
 """
 Package represents the collection of resources the user is editing
@@ -249,39 +250,38 @@ def loadCC(zippedFile, filename):
     return package
 
 # ===========================================================================
-class DublinCore(object):
-    """
-    Holds dublin core info
-    """
+class DublinCore(models.Model):
+    title = models.CharField(blank=True, max_length=128)
+    creator = models.CharField(blank=True, max_length=128)
+    subject = models.CharField(blank=True, max_length=256)
+    description = models.TextField(blank=True)
+    publisher = models.CharField(blank=True, max_length=128)
+    contributors = models.TextField(blank=True, max_length=256)
+    date = models.DateField(default=datetime.date.today)
+    type = models.CharField(blank=True, max_length=256)
+    format = models.CharField(blank=True, max_length=128)
+    identifier = models.CharField(blank=True, max_length=128)
+    source = models.CharField(blank=True, max_length=128)
+    language = models.CharField(blank=True, max_length=32)
+    relation = models.CharField(blank=True, max_length=256)
+    coverage = models.CharField(blank=True, max_length=128)
+    rights = models.CharField(blank=True, max_length=256)
+    
+    class Meta:
+        app_label = "exeapp"
 
-    def __init__(self):
-        self.title = ''
-        self.creator = ''
-        self.subject = ''
-        self.description = ''
-        self.publisher = ''
-        self.contributors = ''
-        self.date = ''
-        self.type = ''
-        self.format = ''
-        self.identifier = ''
-        self.source = ''
-        self.language = ''
-        self.relation = ''
-        self.coverage = ''
-        self.rights = ''
-
-    def __setattr__(self, name, value):
-        self.__dict__[name] = toUnicode(value)
-        
 class PackageManager(models.Manager):
+    
     
     def create(self, *args, **kwargs):
         data_package = Package(*args, **kwargs)
+        dublincore = DublinCore.objects.create()
+        data_package.dublincore = dublincore
         data_package.save()
         root = Node(package=data_package, parent=None,
                     title="Home", is_current_node=True, is_root=True)
         root.save()
+        
         
         return data_package
 
@@ -305,15 +305,21 @@ i.e. the "package".
     _backgroundImg     = models.ImageField(upload_to='background', 
                                            blank=True, null=True)
     backgroundImgTile = models.BooleanField(default=False)
+    footer = models.CharField(max_length=100, blank=True)
+    footerImg     = models.ImageField(upload_to='footer', 
+                                           blank=True, null=True)
     
     license = models.CharField(max_length=50, blank=True)
     style = models.CharField(max_length=20, default="default")
     resourceDir = models.FileField(upload_to="resources", 
                                     blank=True, null=True)
+    dublincore = models.OneToOneField(DublinCore)
     
     level1 = models.CharField(max_length=20, default=DEFAULT_LEVEL_NAMES[0])
     level2 = models.CharField(max_length=20, default=DEFAULT_LEVEL_NAMES[1])
     level3 = models.CharField(max_length=20, default=DEFAULT_LEVEL_NAMES[2])
+    
+    
     
     objects = PackageManager()
     
@@ -660,7 +666,7 @@ package'''
         return foundResource
     
     def get_absolute_url(self):
-        return reverse('exeapp.views.package.package',
+        return reverse('exeapp.views.package.package_main',
                        kwargs={'package_id' : self.id})
     
     def __unicode__(self):
