@@ -1,0 +1,9 @@
+{% load export_extras %}
+{% comment %}
+Shortcut for rendering all idevices on a page
+{% endcomment %}
+{% for idevice in current_page.node.idevices.all %}
+  <div class="{{idevice.klass}}" id="id{{idevice.id}}">
+    {% export_idevice idevice %}
+  </div>
+{% endfor %}

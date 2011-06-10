@@ -67,11 +67,12 @@ delivered."""
 
         return None
     
-    def get_resources(self):
+    @property
+    def resources(self):
         reg_exp = r'src=".*%s(.*?)"' % settings.MEDIA_URL
-        media_list = []
+        media_list = set()
         for medium in re.findall(reg_exp, self.content):
-            media_list.append(medium)
+            media_list.add(medium)
         return media_list
 
     def getRichTextFields(self):

@@ -1030,7 +1030,7 @@ def exportWebZip(request, client, filename, stylesDir):
         # Do the export
         filename = self.b4save(client, filename, '.zip', _(u'EXPORT FAILED!'))
         websiteExport = WebsiteExport(self.config, stylesDir, filename)
-        websiteExport.exportZip(package)
+        websiteExport.export(package)
     except Exception, e:
         client.alert(_('EXPORT FAILED!\n%s' % str(e)))
         raise

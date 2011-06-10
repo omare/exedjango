@@ -16,16 +16,16 @@ class PackageTestCase(TestCase):
         self.user = User.objects.create_user(self.TEST_USER,
                                     self.TEST_PASSWORD)
         Package.objects.create(title=self.PACKAGE_TITLE, user=self.user)
-        self.data_package = Package.objects.\
+        self.package = Package.objects.\
             get(id=self.PACKAGE_ID)
-        self.root = self.data_package.root
+        self.root = self.package.root
         for x in range(3):
             child = self.root.create_child()
             child.title = "node%s" % x
             child.save()
 
     def test_get_root_from_package(self):
-        root = self.data_package.root
+        root = self.package.root
         self.assertEquals(root.title, "Home")
         
     def test_move_up(self):
@@ -75,5 +75,5 @@ class PackageTestCase(TestCase):
         self.assertEquals(3, child.level)
         
     def test_change_node(self):
-        self.data_package.set_current_node_by_id(2)
+        self.package.set_current_node_by_id(2)
         self.assertTrue(self.root.children.all()[0].is_current_node)

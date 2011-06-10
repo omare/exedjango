@@ -23,7 +23,7 @@ from jsonrpc.types import *
 from exeapp import models
 from exeapp.models import User, Package
 from exeapp.templatetags.tests import MainpageExtrasTestCase
-from exeapp.views.export.websiteexport import WebsiteExport, _generate_pages
+from exeapp.views.export.websiteexport import WebsiteExport
 from exeapp import shortcuts
 from exedjango.exeapp.shortcuts import get_package_by_id_or_error
 from exedjango.base.http import Http403
@@ -248,8 +248,8 @@ view, this tests should be also merged'''
         self.c = Client()
         _create_basic_database()
         self.c.login(username=TEST_USER, password=TEST_PASSWORD)
-        self.data_package = Package.objects.get(pk=self.TEST_PACKAGE_ID)
-        self.root = self.data_package.root
+        self.package = Package.objects.get(pk=self.TEST_PACKAGE_ID)
+        self.root = self.package.root
 
     def test_basic_elements(self): 
         '''Basic tests aimed to determine if this view works at all'''
@@ -273,7 +273,7 @@ view, this tests should be also merged'''
         SECOND_IDEVICE_ID = 2
         self.root.add_idevice(self.IDEVICE_TYPE)
         self.root.add_idevice(self.IDEVICE_TYPE)
-        self.data_package.handle_action(SECOND_IDEVICE_ID, "move_up", QueryDict(""))
+        self.package.handle_action(SECOND_IDEVICE_ID, "move_up", QueryDict(""))
         content = self.c.get(self.VIEW_URL).content
         self.assertTrue(content.index('idevice_id="%s"' % FIRST_IDEVICE_ID) \
                         > content.index('idevice_id="%s"' % SECOND_IDEVICE_ID))
@@ -334,7 +334,7 @@ view, this tests should be also merged'''
         self.root.add_idevice(self.IDEVICE_TYPE)
         test_idevice = Idevice.objects.get(id=IDEVICE_ID).as_child()
         test_idevice.content = CONTENT
-        self.assertEquals(test_idevice.get_resources(), [RESOURCE])
+        self.assertEquals(test_idevice.resources, set([RESOURCE]))
         
     def test_export_resource_substitution(self):
         RESOURCE = 'test.jpg'
@@ -366,14 +366,14 @@ class ExportTestCase(TestCase):
         '''Exports a package'''
         
         exporter = WebsiteExport(self.data, settings.MEDIA_ROOT + "/111.zip")
-        exporter.exportZip()
+        exporter.export()
         
     def test_ims_export(self):
         '''Exports a package'''
         
         self.data.root.add_idevice(self.IDEVICE_TYPE)
         exporter = IMSExport(self.data, settings.MEDIA_ROOT + "/111.zip")
-        exporter.exportZip()
+        exporter.export()
         
     def test_pages_generation(self):
         '''Tests generation of the page nested list'''
@@ -397,21 +397,18 @@ class ExportTestCase(TestCase):
         nodes[0].is_root = True
         nodes[0].children = MockQuerySet([nodes[1], nodes[2]])
         nodes[2].children = MockQuerySet([nodes[3]])
-        pages = _generate_pages(nodes[0], 1)
+        mock_exporter = WebsiteExport(Mock(), Mock())
+        mock_exporter.generate_pages(nodes[0], 1)
+        pages = mock_exporter.pages
         pages.insert(0, None)
         pages.append(None)
         for i in range(1, len(pages) - 1):
             page = pages[i]
-            if page != 'in' and page != 'out':
-                prev = i - 1
-                while pages[prev] == 'in' or pages[prev] == 'out':
-                    prev -= 1
-                next = i + 1
-                while pages[next] == 'in' or pages[next] == 'out':
-                    next += 1
-                
-                self.assertEquals(page.prev_page, pages[prev])
-                self.assertEquals(page.next_page, pages[next])
+            
+            if i != 0:    
+                self.assertEquals(page.prev_page, pages[i - 1])
+            if i != len(pages):
+                self.assertEquals(page.next_page, pages[i + 1])
                 
     def test_websitepage(self):
         IDEVICE_TYPE = "FreeTextIdevice"
@@ -419,9 +416,12 @@ class ExportTestCase(TestCase):
         
         self.assertEquals(self.data.root, self.data.current_node)
         self.data.add_idevice(IDEVICE_TYPE)
-        websitepage = WebsitePage(self.data.root, 0)
+        exporter = Mock()
+        exporter.pages = [] 
+        websitepage = WebsitePage(self.data.root, 0, exporter)
+        exporter.pages.append(websitepage)
         self.assertTrue('class="%s" id="id1"' % IDEVICE_TYPE \
-                        in websitepage.render([self.data.root]))
+                        in websitepage.render())
         
 class MiddleWareTestCase(TestCase):
     

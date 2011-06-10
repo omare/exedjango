@@ -1,0 +1,28 @@
+{% load common %}
+{% load export_extras %}
+{% doc_type %}
+<html xmlns=\"http://www.w3.org/1999/xhtml\">
+<head>
+	<meta http-equiv=\"Content-type\" content=\"text/html; charset=utf-8\" />
+	<title>eXe</title>
+	<style type="text/css">
+		@import url(base.css);
+		@import url(content.css);
+	</style>
+</head>
+	<body>
+		<div id="outer">
+			<div id="main">
+				<div id="nodeDecoration">
+					<p id="nodeTitle">
+						{{current_page.node.titleLong}}
+					</p>
+				</div>
+				{% include "exe/export/page_content.html" %}
+       		</div>
+       		{% render_licence current_page %}
+       		{% include "exe/export/footer.html" %}
+      	</div>
+   </body>
+</html>
+   

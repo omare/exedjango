@@ -176,8 +176,6 @@ class TextAreaElement(ElementWithResources):
         """
         
         if action == "apply_changes":
-            print "#" * 10
-            print self.field.content
             self.field.content = data[str(self.id)][0]
             print self.field.content
         self.field.save()

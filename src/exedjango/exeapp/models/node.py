@@ -376,15 +376,16 @@ with it'''
         """If we are an ancestor of 'node' returns 'true'"""
         return self in node.ancestors()
 
-
-    def getResources(self):
+    
+    @property
+    def resources(self):
         """
         Return the resource files used by this node
         """
         log.debug(u"getResources ")
         resources = []
         for idevice in self.idevices.all():
-            resources += idevice.as_child().get_resources()
+            resources += idevice.as_child().resources
         return resources
     
     def handle_action(self, idevice_id, action, data):

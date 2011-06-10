@@ -1,7 +1,7 @@
 {% spaceless %}
 {% load export_extras %}
 
-{% with NAVIGATION_LINKS="exe/export/navigation_links.html"%}
+{% with NAVIGATION_LINKS="exe/export/navigation_links.html" %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -17,21 +17,19 @@
     <div id="content">
       <!-- TODO Background -->
       <div id="navcontainer">
-        <ul id="navlist">
-          {% include "exe/export/navigation_bar.html" %}
-        </ul>
+      	<ul id="navlist">
+          {% navigation_bar current_page %}
+      	</ul>
       </div>
       <div id="main">
         <div id="nodeDecoration">
           <p id="nodeTitle">{{current_page.node.title}}</p>
         </div>
         {% include NAVIGATION_LINKS %}
-        {% for idevice in current_page.node.idevices.all %}
-          <div class="{{idevice.klass}}" id="id{{idevice.id}}">
-            {% export_idevice idevice %}
-          </div>
-        {% endfor %}
+        {% include "exe/export/page_content.html" %}
         {% include NAVIGATION_LINKS %}
+	    {% render_licence current_page %}
+	    {% include "exe/export/footer.html" %}
       </div>
     </div>
   </body>

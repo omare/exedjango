@@ -1,0 +1,5 @@
+  	{% if page == current_page %}
+        <div id="{% if page.node.children %}active{% else %}activeWithoutChild{% endif %}">{{page.node.title}}</div>
+    {% else %}
+        <div><a class="{%if page.node.children %}withChild{% else %}withoutChild{% endif %}" href="{{page.name}}.html">{{page.node.title}}</a></div>
+    {% endif %}

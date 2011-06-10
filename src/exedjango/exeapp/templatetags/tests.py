@@ -49,14 +49,14 @@ class MainpageExtrasTestCase(unittest.TestCase):
         [Node(2, 'Child1', [Node(3, 'Grandchild1', []), Node(4, 'Grandchild2', [])]),
         Node(5, 'Child2', [])], current=True)
     
-    data_package = Package(root)
+    package = Package(root)
 
     def test_render_outline (self):
-        c = template.Context({"data_package" : self.data_package})
+        c = template.Context({"package" : self.package})
         
         t = template.Template('''
         {% load mainpage_extras %}
-        {% render_outline data_package %}
+        {% render_outline package %}
         ''')
         output = t.render(c)
         

@@ -38,48 +38,10 @@ class WebsitePage(Page):
     This class transforms an eXe node into a page on a self-contained website
     """
 
-    def save(self, outputDir, page_structure):
-        """
-        This is the main function. It will render the page and save it to a
-        file.  'outputDir' is the directory where the filenames will be saved
-        (a 'path' instance)
-        """
-        outfile = codecs.open(outputDir / self.name+".html", "w", "utf-8")
-        content = self.render(page_structure)
-        outfile.write(content)
-        outfile.close()
-        
-
-    def render(self, page_structure):
+    def render(self):
         """
         Returns an XHTML string rendering this page.
         """
         data_package = self.node.package
         current_page = self
         return render_to_string("exe/export/websitepage.html", locals())
-
-    def getNavigationLink(self, prevPage, nextPage):
-        """
-        return the next link url of this page
-        """
-        html = "<div class=\"noprt\" align=\"right\">"
-
-        if prevPage:
-            html += "<a id=\"go_prev\" href=\""+quote(prevPage.name)
-            html += ".html\">\n"
-            html += "<img src=\"arrowleft.gif\" border=0>"
-            html += "<span>%s</span></a>\n" % _('Previous')
-
-        if nextPage:
-            if prevPage:
-                html += " | "
-            
-            html += "<a id=\"go_next\" href=\""+quote(nextPage.name)
-            html += ".html\">\n"
-            html += "<img src=\"arrowright.gif\" border=0>"
-            html += "<span>%s</span></a>\n" % _('Next')
-
-
-           
-        html += "</div>\n"
-        return html        

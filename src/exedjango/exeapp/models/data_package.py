@@ -19,6 +19,7 @@
 # ===========================================================================
 from django.db import models
 import datetime
+from exeapp.models.idevices.idevice import Idevice
 
 """
 Package represents the collection of resources the user is editing
@@ -464,7 +465,16 @@ package'''
     @property
     def root(self):
         return self.nodes.get(is_root=True)
-
+    
+    @property
+    def resources(self):
+        # ask each node to its resources to desceare coupling
+        # implement as direct quety, should performance be too bad
+        resources = set()
+        for node in self.nodes.all():
+            resources.update(node.resources)
+        return resources
+    
     def levelName(self, level):
         """
         Return the level name

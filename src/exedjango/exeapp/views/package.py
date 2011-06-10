@@ -99,7 +99,7 @@ def export(request, package, format):
         exporter = IMSExport(package, file_obj)
     else:
         return HttpResponseBadRequest("Invalid export type")
-    exporter.exportZip()
+    exporter.export()
     zip = file_obj.getvalue()
     len_zip = len(zip)
     file_obj.close()

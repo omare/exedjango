@@ -288,7 +288,6 @@ function handle_select_style() {
 function handle_export(e) {
 	var export_type = $("#export_selector").val();
 	var url = $("#export_link").attr("href").slice(0, -1) + export_type + "/";
-	alert(url); 
 	/*var download_iframe = $("<iframe />")
 		.attr("src", url)
 		.hide().

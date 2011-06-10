@@ -41,12 +41,13 @@ def newId():
     
 log = logging.getLogger(__name__)
 
-def docType():
+@register.simple_tag
+def doc_type():
     """Generates the documentation type string"""
-    return (u'<?xml version="1.0" encoding="UTF-8"?>\n'
-            u'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 '
-            u'Transitional//EN" '
-            u'"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n')
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 '
+            'Transitional//EN" '
+            '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n')
 
 
 def header(style=u'default'):

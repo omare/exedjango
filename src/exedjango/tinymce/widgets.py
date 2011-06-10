@@ -75,8 +75,6 @@ class TinyMCE(forms.Textarea):
             js = [reverse('tinymce-compressor')]
         else:
             js = [tinymce.settings.JS_URL]
-        print "#" * 20
-        print tinymce.settings.USE_FILEBROWSER
         if tinymce.settings.USE_FILEBROWSER:
             js.append(reverse('tinymce-filebrowser'))
         return forms.Media(js=js)

@@ -17,6 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
+import codecs
 """
 Export Pages functions
 """
@@ -35,15 +36,29 @@ class Page(object):
     This is an abstraction for a page containing a node
     e.g. in a SCORM package or Website
     """
-    def __init__(self, node, depth, prev_page=None, next_page = None):
+    def __init__(self, node, depth, exporter, prev_page=None, next_page = None, has_children=False):
         """
         Initialize
         """
         self.depth = depth
         self.node  = node
+        self.exporter = exporter
         self.prev_page = prev_page
         self.next_page = next_page
+        self.has_children = has_children
         self.name = self._generate_name()
+        
+    def save(self, outputDir):
+        """
+        This is the main function. It will render the page and save it to a
+        file.  'outputDir' is the directory where the filenames will be saved
+        (a 'path' instance)
+        """
+        outfile = codecs.open(outputDir / self.name+".html", "w", "utf-8")
+        content = self.render()
+        outfile.write(content)
+        outfile.close()
+        
         
     def _generate_name(self):
         if self.node.is_root:
@@ -54,65 +69,6 @@ class Page(object):
             if not page_name:
                 page_name = "__"
             return page_name
-
-    def renderLicense(self):
-        """
-        Returns an XHTML string rendering the license.
-        """
-        licenses = {"GNU Free Documentation License":
-                     "http://www.gnu.org/copyleft/fdl.html", 
-                     "Creative Commons Attribution 3.0 License":
-                     "http://creativecommons.org/licenses/by/3.0/",
-                     "Creative Commons Attribution Share Alike 3.0 License":
-                     "http://creativecommons.org/licenses/by-sa/3.0/",
-                     "Creative Commons Attribution No Derivatives 3.0 License":
-                     "http://creativecommons.org/licenses/by-nd/3.0/",
-                     "Creative Commons Attribution Non-commercial 3.0 License":
-                     "http://creativecommons.org/licenses/by-nc/3.0/",
-                     "Creative Commons Attribution Non-commercial Share Alike 3.0 License":
-                     "http://creativecommons.org/licenses/by-nc-sa/3.0/",
-                     "Creative Commons Attribution Non-commercial No Derivatives 3.0 License":
-                     "http://creativecommons.org/licenses/by-nc-nd/3.0/",
-                     "Creative Commons Attribution 2.5 License":
-                     "http://creativecommons.org/licenses/by/2.5/",
-                     "Creative Commons Attribution-ShareAlike 2.5 License":
-                     "http://creativecommons.org/licenses/by-sa/2.5/",
-                     "Creative Commons Attribution-NoDerivs 2.5 License":
-                     "http://creativecommons.org/licenses/by-nd/2.5/",
-                     "Creative Commons Attribution-NonCommercial 2.5 License":
-                     "http://creativecommons.org/licenses/by-nc/2.5/",
-                     "Creative Commons Attribution-NonCommercial-ShareAlike 2.5 License":
-                     "http://creativecommons.org/licenses/by-nc-sa/2.5/",
-                     "Creative Commons Attribution-NonCommercial-NoDerivs 2.5 License":
-                     "http://creativecommons.org/licenses/by-nc-nd/2.5/",
-                     "Developing Nations 2.0":
-                     "http://creativecommons.org/licenses/devnations/2.0/"}
-        html = ""
-        
-        license = self.node.package.license
-        
-        if license <> "None" and licenses.has_key(license):
-            html += '<p align="center">'
-            html += _("Licensed under the")
-            html += ' <a rel="license" href="%s">%s</a></p>' % (licenses[license], license)
-            
-        return html
-    
-    def renderFooter(self):
-        """
-        Returns an XHTML string rendering the footer.
-        """
-        html = ""
-        if self.node.package.footer != "":
-            html += u'<p align="center">'
-            html += self.node.package.footer + u"</p>"
-        if self.node.package.footerImg: 
-            print "Rendering footer image"
-            html += u'<img src="%s">' %\
-                self.node.package.footerImg.basename()
-            
-        return html
-
 
 
 # ===========================================================================

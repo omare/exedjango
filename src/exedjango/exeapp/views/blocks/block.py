@@ -23,8 +23,6 @@ Block is the base class for the classes which are responsible for
 rendering and processing Idevices in XHTML
 """
 
-import sys
-
 import logging
 from django.conf import settings
 from django.utils.safestring import mark_safe

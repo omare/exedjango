@@ -79,6 +79,12 @@ package
     def base_idevice(self):
         return Idevice.objects.get(pk=self.pk)
     
+    @property
+    def resources(self):
+        '''Should be overridden in children to specify resource 
+finding. Returns a set'''
+        return set()
+    
     def edit_mode(self):
         '''Sets idevice mode to edit'''
         self.edit = True
