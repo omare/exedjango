@@ -128,7 +128,7 @@ function initialize_tinymce() {
 function initialize_authoring() {
 
  //$(".action_button").bind("click", handle_action_button)
- $(".idevice_form").ajaxForm(function(responseText, statusText, xhr, $form){
+ $(".idevice_form").ajaxForm({success: function(responseText, statusText, xhr, $form){
  	var idevice_id = $form.attr("idevice_id");
  		if (responseText){
 	 		$form.html(responseText);
@@ -136,7 +136,9 @@ function initialize_authoring() {
  			reload_authoring();
  		}
  		initialize_authoring();
- 	})
+ 	},
+ 	beforeSerialize: function() { tinyMCE.triggerSave();}}
+ 	);
 }
 
 function reload_authoring() {

@@ -75,6 +75,7 @@ class Block(object):
             self.idevice.edit_mode()
         elif action == 'apply_changes':
             form = self.form(data, instance=self.idevice)
+            print data
             form.save(commit=False)
             self.idevice.apply_changes(form.cleaned_data)
         else:
