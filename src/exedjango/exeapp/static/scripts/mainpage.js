@@ -145,6 +145,13 @@ jQuery(document).ready(function() {
                 $("#middle").tabs();
                 updateTitle();
                 
+                $("#authoringIFrame1").load(function() {
+                	var node_id = $("#authoringIFrame1").contents().find("#node_id").text();
+                	if (current_outline_id() != node_id){
+                		get_outline_pane().jstree("select_node", $("#node" + node_id), true);
+                	}
+                })
+                
                 
                 
             });

@@ -37,6 +37,7 @@ from exeapp.views.package import PackagePropertiesForm
 from exeapp.views.export.imsexport import IMSExport
 import random
 from exeapp.models.idevices.freetextidevice import FreeTextIdevice
+from exeapp.models.node import Node
 
 
 
@@ -269,6 +270,18 @@ view, this tests should be also merged'''
         self.root.add_idevice(self.IDEVICE_TYPE)
         response = self.c.get(self.VIEW_URL)
         self.assertContains(response, 'idevice_id="%s"' % IDEVICE_ID)
+        
+    def test_post_page_change(self):
+        child_node = self.package.add_child_node()
+        
+        for node in [self.root, child_node]:
+            page_name = "%s.html" % node.unique_name()
+            response = self.c.post("%s%s" % (self.VIEW_URL, page_name))
+            self.assertEquals(response.status_code, 302)
+            self.assertTrue(response['Location'].endswith(\
+                            'exeapp/package/%s/authoring/' % self.package.id))
+            self.assertEquals(self.package.current_node, node)
+                               
         
         
     def test_idevice_move_up(self):

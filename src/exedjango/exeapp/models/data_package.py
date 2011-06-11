@@ -341,10 +341,29 @@ i.e. the "package".
     
     def set_current_node_by_id(self, node_id):
         try:
-            node = Node.objects.get(pk=node_id)
+            node = Node.objects.get(pk=node_id, package=self)
+            self.current_node = node 
         except Node.DoesNotExist:
             raise KeyError("Could not find node %s" % node_id)
-        self.current_node = node 
+        
+    def set_current_node_by_unique_name(self, node_name):
+        
+        try:
+            if node_name == 'index':
+                node = self.root
+            else:
+                title, node_id = node_name.split("_")
+                node = Node.objects.get(pk=node_id,
+                                     package=self)
+                if node.title.lower() != title:
+                    # This isn't the node you are looking for *wink*
+                    raise Node.DoesNotExist()
+        except Node.DoesNotExist:
+            raise KeyError("Package with name %s wasn't found"\
+                           % node_name)
+        else:
+            self.current_node = node
+        
         
     def add_child_node(self):
         '''Creates a child node of the current node, current node stays

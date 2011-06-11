@@ -90,6 +90,8 @@ jQuery(document).ready(function() {
            namespace: 'package',
         });
     initialize_authoring();
+    node_id = $("#node_id").text()
+    //window.parent.get_outline_pane().jstree("select_node", $("#node" + nodeid), true);
 })
 
 function initialize_tinymce() {

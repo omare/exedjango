@@ -6,7 +6,7 @@ Created on May 17, 2011
 from django.contrib.auth.decorators import login_required
 from exeapp.shortcuts import get_package_by_id_or_error
 from exeapp import shortcuts
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render_to_response
 from exeapp.views.blocks.blockfactory import block_factory
@@ -85,10 +85,19 @@ def get_unique_media_list(node, idevice):
 def link_list(request, package):
     html = "var tinyMCELinkList = %s;" %\
         simplejson.dumps(package.link_list)
-    #html = '''var tinyMCELinkList = new Array(
-    #    // Name, URL
-    ##    ["Moxiecode", "http://www.moxiecode.com"],
-     #   ["Freshmeat", "http://www.freshmeat.com"],
-     #   ["Sourceforge", "http://www.sourceforge.com"]
-#);'''
     return HttpResponse(html, content_type="application/x-javascript")
+
+
+@login_required
+@get_package_by_id_or_error
+def change_page(request, package, page_name):
+    try:
+        package.set_current_node_by_unique_name(page_name)
+    except KeyError:
+        raise Http404
+    if request.is_ajax():
+        return HttpResponse("")
+    else:
+        return HttpResponseRedirect(\
+                        reverse('exeapp.views.authoring.authoring',\
+                        args=[package.id]))
