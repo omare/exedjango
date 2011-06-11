@@ -133,6 +133,7 @@ TINYMCE_DEFAULT_CONFIG = {
     "cleanup_on_startup" : False, 
     "entity_encoding" : "raw", 
     "gecko_spellcheck" : True, 
+    "external_link_list_url" : "./link_list/",
      #"mode" : "specific_textareas",
      #"editor_selector" : "mceEditor",
      "plugins" : "table,save,advhr,advimage,advlink,emotions,media, contextmenu,paste,directionality",

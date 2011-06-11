@@ -17,6 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
 from django.template.loader import render_to_string
+import re
 """
 Nodes provide the structure to the package hierarchy
 """
@@ -383,10 +384,20 @@ with it'''
         Return the resource files used by this node
         """
         log.debug(u"getResources ")
-        resources = []
+        resources = set()
         for idevice in self.idevices.all():
-            resources += idevice.as_child().resources
+            resources.update(idevice.as_child().resources)
         return resources
+    
+    @property
+    def link_list(self):
+        '''
+        Returns all links from idevices and a link to the node itself
+        '''
+        link_list = [(self.title, "%s.html" % self.unique_name())]
+        for idevice in self.idevices.all():
+            link_list += idevice.as_child().link_list
+        return link_list
     
     def handle_action(self, idevice_id, action, data):
         '''Removes an iDevice or delegates action to it'''
@@ -562,6 +573,18 @@ Returns True is successful
             if self._title[0:len(zombie_preface)] != zombie_preface: 
                 self._title = zombie_preface + self._title + ")"
             G.application.afterUpgradeZombies2Delete.append(self)
+    
+    def unique_name(self):
+        '''Returns the name for saving'''
+        if self.is_root:
+            return "index"
+        else:
+            page_name = self.title.lower().replace(" ", "_")
+            page_name = re.sub(r"\W", "", page_name)
+            if not page_name:
+                page_name = "__"
+            page_name = "%s_%s" % (page_name, self.id)
+            return page_name
     
     def __unicode__(self):
         """

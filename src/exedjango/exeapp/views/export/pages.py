@@ -61,14 +61,7 @@ class Page(object):
         
         
     def _generate_name(self):
-        if self.node.is_root:
-            return "index"
-        else:
-            page_name = self.node.title.lower().replace(" ", "_")
-            page_name = re.sub(r"\W", "", page_name)
-            if not page_name:
-                page_name = "__"
-            return page_name
+        return self.node.unique_name()
 
 
 # ===========================================================================

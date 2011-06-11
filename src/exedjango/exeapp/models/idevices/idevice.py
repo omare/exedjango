@@ -85,6 +85,12 @@ package
 finding. Returns a set'''
         return set()
     
+    @property
+    def link_list(self):
+        '''Should be overridden in children to specify resource 
+finding. Returns a list of (name, url) tuples'''
+        return []
+    
     def edit_mode(self):
         '''Sets idevice mode to edit'''
         self.edit = True
@@ -149,14 +155,14 @@ finding. Returns a set'''
     def setParentNode(self, parentNode):
         """
         Change parentNode
-        Now includes support for renaming any internal anchors and their links.
+        Now includes support for renaming any internal anchors and their link_list.
         """
         old_node = None
         if self.parentNode:
             old_node = self.parentNode
             self.parentNode.idevices.remove(self)
         parentNode.add_idevice(self)
-        # and update any internal anchors and their links:
+        # and update any internal anchors and their link_list:
         self.ChangedParentNode(old_node, parentNode)
 
 
@@ -164,9 +170,9 @@ finding. Returns a set'''
         """
         To update all fo the anchors (if any) that are defined within
         any of this iDevice's various fields, and any 
-        internal links corresponding to those anchors.
+        internal link_list corresponding to those anchors.
         This is essentially a variation of Node:RenamedNode()
-        It also removes any internal links from the data structures as well, 
+        It also removes any internal link_list from the data structures as well, 
         if this iDevice is being deleted
         """
         my_fields = self.getRichTextFields()
@@ -193,7 +199,7 @@ finding. Returns a set'''
 
             # now, regardless of whether or not that field has any anchors,
             # if this idevice is being deleted (new_node is None), then
-            # go ahead and remove any of its internal links
+            # go ahead and remove any of its internal link_list
             # from the corresponding data structures:
             if not new_node \
             and hasattr(this_field, 'intlinks_to_anchors') \
@@ -221,7 +227,7 @@ finding. Returns a set'''
         Like getResourcesField(), a general helper to allow nodes to search 
         through all of their fields without having to know the specifics of each
         iDevice type.  
-        Currently used by Extract to find all fields which have internal links.
+        Currently used by Extract to find all fields which have internal link_list.
         """
         # in the parent iDevice class, merely return an empty list,
         # and let each specific iDevice class implement its own version:

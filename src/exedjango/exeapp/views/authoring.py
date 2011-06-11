@@ -79,3 +79,16 @@ def get_unique_media_list(node, idevice):
             if js in media:
                 media.remove(js)
     return media
+
+@login_required
+@get_package_by_id_or_error
+def link_list(request, package):
+    html = "var tinyMCELinkList = %s;" %\
+        simplejson.dumps(package.link_list)
+    #html = '''var tinyMCELinkList = new Array(
+    #    // Name, URL
+    ##    ["Moxiecode", "http://www.moxiecode.com"],
+     #   ["Freshmeat", "http://www.freshmeat.com"],
+     #   ["Sourceforge", "http://www.sourceforge.com"]
+#);'''
+    return HttpResponse(html, content_type="application/x-javascript")

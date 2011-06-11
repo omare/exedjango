@@ -14,6 +14,7 @@ import uuid
 from django.test import TestCase, Client
 from django.test.client import FakePayload
 from django.contrib import auth
+from django.utils import simplejson
 from django.utils.html import escape
 from django.conf import settings
 from django.http import HttpResponseNotFound, HttpResponseForbidden, Http404, QueryDict
@@ -34,6 +35,8 @@ from exeapp.views.blocks.freetextblock import FreeTextForm
 from exeapp.models.idevices.idevice import Idevice
 from exeapp.views.package import PackagePropertiesForm
 from exeapp.views.export.imsexport import IMSExport
+import random
+from exeapp.models.idevices.freetextidevice import FreeTextIdevice
 
 
 
@@ -302,6 +305,24 @@ view, this tests should be also merged'''
                                             unicode(IDEVICE_ID),
                                             "save",
                                             test_args)
+        
+    def test_idevice_link_list(self):
+        IDEVICE_ID = 1
+        ANCHORS = ("anchor1", "anchor2")
+        
+        self.root.add_idevice(self.IDEVICE_TYPE)
+        idevice = FreeTextIdevice.objects.get(id=IDEVICE_ID) 
+        idevice.content = '<a name="%s"></a><a name="%s"></a>' % ANCHORS
+        link_list = idevice.link_list
+        counter = 0
+        for anchor in ANCHORS:
+            name, url = link_list[counter]
+            self.assertEquals(name, "%s::%s" %\
+                               (idevice.parent_node.title, anchor))
+            self.assertEquals(url, "%s.html#%s" %\
+                              (idevice.parent_node.unique_name(), anchor))
+            counter += 1
+        
    
     @mock.patch.object(shortcuts, 'render_idevice')
     @mock.patch.object(Package.objects, 'get')
@@ -346,6 +367,20 @@ view, this tests should be also merged'''
         test_idevice.content = CONTENT
         test_form = FreeTextForm(instance=test_idevice)
         self.assertTrue(RESOURCE in test_form.render_export())
+        
+    def test_link_list(self):
+        response = self.c.get('%slink_list/' % self.VIEW_URL)
+        self.assertContains(response, 'tinyMCELinkList')
+        try:
+            #remove trailing semi-colon at the end
+            link_list = response.content[response.content.find('=') + 1:-1]
+        except:
+            raise AssertionError("Couldn't find link array in %s" \
+                                 % response.content)
+        try:
+            simplejson.loads(link_list)
+        except:
+            raise AssertionError("Couldn't parse %s" % link_list)
 
         
         
@@ -379,9 +414,13 @@ class ExportTestCase(TestCase):
         '''Tests generation of the page nested list'''
         class MockNode(object):
             def __init__(self, title):
+                self.id = random.randint(1, 100)
                 self.title = title
                 self.children = MockQuerySet([])
                 self.is_root = False
+            
+            def unique_name(self):
+                return "%s_%s" % (self.title, self.id)
                 
         class MockQuerySet(object):
             def __init__(self, values):

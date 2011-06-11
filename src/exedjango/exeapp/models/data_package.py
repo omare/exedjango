@@ -475,6 +475,13 @@ package'''
             resources.update(node.resources)
         return resources
     
+    @property
+    def link_list(self):
+        link_list = []
+        for node in self.nodes.all():
+            link_list += node.link_list
+        return link_list 
+        
     def levelName(self, level):
         """
         Return the level name

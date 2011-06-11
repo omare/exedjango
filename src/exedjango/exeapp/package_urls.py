@@ -7,5 +7,6 @@ urlpatterns = patterns('exeapp.views',
                        (r'^$', 'package.package_main'),
                        (r'authoring/$', 'authoring.authoring'),
                        (r'authoring/handle_action/$', 'authoring.handle_action'),
+                       (r'authoring/link_list/$', 'authoring.link_list'),
                        (r'download/(?P<format>\w*)/$', 'package.export'),
                        )
