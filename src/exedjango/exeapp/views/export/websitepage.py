@@ -28,7 +28,7 @@ from urllib                   import quote
 import codecs
 from utils.path          import Path
 from utils import common
-from exeapp.views.export.pages         import Page, uniquifyNames
+from exeapp.views.export.pages         import Page
 log = logging.getLogger(__name__)
 
 

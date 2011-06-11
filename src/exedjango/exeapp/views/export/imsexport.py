@@ -22,6 +22,7 @@ from django.conf import settings
 from django.forms.models import model_to_dict
 from exeapp.models.idevices.idevice import Idevice
 from exeapp.views.export.websiteexport import WebsiteExport
+import uuid
 """
 Exports an eXe package as an IMS Content Package
 """
@@ -34,9 +35,8 @@ from django.template.loader import render_to_string
 #from exe.webui.blockfactory        import g_blockFactory
 #from exe.engine.error              import Error
 from utils.path import Path 
-from exeapp.views.export.pages import Page, uniquifyNames
+from exeapp.views.export.pages import Page
 from exeapp.views.blocks.blockfactory import block_factory
-from utils.uniqueidgenerator import UniqueIdGenerator
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class Manifest(object):
         """
         self.output_dir    = outputDir
         self.package      = package
-        self.idGenerator  = UniqueIdGenerator(package.title, settings.STATIC_ROOT)
+        self.generate_id = uuid.uuid4
         self.pages        = pages
         self.itemStr      = ""
         self.resStr       = ""
@@ -96,8 +96,8 @@ class Manifest(object):
         """
         returning XLM string for manifest file
         """
-        manifest_id = self.idGenerator.generate()
-        org_id      = self.idGenerator.generate()
+        manifest_id = self.generate_id()
+        org_id      = self.generate_id()
         depth = 0
         for page in self.pages:
             while depth >= page.depth:
@@ -122,8 +122,8 @@ class Manifest(object):
         """
         Returning xml string for items and resources
         """
-        context = {"item_id" : "ITEM-%s" % self.idGenerator.generate(),
-                   "res_id" : "RES-%s" % self.idGenerator.generate(),
+        context = {"item_id" : "ITEM-%s" % self.generate_id(),
+                   "res_id" : "RES-%s" % self.generate_id(),
                    "filename" : "%s.html" % page.name,
                    "page" : page,
                    } 

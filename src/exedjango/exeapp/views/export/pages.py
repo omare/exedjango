@@ -65,18 +65,3 @@ class Page(object):
 
 
 # ===========================================================================
-def uniquifyNames(pages):
-    """
-    Make sure all the page names are unique
-    """
-    pageNumbers = {}
-
-    for page in pages:
-        if isinstance(page, Page):
-            if page.name in pageNumbers:
-                pageNumbers[page.name] += 1
-                page.name += str(pageNumbers[page.name])
-    
-            else:
-                pageNumbers[page.name] = 0
-

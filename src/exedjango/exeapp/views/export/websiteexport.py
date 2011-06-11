@@ -28,7 +28,6 @@ import logging
 import re
 import imp
 from utils.path import Path
-from exeapp.views.export.pages         import uniquifyNames
 from exeapp.views.export.websitepage   import WebsitePage
 from zipfile                  import ZipFile, ZIP_DEFLATED
 import tempfile
@@ -157,8 +156,6 @@ class WebsiteExport(object):
     def create_pages(self):
         self.pages.append(self.page_class(self.package.root, 1, exporter=self))
         self.generate_pages(self.package.root, 2)
-        
-        uniquifyNames(self.pages)
         
         for page in self.pages:
             page.save(self.output_dir)
