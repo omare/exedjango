@@ -38,7 +38,8 @@ from exeapp.views.export.imsexport import IMSExport
 import random
 from exeapp.models.idevices.freetextidevice import FreeTextIdevice
 from exeapp.models.node import Node
-from exeapp.views.export.scormexport import ScormExport
+from exeapp.views.export.scormexport import ScormExport, COMMONCARTRIDGE,\
+    SCORM12, SCORM2004
 
 
 
@@ -428,9 +429,11 @@ class ExportTestCase(TestCase):
         '''Exports a package'''
         
         self.data.root.add_idevice(self.IDEVICE_TYPE)
-        exporter = ScormExport(self.data, settings.MEDIA_ROOT + "/111.zip",
-                               scormType="scorm1.2")
-        exporter.export()
+        scorm_types = [SCORM12, SCORM2004, COMMONCARTRIDGE]
+        for scorm_type in scorm_types:
+            exporter = ScormExport(self.data, settings.MEDIA_ROOT + "/111.zip",
+                                   scorm_type=scorm_type)
+            exporter.export()
         
     def test_pages_generation(self):
         '''Tests generation of the page nested list'''

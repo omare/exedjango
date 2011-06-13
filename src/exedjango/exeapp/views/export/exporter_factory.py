@@ -5,7 +5,7 @@ from exeapp.views.export.scormexport import ScormExport, ScormExport12,\
 
 exporter_map = {"website" : WebsiteExport,
                 "ims" : IMSExport,
-                "scorm1.2" : ScormExport12,
+                "scorm12" : ScormExport12,
                 "commoncartridge" : CommonCartridge,
                 "scorm2004" : ScormExport2004,
                 }

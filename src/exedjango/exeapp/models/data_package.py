@@ -300,10 +300,10 @@ i.e. the "package".
     user = models.ForeignKey(User)
       
     author = models.CharField(max_length=50, blank=True)
-    email = models.CharField(max_length=30, blank=True)
+    email = models.EmailField(max_length=30, blank=True)
     description = models.CharField(max_length=256, blank=True)
     
-    _backgroundImg     = models.ImageField(upload_to='background', 
+    backgroundImg     = models.ImageField(upload_to='background', 
                                            blank=True, null=True)
     backgroundImgTile = models.BooleanField(default=False)
     footer = models.CharField(max_length=100, blank=True)
@@ -331,13 +331,6 @@ i.e. the "package".
         # self.resourceDir = TempDirPath()
 
     # Property Handlers
-
-    def get_backgroundImg(self):
-        """Get the background image for this package"""
-        if self._backgroundImg:
-            return "file://" + self._backgroundImg.path
-        else:
-            return ""
     
     def set_current_node_by_id(self, node_id):
         try:
