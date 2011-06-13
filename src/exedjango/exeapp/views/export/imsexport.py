@@ -158,6 +158,8 @@ class IMSExport(WebsiteExport):
     """
     Exports an eXe package as a SCORM package
     """
+    title = "IMS Package"
+    
     def __init__(self, *args, **kwargs):
         """ Initialize
         'style_dir' is the directory from which we will copy our style sheets

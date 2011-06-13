@@ -1,0 +1,32 @@
+{% load common %}
+{% load export_extras %}
+{% doc_type %}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+	<title>eXe</title>
+	<meta http-equiv="Content-Type" content="text/html;"  charset=utf-8\" />
+	<!-- Created using eXe: http://exelearning.org -->
+	<style type=\"text/css\">
+	@import url(base.css);\n
+	@import url(content.css);
+	</style>
+	<script type="text/javascript" src="common.js"></script>
+	</head>
+	{% if current_page.scormType == 'commoncartridge' %}
+	    <body>
+	{% else %}
+	    <script type="text/javascript" src="APIWrapper.js"></script>
+	    <script type="text/javascript" src="SCOFunctions.js"></script>        
+	    <body onload="loadPage()" onunload="unloadPage()">
+	{% endif %}
+	<div id=\"outer\">
+		<div id=\"main\">
+			<div id=\"nodeDecoration\"><p id=\"nodeTitle\">{{self.node.titleLong}}</p></div>
+			{% include "exe/export/page_content.html" %}
+		</div>
+	</div>
+	{% render_licence current_page %}
+	{% include "exe/export/footer.html" %}
+	</body>
+</html>

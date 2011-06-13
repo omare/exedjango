@@ -27,13 +27,7 @@
 </div>
 <div id="header">
 	{% render_styles %} 
-	<div id="export_selection">
-		<a id="export_link" href="{% url exeapp.views.package.export package.id "" %}">Export as</a>
-		<select id="export_selector">
-			<option class="export_select" value="website">Zip File</option>
-			<option class="export_select" value="ims">IMS Package</option>
-		</select>
-	</div>
+	{% include "exe/export_type_selector.html" %}
 </div>
 <div id="wrap">
 <div id="sidebar">

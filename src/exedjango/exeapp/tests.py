@@ -38,6 +38,7 @@ from exeapp.views.export.imsexport import IMSExport
 import random
 from exeapp.models.idevices.freetextidevice import FreeTextIdevice
 from exeapp.models.node import Node
+from exeapp.views.export.scormexport import ScormExport
 
 
 
@@ -421,6 +422,14 @@ class ExportTestCase(TestCase):
         
         self.data.root.add_idevice(self.IDEVICE_TYPE)
         exporter = IMSExport(self.data, settings.MEDIA_ROOT + "/111.zip")
+        exporter.export()
+        
+    def test_scorm_export(self):
+        '''Exports a package'''
+        
+        self.data.root.add_idevice(self.IDEVICE_TYPE)
+        exporter = ScormExport(self.data, settings.MEDIA_ROOT + "/111.zip",
+                               scormType="scorm1.2")
         exporter.export()
         
     def test_pages_generation(self):

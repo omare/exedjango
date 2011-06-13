@@ -1,0 +1,8 @@
+<div id="export_selection">
+	<a id="export_link" href="{% url exeapp.views.package.export package.id "" %}">Export as</a>
+	<select id="export_selector">
+		{% for type, title in exporter_type_title_map.items %}
+		<option class="export_select" value="{{type}}">{{title}}</option>
+		{% endfor %}
+		</select>
+</div>

@@ -43,6 +43,8 @@ class WebsiteExport(object):
     """
     WebsiteExport will export a package as a website of HTML pages
     """
+    title = "Website (Zip)"
+    
     def __init__(self, package, file_obj):
         """
         'style_dir' is the directory where we can copy the stylesheets from
@@ -65,41 +67,26 @@ class WebsiteExport(object):
         Export web site
         Cleans up the previous packages pages and performs the export
         """
-        
-
-        # Import the Website Page class.  If the style has it's own page class
-        # use that, else use the default one.
-#        if (self.style_dir/"websitepage.py").exists():
-#            global WebsitePage
-#            module = imp.load_source("websitepage", 
-#                                     self.style_dir/"websitepage.py")
-#            WebsitePage = module.WebsitePage
-
-        # List of page objects. "in" and "out" identify depth
-        # grows and decreae
         self.create_pages()
 
         self.copyFiles()
         # Zip up the website package
-        self.doZip(self.file_obj)
+        self.doZip()
         # Clean up the temporary dir
         self.output_dir.rmtree()
 
-    def doZip(self, fileObj):
+    def doZip(self):
         """
         Actually saves the zip data. Called by 'Path.safeSave'
         """
-        zipped = ZipFile(fileObj, "w")
+        zipped = ZipFile(self.file_obj, "w")
         for scormFile in self.output_dir.files():
             zipped.write(scormFile, scormFile.basename().encode('utf8'), ZIP_DEFLATED)
         zipped.close()
         
-    def copyFiles(self):
-        """
-        Copy all the files used by the website.
-        """
-        # Copy the style sheet files to the output dir
-        styleFiles  = ["%s/../base.css" % self.style_dir]
+
+    def copy_style_files(self):
+        styleFiles = ["%s/../base.css" % self.style_dir]
         styleFiles.append("%s/../popup_bg.gif" % self.style_dir)
         styleFiles += self.style_dir.files("*.css")
         styleFiles += self.style_dir.files("*.jpg")
@@ -109,15 +96,41 @@ class WebsiteExport(object):
         styleFiles += self.style_dir.files("*.js")
         styleFiles += self.style_dir.files("*.html")
         self.style_dir.copylist(styleFiles, self.output_dir)
+
+
+    def copy_licence(self):
+        if self.package.license == "GNU Free Documentation License":
+            # include a copy of the GNU Free Documentation Licence
+            self.templatesDir / 'fdl.html'.copyfile(self.output_dir / 'fdl.html')
+
+    def copyFiles(self):
+        """
+        Copy all the files used by the website.
+        """
+        # Copy the style sheet files to the output dir
+        self.copy_style_files()
         self.media_dir.copylist(self.package.resources, self.output_dir)
         self.scripts_dir.copylist(('libot_drag.js',), 
                                   self.output_dir)
+        self.copy_players()
         
-        # copy players for media idevices.                
-        hasFlowplayer     = False
-        hasMagnifier      = False
-        hasXspfplayer     = False
-        isBreak           = False
+        self.copy_licence()
+
+
+
+    def create_pages(self, additional_kwargs={}):
+        self.pages.append(self.page_class(self.package.root, 1, exporter=self,
+                                          **additional_kwargs))
+        self.generate_pages(self.package.root, 2, additional_kwargs)
+        
+        for page in self.pages:
+            page.save(self.output_dir)
+            
+    def copy_players(self):
+        hasFlowplayer = False
+        hasMagnifier = False
+        hasXspfplayer = False
+        isBreak = False
         
         for page in self.pages:
             if isBreak:
@@ -136,43 +149,21 @@ class WebsiteExport(object):
                 if not hasXspfplayer:
                     if 'xspf_player.swf' in resources:
                         hasXspfplayer = True
-                        
-        if hasFlowplayer:
-            videofile = (self.templatesDir/'flowPlayer.swf')
-            videofile.copyfile(self.output_dir/'flowPlayer.swf')
-        if hasMagnifier:
-            videofile = (self.templatesDir/'magnifier.swf')
-            videofile.copyfile(self.output_dir/'magnifier.swf')
-        if hasXspfplayer:
-            videofile = (self.templatesDir/'xspf_player.swf')
-            videofile.copyfile(self.output_dir/'xspf_player.swf')
-
-        if self.package.license == "GNU Free Documentation License":
-            # include a copy of the GNU Free Documentation Licence
-            (self.templatesDir/'fdl.html').copyfile(self.output_dir/'fdl.html')
-
-
-
-    def create_pages(self):
-        self.pages.append(self.page_class(self.package.root, 1, exporter=self))
-        self.generate_pages(self.package.root, 2)
-        
-        for page in self.pages:
-            page.save(self.output_dir)
-        
-        
     
-    def generate_pages(self, node, depth):
+    
+    
+    def generate_pages(self, node, depth, kwargs={}):
         """
         Recursively generate pages and store in pages member variable
-for retrieving later.
+for retrieving later. Kwargs will be used at page creation.
         """
         for child in node.children.all():
             
             
             page = self.page_class(child, depth, 
                            exporter = self,
-                           has_children=child.children.exists())
+                           has_children=child.children.exists(),
+                           **kwargs)
             
             last_page = self.pages[-1] if self.pages else None
             if last_page:

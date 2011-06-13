@@ -13,6 +13,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 from exeapp.models.data_package import DublinCore
 from exeapp.views.export.imsexport import IMSExport
+from exeapp.views.export.exporter_factory import exporter_factory, exporter_map
 
 try:
     from cStringIO import StringIO
@@ -52,6 +53,8 @@ def generate_package_main(request, package, **kwargs):
     log.info("%s accesses package of %s" % (request.user.username, 
                                             package.user.username))
     idevices = idevice_store.values()
+    exporter_type_title_map = dict(((type, exporter.title) \
+                                for type, exporter in exporter_map.items()))
     properties_form = kwargs.get(PackagePropertiesForm.form_type,
                                  PackagePropertiesForm(instance=package))
     dublincore_form = kwargs.get(DublinCoreForm.form_type,
@@ -93,11 +96,9 @@ def package_main(request, package, properties_form=None):
 def export(request, package, format):
     
     file_obj = StringIO()
-    if format == "website":
-        exporter = WebsiteExport(package, file_obj)
-    elif format == "ims":
-        exporter = IMSExport(package, file_obj)
-    else:
+    try:
+        exporter = exporter_factory(format, package, file_obj)
+    except KeyError:
         return HttpResponseBadRequest("Invalid export type")
     exporter.export()
     zip = file_obj.getvalue()
