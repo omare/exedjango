@@ -1,6 +1,6 @@
 {% load export_extras %}
-<resource identifier={{res_id}} type="webcontent" href="{{filename}}>
-	<file href="{{filename}} />
+<resource identifier="{{res_id}}" type="webcontent" href="{{filename}}">
+	<file href="{{filename}}" />
 	<file href="base.css" />
 	<file href="content.css" />
 	{% for resource in page.node.resources %}
