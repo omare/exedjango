@@ -487,6 +487,7 @@ package'''
             resources.update(node.resources)
         return resources
     
+    
     @property
     def link_list(self):
         link_list = []

@@ -5,7 +5,6 @@ from jsonrpc import jsonrpc_site
 from jsonrpc.views import browse as json_browse
 
 import exeapp.views.handlers.package_rpc
-import exeapp.views.main
 
 
 from exeapp.views import main

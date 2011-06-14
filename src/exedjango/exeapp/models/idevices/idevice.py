@@ -17,6 +17,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
+import os
+from django.conf import settings
 """
 The base class for all iDevices
 """
@@ -81,6 +83,13 @@ package
     
     @property
     def resources(self):
+        '''Safe attritube, which checks if idevice owner has the right to
+reference the resources'''
+        return set((resource for resource in self._resources()\
+                    if not os.path.normpath(resource).\
+                                            startswith(os.path.pardir)))
+    
+    def _resources(self):
         '''Should be overridden in children to specify resource 
 finding. Returns a set'''
         return set()

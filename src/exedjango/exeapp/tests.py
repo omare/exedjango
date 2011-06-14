@@ -363,8 +363,9 @@ view, this tests should be also merged'''
         self.assertTrue(IDEVICE_CONTENT in response.content)
         
     def test_resource_finding(self):
-        RESOURCE = 'uploads/user/test.jpg'
-        CONTENT = 'src="../../media/%s"' % RESOURCE
+        RESOURCE = 'test.jpg'
+        CONTENT = 'src="/exeapp/media/uploads/%s/%s"' %\
+                        (self.package.user.username, RESOURCE)
         IDEVICE_ID = 1
         
         self.root.add_idevice(self.IDEVICE_TYPE)
@@ -372,9 +373,11 @@ view, this tests should be also merged'''
         test_idevice.content = CONTENT
         self.assertEquals(test_idevice.resources, set([RESOURCE]))
         
+        
     def test_export_resource_substitution(self):
         RESOURCE = 'test.jpg'
-        CONTENT = 'src="../../media/uploads/user/%s"' % RESOURCE
+        CONTENT = 'src="/exeapp/media/uploads/%s/%s"' % (self.package.user.username,
+                                                  RESOURCE)
         IDEVICE_ID = 1
         
         self.root.add_idevice(self.IDEVICE_TYPE)

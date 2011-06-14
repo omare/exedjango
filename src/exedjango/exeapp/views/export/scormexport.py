@@ -285,7 +285,7 @@ class ScormExport(WebsiteExport):
         else:
             self.copy_style_files()
             
-        self.media_dir.copylist(self.package.resources, self.output_dir)
+        self.copy_resources()
         if self.scorm_type == COMMONCARTRIDGE:
             self.scripts_dir.copylist(('libot_drag.js',
                                       'common.js'), self.output_dir)

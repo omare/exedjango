@@ -22,6 +22,8 @@ ADMINS = (
     ('Dmytro Vorona', 'alendit@gmail.com'),
 )
 
+AUTH_PROFILE_MODULE = 'exeapp.UserProfile'
+
 MANAGERS = ADMINS
 
 DATABASES = {

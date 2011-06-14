@@ -17,7 +17,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
-import settings
 import re
 
 """
@@ -25,6 +24,7 @@ FreeTextIdevice: just has a block of text
 """
 from django.db import models
 from django.contrib.contenttypes import generic
+from django.conf import settings
 
 import logging
 from exeapp.models.idevices.idevice import Idevice
@@ -67,9 +67,9 @@ delivered."""
 
         return None
     
-    @property
-    def resources(self):
-        reg_exp = r'src=".*%s(.*?)"' % settings.MEDIA_URL
+    def _resources(self):
+        user = self.parent_node.package.user
+        reg_exp = r'src=".*?%s(.*?)"' % user.get_profile().media_url
         media_list = set()
         for medium in re.findall(reg_exp, self.content):
             media_list.add(medium)

@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
-
-
 from exeapp.models.idevice_store import idevice_store
+
+from exeapp.models.userprofile import UserProfile
+from exeapp.models import signal_handlers
 
 from exeapp.models.node import Node
 from exeapp.models.package import Package, DublinCore
@@ -16,7 +17,8 @@ from exeapp.models.idevices.field import *
 
 
 
-__all__ = ['Package', 'DublinCore', 'UserandPackageTestCase',
+__all__ = ['UserProfile',
+           'Package', 'DublinCore', 'UserandPackageTestCase',
            'idevice_store', 
            'User',
            'Node',
@@ -24,3 +26,4 @@ __all__ = ['Package', 'DublinCore', 'UserandPackageTestCase',
            ]
 
 __all__ += idevices.__all__
+

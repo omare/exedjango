@@ -21,4 +21,6 @@ sys.dont_write_bytecode = True
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+TEST = True
 
+MEDIA_ROOT = _get_file_from_root("exeapp_media_testing")

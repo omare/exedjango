@@ -57,7 +57,7 @@ class WebsiteExport(object):
         self.scripts_dir = static_dir / "scripts"
         self.pages = []
         self.file_obj = file_obj
-        self.media_dir = Path(settings.MEDIA_ROOT)
+        self.media_dir = Path(package.user.get_profile().media_path)
         self.page_class = WebsitePage
         
         self.output_dir = Path(tempfile.mkdtemp())
@@ -109,7 +109,7 @@ class WebsiteExport(object):
         """
         # Copy the style sheet files to the output dir
         self.copy_style_files()
-        self.media_dir.copylist(self.package.resources, self.output_dir)
+        self.copy_resources()
         self.scripts_dir.copylist(('libot_drag.js',), 
                                   self.output_dir)
         self.copy_players()
@@ -149,6 +149,10 @@ class WebsiteExport(object):
                 if not hasXspfplayer:
                     if 'xspf_player.swf' in resources:
                         hasXspfplayer = True
+                        
+    def copy_resources(self):
+        self.media_dir.copylist(self.package.resources, self.output_dir)
+
     
     
     
