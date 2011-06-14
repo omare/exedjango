@@ -42,6 +42,5 @@ class WebsitePage(Page):
         """
         Returns an XHTML string rendering this page.
         """
-        data_package = self.node.package
         current_page = self
         return render_to_string("exe/export/websitepage.html", locals())

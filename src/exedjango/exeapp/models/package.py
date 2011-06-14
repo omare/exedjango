@@ -275,16 +275,16 @@ class PackageManager(models.Manager):
     
     
     def create(self, *args, **kwargs):
-        data_package = Package(*args, **kwargs)
+        package = Package(*args, **kwargs)
         dublincore = DublinCore.objects.create()
-        data_package.dublincore = dublincore
-        data_package.save()
-        root = Node(package=data_package, parent=None,
+        package.dublincore = dublincore
+        package.save()
+        root = Node(package=package, parent=None,
                     title="Home", is_current_node=True, is_root=True)
         root.save()
         
         
-        return data_package
+        return package
 
 class Package(models.Model):
     """

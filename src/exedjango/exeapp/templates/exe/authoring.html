@@ -2,13 +2,13 @@
 
 {% load static %}
 
-{% with data_package.current_node as current_node %}
+{% with package.current_node as current_node %}
 {% if not partial %}
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/editing.css">
 		<link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/styles/base.css">
-		<link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/styles/{{data_package.style}}/content.css">
+		<link rel="stylesheet" type="text/css" href="{% get_static_prefix %}css/styles/{{package.style}}/content.css">
 		
 		<script type="text/javascript" src="{% get_static_prefix %}scripts/jquery.js"></script>
 		<script type='text/javascript' src='{% get_static_prefix %}scripts/jquery.jsonrpc.js'></script>
@@ -20,7 +20,7 @@
 {% endif %}
 			<div id="package_id" style="display: none">{{package.id}}</div>
 			<div id="node_id" style="display: none">{{current_node.id}}</div>
-				<p>Authoring for Package {{data_package.id}}</p>
+				<p>Authoring for Package {{package.id}}</p>
 				<p>Rendering node {{current_node.id}}</p>
 				<h2>{{current_node.title}}</h2>
 				{% for idevice in current_node.idevices.all %}

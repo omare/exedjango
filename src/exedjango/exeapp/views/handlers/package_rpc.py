@@ -255,12 +255,12 @@ def getPackageFileName(request, package, onDone, onDoneParam):
     """
     client.call(onDone, unicode(package.filename), onDoneParam)
 
-@jsonrpc_authernticating_method('package.save_data_package')
-def save_data_package(request, package):
+@jsonrpc_authernticating_method('package.save_package')
+def save_package(request, package):
     package.save_data_package()
     
 @jsonrpc_authernticating_method('package.unload_data_package')
-def unload_data_package(request, package):
+def unload_package(request, package):
     '''Handles event "package.stopServing'. Unloads given data packages'''
     package.unload_data_package()
 

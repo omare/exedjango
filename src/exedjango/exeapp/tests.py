@@ -122,7 +122,7 @@ class PackagesPageTestCase(TestCase):
         
     def test_outline_pane(self):
         response = self.c.get(self.PAGE_URL % self.PACKAGE_ID)
-        self.assertContains(response, "outlinePane")
+        self.assertContains(response, "outline_pane")
         self.assertContains(response, 'current_node="%s"' % self.NODE_ID)
     
     
@@ -155,7 +155,7 @@ class PackagesPageTestCase(TestCase):
         
     def test_idevice_pane(self):
         response = self.c.get(self.PAGE_URL % self.PACKAGE_ID)
-        self.assertContains(response, "outlinePane")
+        self.assertContains(response, "outline_pane")
         self.assertContains(response, "Free Text")
     
     def test_authoring(self):

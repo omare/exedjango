@@ -13,7 +13,7 @@ from exeapp.views.blocks.blockfactory import block_factory
 from django.utils import simplejson
 from django.core.urlresolvers import reverse
 from django import forms
-from exeapp.models.data_package import Package
+from exeapp.models.package import Package
 
 @login_required
 @get_package_by_id_or_error
@@ -35,7 +35,7 @@ def authoring(request, package):
             raise Http404(e)
     # if partial is set return only content of body
     partial = "partial" in request.GET and request.GET['partial'] == "true"
-    data_package = package
+    package = package
     return render_to_response('exe/authoring.html', locals())
 
 

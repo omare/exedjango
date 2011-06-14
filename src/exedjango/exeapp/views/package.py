@@ -11,7 +11,7 @@ from exeapp import shortcuts
 from exeapp.shortcuts import get_package_by_id_or_error
 from django import forms
 from django.core.urlresolvers import reverse
-from exeapp.models.data_package import DublinCore
+from exeapp.models.package import DublinCore
 from exeapp.views.export.imsexport import IMSExport
 from exeapp.views.export.exporter_factory import exporter_factory, exporter_map
 
@@ -49,7 +49,6 @@ def generate_package_main(request, package, **kwargs):
     create forms'''
 
     
-    data_package = package
     log.info("%s accesses package of %s" % (request.user.username, 
                                             package.user.username))
     idevices = idevice_store.values()
