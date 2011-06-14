@@ -151,7 +151,7 @@ function reload_authoring() {
 
 function add_idevice(idevice_id) {
 	// dynamically load scripts for idevices
-	/*$.ajax({
+	$.ajax({
 		url: "./?idevice_id=" + idevice_id + "&media=true",
 		dataType: 'json',
 		async: false,
@@ -159,7 +159,7 @@ function add_idevice(idevice_id) {
 			$.each(data, function(key, val) {
 				$.getScript(val);
 			});
-			}});*/	
+			}})
 	    $.ajax({
 	    url: "./?idevice_id=" + idevice_id,
 	    dataType: 'html',

@@ -75,7 +75,7 @@ def get_unique_media_list(node, idevice):
     media.remove(reverse('tinymce-compressor'))
     for idevice in node.idevices.exclude(id=idevice.id):
         block = block_factory(idevice.as_child()) 
-        for js in block.media:
+        for js in block.media._js:
             if js in media:
                 media.remove(js)
     return media

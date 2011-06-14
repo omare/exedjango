@@ -237,7 +237,7 @@ finding. Returns a list of (name, url) tuples'''
         return []
     
     def __unicode__(self):
-        return "FreeTextIdevice: %s" % self._order
+        return "FreeTextIdevice: %s" % self.id
         
         
     class Meta:
