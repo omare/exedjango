@@ -18,6 +18,7 @@
 # ===========================================================================
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
+from exeapp.views.blocks.widgets import FreeTextWidget
 """
 FreeTextBlock can render and process FreeTextIdevices as XHTML
 """
@@ -27,10 +28,8 @@ from django.conf import settings
 
 import logging
 import re
-from tinymce.widgets import TinyMCE
 
 from exeapp.views.blocks.block import Block
-from exeapp.views.blocks.elements import TextAreaElement
 from exeapp.models.idevices import FreeTextIdevice
 
 from exedjango.utils import common
@@ -43,32 +42,33 @@ log = logging.getLogger(__name__)
 def _(value):
     return value
 
-class FreeTextForm(forms.ModelForm):
-    content = forms.CharField(widget=TinyMCE(attrs={"class" : "mceEditor"}))
+class IdeviceForm(forms.ModelForm):
+    content = forms.CharField(widget=FreeTextWidget(attrs={"class" : "mceEditor"}))
     
 
         
     def render_edit(self):
-        return str(self.visible_fields()[0])
+        return str(self)
     
     def render_preview(self):
-        return mark_safe(self.instance.content)
+        return self._render_view("preview")
     
     def render_export(self):
-        content = self.instance.content
-        # replace resources
-        reg_exp = r'src=".*%s.*/(.*?)"' % settings.MEDIA_URL
-        result_content = re.sub(reg_exp, r'src="\g<1>"', content)
-        return mark_safe(result_content)
+        return self._render_view("export")
+    
+    def _render_view(self, purpose):
+        '''Decouples field rendering from the purpose'''
+        for name, field_object in self.fields.items():
+            html = ""
+            renderer = getattr(field_object.widget, "render_%s" % purpose)
+            print self.errors
+            html += renderer(self.initial[name])
         
-        
+        return mark_safe(html) 
     
     class Meta:
         fields = ('content',)
         model = FreeTextIdevice
-        
-    
-    
 
 # ===========================================================================
 class FreeTextBlock(Block):
@@ -76,7 +76,7 @@ class FreeTextBlock(Block):
     FreeTextBlock can render and process FreeTextIdevices as XHTML
     GenericBlock will replace it..... one day
     """
-    form = FreeTextForm
+    form = IdeviceForm
     
     
     def __init__(self, idevice):

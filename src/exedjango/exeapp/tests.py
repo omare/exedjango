@@ -31,7 +31,7 @@ from exedjango.base.http import Http403
 from exeapp.views.export.websitepage import WebsitePage
 from django.core.urlresolvers import reverse
 from exeapp.views import authoring
-from exeapp.views.blocks.freetextblock import FreeTextForm
+from exeapp.views.blocks.freetextblock import IdeviceForm
 from exeapp.models.idevices.idevice import Idevice
 from exeapp.views.package import PackagePropertiesForm
 from exeapp.views.export.imsexport import IMSExport
@@ -383,7 +383,7 @@ view, this tests should be also merged'''
         self.root.add_idevice(self.IDEVICE_TYPE)
         test_idevice = Idevice.objects.get(id=IDEVICE_ID).as_child()
         test_idevice.content = CONTENT
-        test_form = FreeTextForm(instance=test_idevice)
+        test_form = IdeviceForm(instance=test_idevice)
         self.assertTrue(RESOURCE in test_form.render_export())
         
     def test_link_list(self):
