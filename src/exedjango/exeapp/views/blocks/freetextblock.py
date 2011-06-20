@@ -19,6 +19,7 @@
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from exeapp.views.blocks.widgets import FreeTextWidget
+from exeapp.views.blocks.genericblock import GenericBlock
 """
 FreeTextBlock can render and process FreeTextIdevices as XHTML
 """
@@ -43,10 +44,7 @@ def _(value):
     return value
 
 class IdeviceForm(forms.ModelForm):
-    content = forms.CharField(widget=FreeTextWidget(attrs={"class" : "mceEditor"}))
     
-
-        
     def render_edit(self):
         return str(self)
     
@@ -58,57 +56,41 @@ class IdeviceForm(forms.ModelForm):
     
     def _render_view(self, purpose):
         '''Decouples field rendering from the purpose'''
+        html = ""
         for name, field_object in self.fields.items():
-            html = ""
             renderer = getattr(field_object.widget, "render_%s" % purpose)
-            print self.errors
             html += renderer(self.initial[name])
         
         return mark_safe(html) 
     
-    class Meta:
-        fields = ('content',)
-        model = FreeTextIdevice
+class IdeviceFormFactory(object):
+    def __init__(self, form, model, fields, widgets):
+        self.model = model
+        self.fields = tuple(fields)
+        self.widgets = widgets
+        self.form = form
+        
+    def __call__(self, *args, **kwargs):
+        class NewIdeviceForm(self.form):
+            pass
+            
+            class Meta:
+                model = self.model
+                fields = self.fields
+                widgets = self.widgets
+                
+        return NewIdeviceForm(*args, **kwargs)
 
 # ===========================================================================
-class FreeTextBlock(Block):
+class FreeTextBlock(GenericBlock):
     """
     FreeTextBlock can render and process FreeTextIdevices as XHTML
     GenericBlock will replace it..... one day
     """
-    form = IdeviceForm
-    
-    
-    def __init__(self, idevice):
-        super(FreeTextBlock, self).__init__(idevice)
-        
-        if not hasattr(self.idevice,'undo'): 
-            self.idevice.undo = True
-
-    def renderEdit(self):
-        """
-        Returns an XHTML string with the form element for editing this block
-        """
-        form = self.form(instance=self.idevice, auto_id=False)
-        self._media = form.media
-        return render_to_string("exe/idevices/freetext/edit.html",
-                                 locals())
-
-    def renderPreview(self):
-        """
-        Returns an XHTML string for previewing this block
-        """
-        idevice = self.idevice
-        form = self.form(instance=self.idevice, auto_id=False)
-        return render_to_string("exe/idevices/freetext/preview.html",
-                                 locals())
-
-    def renderView(self):
-        """
-        Returns an XHTML string for viewing this block
-        """
-        idevice = self.idevice
-        form = self.form(instance=self.idevice, auto_id=False)
-        return render_to_string("exe/idevices/freetext/export.html",
-                                locals())
-# ===========================================================================
+    form_factory = IdeviceFormFactory(IdeviceForm,
+                                       FreeTextIdevice,
+                                       ['content'],
+                                       {'content' : FreeTextWidget})
+    edit_template = "exe/idevices/freetext/edit.html"
+    preview_template = "exe/idevices/freetext/preview.html"
+    view_template = "exe/idevices/freetext/export.html"

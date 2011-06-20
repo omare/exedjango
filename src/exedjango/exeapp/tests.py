@@ -40,6 +40,8 @@ from exeapp.models.idevices.freetextidevice import FreeTextIdevice
 from exeapp.models.node import Node
 from exeapp.views.export.scormexport import ScormExport, COMMONCARTRIDGE,\
     SCORM12, SCORM2004
+from exeapp.views.blocks.widgets import FreeTextWidget
+from exeapp.views.blocks.blockfactory import block_factory
 
 
 
@@ -383,8 +385,16 @@ view, this tests should be also merged'''
         self.root.add_idevice(self.IDEVICE_TYPE)
         test_idevice = Idevice.objects.get(id=IDEVICE_ID).as_child()
         test_idevice.content = CONTENT
-        test_form = IdeviceForm(instance=test_idevice)
-        self.assertTrue(RESOURCE in test_form.render_export())
+        test_block = block_factory(test_idevice)
+        self.assertTrue(RESOURCE in test_block.renderView())
+        
+    def test_idevice_factory(self):
+        IDEVICE_ID = 1
+        
+        self.root.add_idevice(self.IDEVICE_TYPE)
+        test_idevice = Idevice.objects.get(id=IDEVICE_ID).as_child()
+        block = block_factory(test_idevice)
+        self.assertTrue("<textarea" in block.renderEdit()) 
         
     def test_link_list(self):
         response = self.c.get('%slink_list/' % self.VIEW_URL)
