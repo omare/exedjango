@@ -45,13 +45,14 @@ class FreeTextIdevice(Idevice):
     FreeTextIdevice: just has a block of text
     """
     group = Idevice.Content
-    title="Free Text"
-    author="University of Auckland"
-    purpose="""The majority of a learning resource will be 
+    name = "Free Text"
+    title = "Free Text"
+    author = "University of Auckland"
+    purpose = """The majority of a learning resource will be 
 establishing context, delivering instructions and providing general information.
 This provides the framework within which the learning activities are built and 
 delivered."""
-    emphasis=Idevice.NoEmphasis
+    emphasis = Idevice.NoEmphasis
     content = models.TextField(blank=True, default="")
     
     def getResourcesField(self, this_resource):
@@ -123,7 +124,7 @@ delivered."""
         self.content.content = self.content.content_w_resourcePaths
         
     def __unicode__(self):
-        return "FreeTextIdevice: %s" % self._order
+        return "FreeTextIdevice: %s" % self._id
         
     class Meta:
         app_label = "exeapp"

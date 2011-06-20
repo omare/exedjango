@@ -9,9 +9,12 @@ Provides block_factory. Returns block object based on given idevice.
 from exeapp.models.idevices import FreeTextIdevice
 
 from exeapp.views.blocks.freetextblock import FreeTextBlock
+from exeapp.models.idevices.activityidevice import ActivityIdevice
+from exeapp.views.blocks.activityblock import ActivityBlock
 
-blocks = {
-          FreeTextIdevice : FreeTextBlock
+idevices = {
+          FreeTextIdevice : FreeTextBlock,
+          ActivityIdevice : ActivityBlock,
           }
     
-block_factory = lambda idevice : blocks[idevice.__class__](idevice)
+block_factory = lambda idevice : idevices[idevice.__class__](idevice)

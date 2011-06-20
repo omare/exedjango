@@ -14,6 +14,7 @@ class MainpageExtrasTestCase(unittest.TestCase):
         def __init__(self, id, title):
             self.id = id
             self.__name__ = title.replace(" ", "")
+            self.name = title
             self.title = title
             
     groups = {'Main' : [Prototype(1,'p1'), Prototype(2, 'p2')], 

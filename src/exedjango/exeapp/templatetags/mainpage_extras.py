@@ -21,7 +21,7 @@ def idevice_ul(groups, group_order):
         for prototype in groups[group]:
             prototype_list.append('<a class="ideviceItem" href="#"' +\
                 ' ideviceid="%s">%s</a>' % (prototype.__name__,
-                                             prototype.title))
+                                             prototype.name))
         idevice_list.append(prototype_list)
     
     return unordered_list(idevice_list)
@@ -71,11 +71,11 @@ def render_idevicepane(idevices):
         """Used to sort idevices by title"""
         return cmp(pt1.title, pt2.title)
     idevices.sort(sortfunc)
-    for prototype in idevices:
-        if prototype.group:
-            groups[prototype.group].append(prototype)
+    for idevice in idevices:
+        if idevice.group:
+            groups[idevice.group].append(idevice)
         else:
-            groups[Idevice.Unknown] += prototype
+            groups[Idevice.Unknown] += idevice
     # used to perserve the group order
     group_order = sorted(groups.keys())
     return locals()

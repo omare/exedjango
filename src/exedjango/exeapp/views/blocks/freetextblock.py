@@ -57,9 +57,14 @@ class IdeviceForm(forms.ModelForm):
     def _render_view(self, purpose):
         '''Decouples field rendering from the purpose'''
         html = ""
+        renderer_name = "render_%s" % purpose
         for name, field_object in self.fields.items():
-            renderer = getattr(field_object.widget, "render_%s" % purpose)
-            html += renderer(self.initial[name])
+            if hasattr(field_object.widget, renderer_name):
+                renderer = getattr(field_object.widget, renderer_name)
+                html += renderer(self.initial[name])
+            else:
+                # dumb widget, just return <p>
+                html += "<p>%s</p>" % self.initial[name]
         
         return mark_safe(html) 
     
