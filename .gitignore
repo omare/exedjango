@@ -2,6 +2,8 @@
 src/exedjango/static/
 src/exedjango/exeapp_media/
 src/exedjango/exeapp_media_testing/
+.project
+.pydevproject
 *.pyc
 *.bak
 *.lnk
