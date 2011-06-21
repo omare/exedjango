@@ -56,7 +56,7 @@ package
     system_resources = []
              
     edit = models.BooleanField(default=True)
-    icon = models.ImageField(upload_to="icons", blank=True, null=True)
+    icon = ""
     parent_node = models.ForeignKey('Node', related_name='idevices')
     
     child_type = models.CharField(max_length=32, editable=False, blank=True)
@@ -85,9 +85,15 @@ package
     def resources(self):
         '''Safe attritube, which checks if idevice owner has the right to
 reference the resources'''
-        return set((resource for resource in self._resources()\
+        resources = set((resource for resource in self._resources()\
                     if not os.path.normpath(resource).\
                                             startswith(os.path.pardir)))
+        if self.icon:
+            resources.add(os.path.join(settings.STATIC_ROOT,
+                                       "css/styles/",
+                                       self.parent_node.package.style,
+                                       self.icon))
+        return resources
     
     def _resources(self):
         '''Should be overridden in children to specify resource 

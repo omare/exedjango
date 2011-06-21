@@ -1,3 +1,16 @@
-<div class="iDevice emphasis{{idevice.emphasis}}">
-  {% block idevice %}{% endblock %}
+{% load static %}
+{% load common %}
+{% block idevice_block %}
+<div class="iDevice emphasis{{idevice.emphasis}}" 
+	{% include 'exe/idevices/idevice_id.html' %}>
+{% if idevice.emphasis != idevice.NoEmphasis %}
+	{% if idevice.icon %}
+		<img alt="Idevice Icon" class="iDevice_icon" src="{% block icon_url %}{{idevice.icon}}{% endblock %}" />
+	{% endif %}
+	<span class="iDeviceTitle">{{idevice.title}}</span>
+<div class="iDevice_inner">
+{% endif %}
+{% block idevice %}{% endblock idevice %}
+{% if idevice.emphasis != idevice.NoEmphasis %}</div>{% endif %}
+{% endblock %}
 </div>

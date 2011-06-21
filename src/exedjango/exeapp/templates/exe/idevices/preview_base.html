@@ -1,13 +1,7 @@
-{% load static %}
+{% extends "exe/idevices/export_base.html" %}
 {% load common %}
-<div class="iDevice block emphasis{{idevice.emphasis}}" 
-	{% include 'exe/idevices/idevice_id.html' %}>
-{% if idevice.emphasis != idevice.NoEmphasis %}
-	{% if idevice.icon %}
-		<img alt="Idevice Icon" class="iDevice_icon" src="{{idevice.icon.url}}" />
-	{% endif %}
-	<span class="iDeviceTitle">{{idevice.title}}</span>
-{% endif %}
-{% block idevice %}{% endblock idevice %}
+{% block idevice_block %}{{ block.super }}
 <p>{% submit_image "edit_mode" self.id "images/stock-edit.png" "Edit" %}</p>
 </div>
+{% endblock %}
+{% block icon_url %}{{idevice.icon_url}}{% endblock %}
