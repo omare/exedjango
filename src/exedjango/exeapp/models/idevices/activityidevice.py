@@ -1,6 +1,7 @@
 from django.db import models
 from exeapp.models.idevices.idevice import Idevice
 import re
+from django.conf import settings
 
 class ActivityIdevice(Idevice):
 
@@ -12,6 +13,7 @@ class ActivityIdevice(Idevice):
 learner must complete. Provide a clear statement of the task and consider
 any conditions that may help or hinder the learner in the performance of 
 the task."""
+    icon = "icon_activity.gif"
     emphasis = Idevice.SomeEmphasis
     content = models.TextField(blank=True, default="",
                 help_text="Describe the tasks the learners should complete.")
@@ -20,10 +22,10 @@ the task."""
     def _resources(self):
         user = self.parent_node.package.user
         reg_exp = r'src=".*?%s(.*?)"' % user.get_profile().media_url
-        media_list = set()
+        resource_list = set()
         for medium in re.findall(reg_exp, self.content):
-            media_list.add(medium)
-        return media_list
+            resource_list.add(medium)
+        return resource_list
     
     @property
     def link_list(self):
@@ -32,9 +34,16 @@ the task."""
                                               (parent.unique_name(), anchor)) \
                                for anchor in re.findall('<a.*?name=[\"\'](.*?)[\"\']>',
                                                          self.content)]
+    def icon_url(self):
+        print "#" * 10
+        icon_url = "%scss/styles/%s/%s" % (settings.STATIC_URL,
+                                           self.parent_node.package.style,
+                                           self.icon)
+        print icon_url
+        return icon_url
     
     def __unicode__(self):
-        return "ActivityIdevice: %s" % self._id
+        return "ActivityIdevice: %s" % self.pk
     class Meta:
         app_label = "exeapp"
                                        

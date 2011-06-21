@@ -99,3 +99,4 @@ class FreeTextBlock(GenericBlock):
     edit_template = "exe/idevices/freetext/edit.html"
     preview_template = "exe/idevices/freetext/preview.html"
     view_template = "exe/idevices/freetext/export.html"
+    

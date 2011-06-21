@@ -22,6 +22,7 @@ from django.conf import settings
 from exeapp.views.export.websiteexport import WebsiteExport
 from django.template.loader import render_to_string
 from django.forms.models import model_to_dict
+import os
 """
 Exports an eXe package as a SCORM package
 """
@@ -196,7 +197,7 @@ class Manifest(object):
         fileStr = ""
 
         for resource in page.node.resources:            
-            fileStr += "    <file href=\""+resource+"\"/>\n"
+            fileStr += "    <file href=\""+os.path.basename(resource)+"\"/>\n"
             self.dependencies[resource] = True
 
         self.resStr += fileStr
