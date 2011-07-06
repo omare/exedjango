@@ -30,23 +30,25 @@
 	{% include "exe/export_type_selector.html" %}
 </div>
 <div id="wrap">
-<div id="sidebar">
-    <div id="outlinecontroll">
-        <a id="btnAdd" class="bigButton">Add</a>
-        <a id="btnRemove" class="bigButton">Remove</a>
-        <a id="btnRename" class="bigButton" action="RenameNode">Rename</a>
-        <a id="btnDuplicate" class="bigButton" action="DblNode">Duplicate</a>
-    </div>
-    <div id="outlinemove">
-        <a id="btnPromote" class="fg-button smallButton">Promote</a>
-        <a id="btnDemote" class="fg-button smallButton" action="Demote">Demote</a>
-        <a id="btnUp" class="fg-button smallButton" action="Up">Up</a>
-        <a id="btnDown" class="fg-button smallButton" action="Down">Down</a>
-    </div>
-{% render_outline package %}
+<div id="outline">
+	<div id="outlinecontroll">
+	    <a id="btnAdd" class="bigButton">Add</a>
+	    <a id="btnRemove" class="bigButton">Remove</a>
+	    <a id="btnRename" class="bigButton" action="RenameNode">Rename</a>
+	    <a id="btnDuplicate" class="bigButton" action="DblNode">Duplicate</a>
+	</div>
+	<div id="outlinemove">
+	    <a id="btnPromote" class="fg-button smallButton">Promote</a>
+	    <a id="btnDemote" class="fg-button smallButton" action="Demote">Demote</a>
+	    <a id="btnUp" class="fg-button smallButton" action="Up">Up</a>
+	    <a id="btnDown" class="fg-button smallButton" action="Down">Down</a>
+	</div>
+	{% render_outline package %}
+</div>
     
-{% render_idevicepane idevices %}
-
+<div id="idevices">
+	<p>iDevices</p>
+	{% render_idevicepane idevices %}
 </div>
 <div id="middle">
     <ul>

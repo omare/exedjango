@@ -108,8 +108,8 @@ jQuery(document).ready(function() {
                 
                 
                 // Initialize idevice Tree
-                $("#idevicePane").jstree({"plugins" : ["themes", "html_data", "ui"]})
-                $("#idevicePane").jstree('open_all', $('#idevicePane>ul'));
+                $("#idevice_pane").jstree({"plugins" : ["themes", "html_data", "ui"]})
+                $("#idevice_pane").jstree('open_all', $('#idevice_pane>ul'));
                                    
                 //$("#authoring").attr('src',
                 //    document.location.pathname + "authoring/");
@@ -141,7 +141,7 @@ jQuery(document).ready(function() {
                 //    bindButtonClicked(this);
                 //});
                 //bind action to idevice items
-                $("#idevicePane").delegate(".ideviceItem", "click", add_idevice);
+                $("#idevice_pane").delegate(".ideviceItem", "click", add_idevice);
                 $("#middle").tabs();
                 updateTitle();
                 
@@ -258,7 +258,7 @@ function move_current_node_down() {
 }
 
 function add_idevice() {
-  var ideviceid = $("#idevicePane").jstree("get_selected").find(">a").attr('ideviceid');
+  var ideviceid = $("#idevice_pane").jstree("get_selected").find(">a").attr('ideviceid');
   $.jsonRPC.request('add_idevice', [get_package_id(), ideviceid],{
     success: function(results) {
     	window.frames['authoringIFrame1'].add_idevice(
@@ -267,7 +267,7 @@ function add_idevice() {
     }
   });
   return false;
-}
+} 
 
 // Handles outline_pane selection event. Calls package.change_current_node
 // via rpc. 

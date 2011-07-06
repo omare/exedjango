@@ -17,18 +17,31 @@ textarea { font-family: arial, verdana, helvetica, sans-serif;
        background-color: #FFFFFF ;
 }
 
-div#sidebar {
+div#outline {
     float: left;
-    width: 300px;
+    width: 200px;
+    height: 300px;
+    overflow: auto;
+    border: 1px solid;
 }
 
+div#idevices {
+    float: right;
+    width: 200px;
+    height: 300px;
+    overflow: auto;
+    border: 1px solid;
+
+}
+
+
 #authoring {
-    width: 850px;
+    width: 750px;
     height: 600px;
 }
 
 #authoringIFrame1 {
-	width: 800px;
+	width: 700px;
 	height: 600px;
 }
 
@@ -37,21 +50,10 @@ div#sidebar {
 }
 
 #middle {
-    width: 870px;
-    float: right;
+	float: left;
+    width: 770px;
 }
 
-#outline_pane {
-    height: 300px;
-    overflow: auto;
-    border: 1px solid;
-}
-
-#idevicePane {
-    height: 300px;
-    overflow: auto;
-    border: 1px solid;
-}
 
 #style_selection{
 	float: left;
