@@ -7,6 +7,18 @@ from django.forms.widgets import TextInput
 
 class FreeTextWidget(TinyMCE):
     
+    def __init__(self, content_language=None, attrs=None, mce_attrs=None, height=None):
+        if height is not None:
+            style_height = "height: %dpx;" % height
+            attrs = attrs or {}
+            if "style" in attrs:
+                attrs['style'] += style_height
+            else:
+                attrs['style'] = style_height
+        super(FreeTextWidget, self).__init__(content_language,
+                                             attrs,
+                                             mce_attrs)
+    
     def render_preview(self, content):
         return mark_safe(content)
     
