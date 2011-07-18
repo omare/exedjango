@@ -1,6 +1,6 @@
 {% load static %}
 {% load common %}
-{% block idevice %}{% endblock %}
+<div class="block">{% block idevice %}{% endblock %}</div>
 {% get_static_prefix as STATIC_PREFIX %}
 {% submit_image "apply_changes" self.id "images/stock-apply.png" "Done" %}
 {% if no_undo %}

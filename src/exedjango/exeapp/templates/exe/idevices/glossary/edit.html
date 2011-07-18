@@ -1,0 +1,8 @@
+{% extends "exe/idevices/edit_base.html" %}
+{% block idevice %}{{form.render_edit}}
+<p>
+	<input id="add_term" type="submit" name="idevice_action" value="Add Term"/>
+	<input id="add_term" type="submit" name="idevice_action" value="Delete Selected"/>
+</p>
+{{formset.as_p}}
+{% endblock %}

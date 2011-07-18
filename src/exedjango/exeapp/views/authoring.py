@@ -72,7 +72,9 @@ def get_unique_media_list(node, idevice):
     block = block_factory(idevice.as_child())
     media = block.media._js
     # compressor is always loaded per default
-    media.remove(reverse('tinymce-compressor'))
+    compressor_url = reverse('tinymce-compressor')
+    if compressor_url in media:
+        media.remove(compressor_url)
     for idevice in node.idevices.exclude(id=idevice.id):
         block = block_factory(idevice.as_child()) 
         for js in block.media._js:

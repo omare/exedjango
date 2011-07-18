@@ -11,10 +11,13 @@ from exeapp.models.idevices import FreeTextIdevice
 from exeapp.views.blocks.freetextblock import FreeTextBlock
 from exeapp.models.idevices.activityidevice import ActivityIdevice
 from exeapp.views.blocks.activityblock import ActivityBlock
+from exedjango.exeapp.views.blocks.glossaryblock import GlossaryBlock
+from exedjango.exeapp.models.idevices.glossaryidevice import GlossaryIdevice
 
 idevices = {
           FreeTextIdevice : FreeTextBlock,
           ActivityIdevice : ActivityBlock,
+          GlossaryIdevice : GlossaryBlock,
           }
     
 block_factory = lambda idevice : idevices[idevice.__class__](idevice)

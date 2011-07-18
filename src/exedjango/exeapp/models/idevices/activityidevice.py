@@ -34,16 +34,10 @@ the task."""
                                               (parent.unique_name(), anchor)) \
                                for anchor in re.findall('<a.*?name=[\"\'](.*?)[\"\']>',
                                                          self.content)]
-    def icon_url(self):
-        print "#" * 10
-        icon_url = "%scss/styles/%s/%s" % (settings.STATIC_URL,
-                                           self.parent_node.package.style,
-                                           self.icon)
-        print icon_url
-        return icon_url
     
     def __unicode__(self):
         return "ActivityIdevice: %s" % self.pk
+    
     class Meta:
         app_label = "exeapp"
                                        

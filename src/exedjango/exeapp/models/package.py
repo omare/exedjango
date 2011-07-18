@@ -19,7 +19,6 @@
 # ===========================================================================
 from django.db import models
 import datetime
-from exeapp.models.idevices.idevice import Idevice
 
 """
 Package represents the collection of resources the user is editing

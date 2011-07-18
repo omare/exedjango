@@ -45,6 +45,7 @@ class Block(object):
     nextId = 0
     Edit, Preview, View, Hidden = range(4)
     form_factory = None # redefined by the child
+    formset_factory = None #
     
     
     def __init__(self, idevice):
@@ -61,11 +62,7 @@ class Block(object):
 
     def process(self, action, data):
         
-        if action == 'delete':
-            self.idevice.delete()
-            # Don't save IDevice if it has to be deleted
-            return ""
-        elif action == 'move_up':
+        if action == 'move_up':
             self.idevice.move_up()
             return ""
         elif action == 'move_down':
@@ -74,15 +71,21 @@ class Block(object):
         elif action == 'edit_mode':
             self.idevice.edit_mode()
         elif action == 'apply_changes':
-            form = self.form_factory(data, instance=self.idevice)
-            form.save(commit=False)
-            self.idevice.apply_changes(form.cleaned_data)
+            if self.form_factory:
+                form = self.form_factory(data, instance=self.idevice)
+                form.save(commit=False)
+                self.idevice.apply_changes(form.cleaned_data)
+                
+            if self.formset_factory:
+                print data
+                formset = self.formset_factory(data)
+                formset.save()
+                print
+                
+                
         else:
             raise IdeviceActionNotFound("Action %s not found" % action)
         
-        self.idevice.save()
-        return self.render()
-    
     @property
     def media(self):
         '''Returns a list of media files used in iDevice's HTML'''

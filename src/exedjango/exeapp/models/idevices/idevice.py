@@ -77,6 +77,12 @@ package
             return klass[:-2]
     klass = property(get_klass)
     
+    def icon_url(self):
+        icon_url = "%scss/styles/%s/%s" % (settings.STATIC_URL,
+                                           self.parent_node.package.style,
+                                           self.icon)
+        return icon_url
+    
     @property
     def base_idevice(self):
         return Idevice.objects.get(pk=self.pk)

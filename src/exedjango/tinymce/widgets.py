@@ -45,6 +45,9 @@ class TinyMCE(forms.Textarea):
         super(TinyMCE, self).__init__(attrs)
         if mce_attrs is None:
             mce_attrs = {}
+        if attrs is not None:
+            print "#" * 10
+            print attrs
         self.mce_attrs = mce_attrs
         if content_language is None:
             content_language = mce_attrs.get('language', None)
@@ -66,7 +69,12 @@ class TinyMCE(forms.Textarea):
         mce_json = simplejson.dumps(mce_config)
 
         html = [u'<textarea%s>%s</textarea>' % (flatatt(final_attrs), escape(value))]
-        html.append(u'<script type="text/javascript">tinyMCE.init(%s)</script>' % mce_json)
+        #html.append(u'<script type="text/javascript">tinyMCE.init(%s)</script>' % mce_json)
+        html.append(u'''<script type="text/javascript">
+        tinyMCE.execCommand("mceRemoveControl", true, "%(id)s");
+        tinyMCE.settings = %(settings)s;
+        tinyMCE.execCommand("mceAddControl", true, "%(id)s");</script>''' \
+                    % {'id' : attrs['id'], 'settings' : mce_json})
 
         return mark_safe(u'\n'.join(html))
 

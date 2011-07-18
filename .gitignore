@@ -7,3 +7,5 @@ src/exedjango/exeapp_media_testing/
 *.pyc
 *.bak
 *.lnk
+.externalToolBuilders
+.settings

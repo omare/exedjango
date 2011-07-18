@@ -94,9 +94,10 @@ jQuery(document).ready(function() {
     //window.parent.get_outline_pane().jstree("select_node", $("#node" + nodeid), true);
 })
 
+// don't use it!!!
 function initialize_tinymce() {
 	tinyMCE.baseURL = "/static/tiny_mce/";
-	$("textarea.mceEditor").tinymce({   
+	var tinymce_settings = {   
 	script_url: '/tinymce/compressor/',
     content_css : "/static/css/extra.css", 
     verify_html : false, 
@@ -105,7 +106,7 @@ function initialize_tinymce() {
     cleanup_on_startup : false, 
     entity_encoding : "raw", 
     gecko_spellcheck : true, 
-     mode : "textareas",
+     mode : "none",
      relative_urls: false,
      plugins : "table,save,advhr,advimage,advlink,emotions,media, contextmenu,paste,directionality",
      theme : "advanced",
@@ -124,7 +125,8 @@ function initialize_tinymce() {
         theme_advanced_resize_horizontal : true,
         theme_advanced_resizing : true,
         width : "100%"
- });
+ };
+	$("textarea.mceEditor").tinymce(tinymce_settings);
 }
 
 function initialize_authoring() {
@@ -139,7 +141,7 @@ function initialize_authoring() {
  		}
  		initialize_authoring();
  	},
- 	beforeSerialize: function() { tinyMCE.triggerSave();}}
+ 	beforeSerialize: function() { tinyMCE.triggerSave(true, true);}}
  	);
 }
 

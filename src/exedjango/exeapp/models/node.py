@@ -404,7 +404,13 @@ with it'''
         idevice = self.idevices.get(pk=idevice_id).as_child()
         from exeapp.views.blocks.blockfactory import block_factory
         block = block_factory(idevice)
-        return block.process(action, data)
+        if action == 'delete':
+            idevice.delete()
+            return ""
+        else:
+            block.process(action, data)
+            block.idevice.save()
+            return block.render()
 
 
     def create_child(self):

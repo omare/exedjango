@@ -69,7 +69,7 @@ def render_idevicepane(idevices):
 
     def sortfunc(pt1, pt2):
         """Used to sort idevices by title"""
-        return cmp(pt1.title, pt2.title)
+        return cmp(pt1.name, pt2.name)
     idevices.sort(sortfunc)
     for idevice in idevices:
         if idevice.group:

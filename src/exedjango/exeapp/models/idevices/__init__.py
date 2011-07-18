@@ -4,10 +4,12 @@ from exeapp.models.idevices.freetextidevice import FreeTextIdevice
 from exeapp.models.idevices.activityidevice import ActivityIdevice
 from exeapp.models.idevices.glossaryidevice import GlossaryIdevice
 
-idevice_list = ['FreeTextIdevice',
-            'ActivityIdevice',
-            'GlossaryIdevice'
+idevice_list = [FreeTextIdevice,
+            ActivityIdevice,
+            GlossaryIdevice,
             ]
 
-__all__ = ['Idevice'] + idevice_list
-           
+__all__ = ['Idevice', 'idevice_list'] +\
+                    [idevice.__name__ for idevice in idevice_list]
+
+

@@ -45,7 +45,8 @@ class GenericBlock(Block):
         Code reuse function for rendering the correct template
         """
         idevice = self.idevice
-        form = self.form_factory(instance=self.idevice, auto_id=False)
+        form = self.form_factory(instance=self.idevice, auto_id="%s_field_" \
+                                 % self.idevice.id + "%s")
         try:
             html = render_to_string(template, {"idevice" : idevice,
                                                "form" : form,

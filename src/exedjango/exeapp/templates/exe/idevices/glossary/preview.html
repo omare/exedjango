@@ -1,0 +1,7 @@
+{% extends 'exe/idevices/preview_base.html' %}
+{% block idevice %}
+<p>{{idevice.title}}</p>
+{% for term in idevice.terms.all %}
+<p><em>{{term.title}}</em>: {{term.definition|safe}}</p>
+{% endfor %}
+{% endblock %}

@@ -20,6 +20,7 @@ from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from exeapp.views.blocks.widgets import FreeTextWidget
 from exeapp.views.blocks.genericblock import GenericBlock
+from django.forms.models import modelformset_factory
 """
 FreeTextBlock can render and process FreeTextIdevices as XHTML
 """

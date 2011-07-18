@@ -11,8 +11,11 @@ import shutil
 
 def create_debug_superuser(app, created_models, **kwargs):
     if settings.DEBUG and not getattr(settings, "TEST", False):
-        su = auth_models.User.objects.create_superuser("admin", "admin@exe.org",
-                                                  "admin")
+        SU_LOGIN = "admin"
+        SU_PASSWORD = "admin"
+        su = auth_models.User.objects.create_superuser(SU_LOGIN, "admin@exe.org",
+                                                  SU_PASSWORD)
+        print "Created superuser %s with password %s" % (SU_LOGIN, SU_PASSWORD)
 
 if settings.DEBUG and not getattr(settings, "TEST", False):
     print "DISABLING SUPERUSER CREATIONG"
@@ -24,7 +27,7 @@ if settings.DEBUG and not getattr(settings, "TEST", False):
             sender=auth_models, dispatch_uid='common.models.create_testuser')
     
 @receiver(signal=signals.post_save, sender=auth_models.User)
-def user_post_safe(sender, instance, created, **kwargs):
+def user_post_save(sender, instance, created, **kwargs):
     if created:
         profile, new = UserProfile.\
                     objects.get_or_create(user=instance)
@@ -32,7 +35,7 @@ def user_post_safe(sender, instance, created, **kwargs):
             os.mkdir(profile.media_path)
         except Exception, e:
             if not getattr(settings, "TEST", False):
-                raise e
+                print "Folder for user %s was not created" % profile
         
 @receiver(signal=signals.post_delete, sender=auth_models.User)
 def user_post_delete(sender, instance, **kwargs):
