@@ -344,12 +344,9 @@ i.e. the "package".
             if node_name == 'index':
                 node = self.root
             else:
-                title, node_id = node_name.split("_")
+                node_id = node_name.split("_")[-1]
                 node = Node.objects.get(pk=node_id,
                                      package=self)
-                if node.title.lower() != title:
-                    # This isn't the node you are looking for *wink*
-                    raise Node.DoesNotExist()
         except Node.DoesNotExist:
             raise KeyError("Package with name %s wasn't found"\
                            % node_name)
