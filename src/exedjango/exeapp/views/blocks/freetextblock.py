@@ -21,6 +21,7 @@ from django.utils.safestring import mark_safe
 from exeapp.views.blocks.widgets import FreeTextWidget
 from exeapp.views.blocks.genericblock import GenericBlock
 from django.forms.models import modelformset_factory
+from django.forms.widgets import Media
 """
 FreeTextBlock can render and process FreeTextIdevices as XHTML
 """
@@ -68,6 +69,14 @@ class IdeviceForm(forms.ModelForm):
                 html += "<p>%s</p>" % self.initial[name]
         
         return mark_safe(html) 
+    
+    @property
+    def view_media(self):
+        media = Media()
+        for field in self.fields.values():
+            if hasattr(field.widget, "view_media"):
+                    media += field.widget.view_media
+        return media
     
 class IdeviceFormFactory(object):
     def __init__(self, form, model, fields, widgets):

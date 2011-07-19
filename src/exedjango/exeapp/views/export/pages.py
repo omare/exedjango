@@ -18,6 +18,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
 import codecs
+from exedjango.exeapp.views.blocks.blockfactory import block_factory
+from django import forms
 """
 Export Pages functions
 """
@@ -47,6 +49,13 @@ class Page(object):
         self.next_page = next_page
         self.has_children = has_children
         self.name = self._generate_name()
+        self.view_media = forms.Media()
+        for idevice in node.idevices.all():
+            block = block_factory(idevice.as_child())
+            form = block.form_factory()
+            if hasattr(form, "view_media"):
+                self.view_media += form.view_media
+            
         
     def save(self, outputDir):
         """

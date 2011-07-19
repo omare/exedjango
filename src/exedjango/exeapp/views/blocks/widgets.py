@@ -1,9 +1,11 @@
 from tinymce.widgets import TinyMCE
-import settings
+from django.conf import settings
 from django.utils.safestring import mark_safe
 import re
 from django.utils.html import escape
 from django.forms.widgets import TextInput
+from django.template.loader import render_to_string
+from django import forms
 
 class FreeTextWidget(TinyMCE):
     
@@ -22,11 +24,26 @@ class FreeTextWidget(TinyMCE):
     def render_preview(self, content):
         return mark_safe(content)
     
-    def render_export(self, content):
-        # replace resources
+    def _replace_sources(self, content):
         reg_exp = r'src=".*%s.*/(.*?)"' % settings.MEDIA_URL
-        result_content = re.sub(reg_exp, r'src="\g<1>"', content)
-        return mark_safe(result_content)
+        return re.sub(reg_exp, r'src="\g<1>"', content)
+    
+    def render_export(self, content):
+        return mark_safe(self._replace_sources(content))
+    
+class FeedbackWidget(FreeTextWidget):
+    view_media = forms.Media(
+            js=["%sscripts/widgets/feedback.js" % settings.STATIC_URL],
+            css={"all" : ["%scss/widgets/feedback.css" % settings.STATIC_URL]},
+                    )
+    def render_preview(self, content):
+        return render_to_string("exe/idevices/widgets/feedback.html",
+                                {"content" : content})
+        
+    def render_export(self, content):
+        return self.render_preview(self._replace_sources(content))
+        
+    
     
     
 class TitleWidget(TextInput):

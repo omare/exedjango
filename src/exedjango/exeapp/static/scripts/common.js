@@ -135,6 +135,7 @@ function initialize_authoring() {
  $(".idevice_form").ajaxForm({success: function(responseText, statusText, xhr, $form){
  	var idevice_id = $form.attr("idevice_id");
  		if (responseText){
+ 			get_media("./?idevice_id=" + idevice_id + "&media=true");
 	 		$form.html(responseText);
  		} else {
  			reload_authoring();
@@ -146,22 +147,34 @@ function initialize_authoring() {
 }
 
 function reload_authoring() {
+	// dynamically load scripts for idevices
+	get_media("./?partial=true&media=true");
+			
 	$("body").load('./?partial=true', function() {
 		initialize_authoring();
 		});
 }
 
-function add_idevice(idevice_id) {
-	// dynamically load scripts for idevices
+function get_media(request_url) {
 	$.ajax({
-		url: "./?idevice_id=" + idevice_id + "&media=true",
+		url: request_url,
 		dataType: 'json',
 		async: false,
 		success: function(data){
 			$.each(data, function(key, val) {
+				if (/\.css$/.test(val)){
+					$('<link rel="stylesheet" href="' + val + '">')
+							.appendTo("head");
+				} else {
 				$.getScript(val);
+				}
 			});
-			}})
+		}});
+}	
+
+function add_idevice(idevice_id) {
+	// dynamically load scripts for idevices
+	get_media("./?idevice_id=" + idevice_id + "&media=true");
 	    $.ajax({
 	    url: "./?idevice_id=" + idevice_id,
 	    dataType: 'html',

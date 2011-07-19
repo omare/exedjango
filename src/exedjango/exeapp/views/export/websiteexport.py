@@ -110,7 +110,7 @@ class WebsiteExport(object):
         # Copy the style sheet files to the output dir
         self.copy_style_files()
         self.copy_resources()
-        self.scripts_dir.copylist(('libot_drag.js',), 
+        self.scripts_dir.copylist(('libot_drag.js','jquery.js'), 
                                   self.output_dir)
         self.copy_players()
         
@@ -151,6 +151,13 @@ class WebsiteExport(object):
                         hasXspfplayer = True
                         
     def copy_resources(self):
+        view_media = []
+        for page in self.pages:
+            view_media += page.view_media._js
+            view_media += page.view_media._css.get('all', [])
+        view_media = [medium.replace(settings.STATIC_URL, "") \
+                      for medium in view_media]
+        Path(settings.STATIC_ROOT).copylist(view_media, self.output_dir)
         self.media_dir.copylist(self.package.resources, self.output_dir)
 
     

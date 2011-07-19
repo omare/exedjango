@@ -363,6 +363,13 @@ view, this tests should be also merged'''
         self.assertEquals(response.status_code, 200)
         self.assertTrue(package.get_idevice_for_partial.called)
         self.assertTrue(IDEVICE_CONTENT in response.content)
+
+    def test_partial_resource_loading(self):
+        self.root.add_idevice(self.IDEVICE_TYPE)
+        response = self.c.get("%s?partial=true&media=true" % self.VIEW_URL)
+        self.assertEquals(simplejson.loads(response.content),
+                          [reverse('tinymce-filebrowser')])
+        
         
     def test_resource_finding(self):
         RESOURCE = 'test.jpg'
@@ -456,6 +463,8 @@ class ExportTestCase(TestCase):
                 self.title = title
                 self.children = MockQuerySet([])
                 self.is_root = False
+                self.idevices = Mock()
+                self.idevices.all.return_value = []
             
             def unique_name(self):
                 return "%s_%s" % (self.title, self.id)

@@ -11,7 +11,8 @@
 	@import url(base.css);\n
 	@import url(content.css);
 	</style>
-	<script type="text/javascript" src="common.js"></script>
+	<script type="text/javascript" src="jquery.js"></script>
+    {% view_media current_page %}
 	</head>
 	{% if current_page.scormType == 'commoncartridge' %}
 	    <body>
