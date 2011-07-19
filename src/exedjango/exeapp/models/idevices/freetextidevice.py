@@ -107,9 +107,6 @@ delivered."""
                     self.content.content_wo_resourcePaths)
         self.content.content = self.content.content_w_resourcePaths
         
-    def __unicode__(self):
-        return "FreeTextIdevice: %s" % self._id
-        
     class Meta:
         app_label = "exeapp"
     

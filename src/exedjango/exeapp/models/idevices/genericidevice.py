@@ -19,6 +19,9 @@ class GenericIdevice(Idevice):
                                for anchor in re.findall('<a.*?name=[\"\'](.*?)[\"\']>',
                                                          self.content)]
         
+    def __unicode__(self):
+        return "%s: %s" % (self.__name__, self.pk)
+
     class Meta:
         app_label = "exeapp"
         proxy = True

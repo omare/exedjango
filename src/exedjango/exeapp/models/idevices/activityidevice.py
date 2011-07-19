@@ -19,9 +19,6 @@ the task."""
     content = models.TextField(blank=True, default="",
                 help_text="Describe the tasks the learners should complete.")
     
-    def __unicode__(self):
-        return "ActivityIdevice: %s" % self.pk
-    
     class Meta:
         app_label = "exeapp"
                                        
