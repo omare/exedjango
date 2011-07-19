@@ -17,7 +17,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
-import re
 
 """
 FreeTextIdevice: just has a block of text
@@ -28,6 +27,7 @@ from django.conf import settings
 
 import logging
 from exeapp.models.idevices.idevice import Idevice
+from exeapp.models.idevices.genericidevice import GenericIdevice
 
 #from exe.engine.field   import TextAreaField
 log = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ def x_(arg):
     '''Placeholder for translation'''
     return arg
 
-class FreeTextIdevice(Idevice):
+class FreeTextIdevice(GenericIdevice):
     """
     FreeTextIdevice: just has a block of text
     """
@@ -67,22 +67,6 @@ delivered."""
                     return self.content
 
         return None
-    
-    def _resources(self):
-        user = self.parent_node.package.user
-        reg_exp = r'src=".*?%s(.*?)"' % user.get_profile().media_url
-        media_list = set()
-        for medium in re.findall(reg_exp, self.content):
-            media_list.add(medium)
-        return media_list
-    
-    @property
-    def link_list(self):
-        parent = self.parent_node
-        return [("%s::%s" % (parent.title, anchor), "%s.html#%s" %\
-                                              (parent.unique_name(), anchor)) \
-                               for anchor in re.findall('<a.*?name=[\"\'](.*?)[\"\']>',
-                                                         self.content)]
 
     def getRichTextFields(self):
         """
