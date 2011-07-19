@@ -78,11 +78,21 @@ class GlossaryBlock(Block):
         return render_to_string(self.edit_template, locals())
     
     def renderPreview(self):
-        return render_to_string(self.preview_template, {"idevice" : self.idevice,
-                                                        "self" : self})
+        ordered_terms = self.idevice.terms.order_by('title')
+        return render_to_string(self.preview_template, 
+                                {"idevice" : self.idevice,
+                                 "ordered_terms" : ordered_terms,
+                                 "self" : self,
+                                 }
+                                )
     
     def renderView(self):
-        return render_to_string(self.view_template, {"idevice" : self.idevice})
+        ordered_terms = self.idevice.terms.order_by('title')
+        return render_to_string(self.view_template,
+                                 {"idevice" : self.idevice,
+                                  "ordered_terms" : ordered_terms,
+                                  }
+                                )
     
         
     
