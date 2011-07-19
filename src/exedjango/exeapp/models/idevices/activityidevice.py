@@ -19,8 +19,6 @@ the task."""
     content = models.TextField(blank=True, default="",
                 help_text="Describe the tasks the learners should complete.")
     
-
-    
     class Meta:
         app_label = "exeapp"
                                        

@@ -58,7 +58,6 @@ class Block(object):
         self.tip     = idevice.tip
         self.package = self.idevice.parent_node.package
         form = self.form_factory()
-        self._media = form.media
 
     def process(self, action, data):
         
@@ -89,14 +88,16 @@ class Block(object):
     @property
     def media(self):
         '''Returns a list of media files used in iDevice's HTML'''
-        return self._media
-
+        if self.idevice.edit:
+            return self.form_factory().media
+        else:
+            return self.form_factory().view_media
+    
     def render(self):
         """
         Returns the appropriate XHTML string for whatever mode this block is in.
         Descendants should not override it.
         """
-        self._media = None
         html = '<input type="hidden" name="idevice_id" value="%s" />' % self.id
         broken = '<p><span style="font-weight: bold">%s:</span> %%s</p>' % _('IDevice broken')
         if self.idevice.edit == True:

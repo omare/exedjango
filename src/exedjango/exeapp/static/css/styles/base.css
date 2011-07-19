@@ -12,7 +12,7 @@ base style sheet for all themes
     ***********************/
 
 
-#authoring {
+body {
     margin: 0px;
     padding: 10px 10px 10px 10px;
     font-family: arial, verdana, helvetica, sans-serif;
@@ -20,7 +20,7 @@ base style sheet for all themes
     background-color: #FFFFFF;
 }
 
-#authoring > #header {
+body > #header {
     text-align: left;
     height: 50px;
     padding-left: 20px;
@@ -32,7 +32,7 @@ a {
     text-decoration: none;
 }
 
-#authoring > a:hover {
+body > a:hover {
     text-decoration: underline;
 }
 

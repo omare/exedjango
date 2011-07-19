@@ -3,10 +3,6 @@ from exeapp.views.blocks.freetextblock import IdeviceForm, IdeviceFormFactory
 from exeapp.models.idevices.activityidevice import ActivityIdevice
 from exeapp.views.blocks.widgets import FreeTextWidget, TitleWidget
 class ActivityBlock(GenericBlock):
-    """
-    FreeTextBlock can render and process FreeTextIdevices as XHTML
-    GenericBlock will replace it..... one day
-    """
     form_factory = IdeviceFormFactory(IdeviceForm,
                                        ActivityIdevice,
                                        ['title', 'content'],

@@ -22,7 +22,6 @@ from exedjango.exeapp.views.blocks.widgets import TitleWidget, FreeTextWidget
 from exedjango.exeapp.models.idevices.glossaryidevice import GlossaryIdevice,\
     GlossaryTerm
 from exedjango.exeapp.views.blocks.block import Block
-from exedjango.exeapp.views.blocks.genericblock import GenericBlock
 from django.forms.models import modelformset_factory
 from django.template.loader import render_to_string
 from django import forms

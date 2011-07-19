@@ -35,6 +35,9 @@ def authoring(request, package):
             raise Http404(e)
     # if partial is set return only content of body
     partial = "partial" in request.GET and request.GET['partial'] == "true"
+    if partial and "media" in request.GET and request.GET['media'] == "true":
+        return HttpResponse(get_media_list(package.current_node, ajax=True),
+                             content_type="text/javascript")
     package = package
     return render_to_response('exe/authoring.html', locals())
 
@@ -56,7 +59,7 @@ def handle_action(request, package):
         return HttpResponse(response)
     return HttpResponse()
 
-def get_media_list(node):
+def get_media_list(node, ajax=False):
     '''Returns the idevice-specific media list for a given node. Always
 includes tinymce compressor, since it can't be loaded dynamically'''
     # always load tinymce compressor
@@ -65,19 +68,25 @@ includes tinymce compressor, since it can't be loaded dynamically'''
         idevice = idevice.as_child()
         block = block_factory(idevice) 
         media += block.media
-    return str(media)
+        #print "#" * 10
+        #print media._js
+    if ajax:
+        media._js.remove(reverse('tinymce-compressor'))
+        return simplejson.dumps(media._js + media._css.get('all', []))
+    else:
+        return str(media)
 
-def get_unique_media_list(node, idevice):
+def get_unique_media_list(node, idevice=None):
     '''Returns a list of media which is used only by this idevice'''
     block = block_factory(idevice.as_child())
-    media = block.media._js
+    media = block.media._js + block.media._css.get('all', [])
     # compressor is always loaded per default
     compressor_url = reverse('tinymce-compressor')
     if compressor_url in media:
         media.remove(compressor_url)
     for idevice in node.idevices.exclude(id=idevice.id):
         block = block_factory(idevice.as_child()) 
-        for js in block.media._js:
+        for js in block.media._js + block.media._css.get('all', []):
             if js in media:
                 media.remove(js)
     return media

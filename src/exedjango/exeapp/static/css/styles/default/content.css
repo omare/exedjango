@@ -8,7 +8,7 @@ to modify this style for your needs.
 ===========================================================================
 */
 
-#authoring {
+body {
    margin: 5px 5px 5px 5px;
    padding: 10px 10px 10px 10px;
    color:#4d4d4d;
@@ -16,11 +16,11 @@ to modify this style for your needs.
 }
 
 
-#authoring a {
+body a {
  color: #FF6600;
 }
 
-#authoring a:hover {
+body a:hover {
  color: #B34700;
 }
 

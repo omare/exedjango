@@ -386,7 +386,9 @@ with it'''
         log.debug(u"getResources ")
         resources = set()
         for idevice in self.idevices.all():
+            
             resources.update(idevice.as_child().resources)
+            
         return resources
     
     @property
