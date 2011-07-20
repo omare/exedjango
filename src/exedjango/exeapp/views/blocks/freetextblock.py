@@ -79,7 +79,7 @@ class IdeviceForm(forms.ModelForm):
         return media
     
 class IdeviceFormFactory(object):
-    def __init__(self, form, model, fields, widgets):
+    def __init__(self, form, model, fields, widgets={}):
         self.model = model
         self.fields = tuple(fields)
         self.widgets = widgets

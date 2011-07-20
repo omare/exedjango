@@ -19,6 +19,8 @@ from exedjango.exeapp.models.idevices.reflectionidevice import ReflectionIdevice
 from exedjango.exeapp.views.blocks.reflectionblock import ReflectionBlock
 from exedjango.exeapp.models.idevices.tocidevice import TOCIdevice
 from exedjango.exeapp.views.blocks.tocblock import TOCBlock
+from exedjango.exeapp.models.idevices.wikiidevice import WikipediaIdevice
+from exedjango.exeapp.views.blocks.wikiblock import WikipediaBlock
 
 idevices = {
           FreeTextIdevice : FreeTextBlock,
@@ -27,6 +29,7 @@ idevices = {
           ReadingActivityIdevice : ReadingActivityBlock,
           ReflectionIdevice : ReflectionBlock,
           TOCIdevice : TOCBlock,
+          WikipediaIdevice : WikipediaBlock,
           }
     
 block_factory = lambda idevice : idevices[idevice.__class__](idevice)

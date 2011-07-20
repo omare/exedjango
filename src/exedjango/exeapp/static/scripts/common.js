@@ -142,7 +142,13 @@ function initialize_authoring() {
  		}
  		initialize_authoring();
  	},
- 	beforeSerialize: function() { tinyMCE.triggerSave(true, true);}}
+ 	beforeSerialize: function() {
+ 		 tinyMCE.triggerSave(true, true);},
+ 	beforeSubmit: function(form_data, $form, opts){
+ 		$form.find("textarea").each(function() {
+ 			tinyMCE.execCommand("mceRemoveControl", true, $(this).attr("id"));
+ 		});
+ 	}}
  	);
 }
 

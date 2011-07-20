@@ -68,15 +68,14 @@ class TinyMCE(forms.Textarea):
         mce_config['strict_loading_mode'] = 1
         mce_json = simplejson.dumps(mce_config)
 
-        html = [u'<textarea%s>%s</textarea>' % (flatatt(final_attrs), escape(value))]
+        html = u'<textarea%s>%s</textarea>\n' % (flatatt(final_attrs), escape(value))
         #html.append(u'<script type="text/javascript">tinyMCE.init(%s)</script>' % mce_json)
-        html.append(u'''<script type="text/javascript">
-        tinyMCE.execCommand("mceRemoveControl", true, "%(id)s");
+        html += '''<script type="text/javascript">
         tinyMCE.settings = %(settings)s;
         tinyMCE.execCommand("mceAddControl", true, "%(id)s");</script>''' \
-                    % {'id' : attrs['id'], 'settings' : mce_json})
+                    % {'id' : attrs['id'], 'settings' : mce_json}
 
-        return mark_safe(u'\n'.join(html))
+        return mark_safe(html)
 
     def _media(self):
         if tinymce.settings.USE_COMPRESSOR:

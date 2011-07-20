@@ -6,6 +6,7 @@ from exeapp.models.idevices.glossaryidevice import GlossaryIdevice
 from exeapp.models.idevices.readingactidevice import ReadingActivityIdevice
 from exeapp.models.idevices.reflectionidevice import ReflectionIdevice
 from exeapp.models.idevices.tocidevice import TOCIdevice
+from exeapp.models.idevices.wikiidevice import WikipediaIdevice
 
 idevice_list = [FreeTextIdevice,
             ActivityIdevice,
@@ -13,6 +14,7 @@ idevice_list = [FreeTextIdevice,
             ReadingActivityIdevice,
             ReflectionIdevice,
             TOCIdevice,
+            WikipediaIdevice,
             ]
 
 __all__ = ['Idevice', 'idevice_list'] +\
