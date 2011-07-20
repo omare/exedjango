@@ -69,10 +69,12 @@ MEDIA_ROOT = _get_file_from_root('exeapp_media')
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = '/media/'
 
+STATIC_URL = '/static/'
+
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/static/admin/'
+ADMIN_MEDIA_PREFIX = STATIC_URL + 'grappelli/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'g4c9r)uzvpig@%g5mc+6i$6o6tm-qh@^l=*8=#hw+jo_j_*fl_'

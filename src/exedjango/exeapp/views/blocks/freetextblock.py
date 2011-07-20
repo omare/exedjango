@@ -65,8 +65,8 @@ class IdeviceForm(forms.ModelForm):
                 renderer = getattr(field_object.widget, renderer_name)
                 html += renderer(self.initial[name])
             else:
-                # dumb widget, just return <p>
-                html += "<p>%s</p>" % self.initial[name]
+                # dumb widget, shouldn't be exported
+                return ""
         
         return mark_safe(html) 
     

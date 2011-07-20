@@ -1,9 +1,5 @@
 from django.contrib.auth.models import User
-
 from exeapp.models.userprofile import UserProfile
-from exeapp.models import signal_handlers
-
-
 
 from exeapp.models import idevices
 from exeapp.models.idevices import *
@@ -13,6 +9,8 @@ idevice_store = dict(((idevice.__name__, idevice) \
 
 from exeapp.models.node import Node
 from exeapp.models.package import Package, DublinCore
+from exeapp.models import signal_handlers
+
 from exeapp.models.tests.test_data_package import PackageTestCase
 from exeapp.models.tests.test_package import UserandPackageTestCase
 

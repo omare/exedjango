@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from exeapp.models import UserProfile
 import os
 import shutil
+from exeapp.models import Package
 
 def create_debug_superuser(app, created_models, **kwargs):
     if settings.DEBUG and not getattr(settings, "TEST", False):
@@ -15,6 +16,7 @@ def create_debug_superuser(app, created_models, **kwargs):
         SU_PASSWORD = "admin"
         su = auth_models.User.objects.create_superuser(SU_LOGIN, "admin@exe.org",
                                                   SU_PASSWORD)
+        Package.objects.create(title="test", user=su)
         print "Created superuser %s with password %s" % (SU_LOGIN, SU_PASSWORD)
 
 if settings.DEBUG and not getattr(settings, "TEST", False):

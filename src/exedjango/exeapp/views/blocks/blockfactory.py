@@ -11,16 +11,18 @@ from exeapp.models.idevices import FreeTextIdevice
 from exeapp.views.blocks.freetextblock import FreeTextBlock
 from exeapp.models.idevices.activityidevice import ActivityIdevice
 from exeapp.views.blocks.activityblock import ActivityBlock
-from exedjango.exeapp.views.blocks.glossaryblock import GlossaryBlock
-from exedjango.exeapp.models.idevices.glossaryidevice import GlossaryIdevice
-from exedjango.exeapp.views.blocks.readingactblock import ReadingActivityBlock
-from exedjango.exeapp.models.idevices.readingactidevice import ReadingActivityIdevice
-from exedjango.exeapp.models.idevices.reflectionidevice import ReflectionIdevice
-from exedjango.exeapp.views.blocks.reflectionblock import ReflectionBlock
-from exedjango.exeapp.models.idevices.tocidevice import TOCIdevice
-from exedjango.exeapp.views.blocks.tocblock import TOCBlock
-from exedjango.exeapp.models.idevices.wikiidevice import WikipediaIdevice
-from exedjango.exeapp.views.blocks.wikiblock import WikipediaBlock
+from exeapp.views.blocks.glossaryblock import GlossaryBlock
+from exeapp.models.idevices.glossaryidevice import GlossaryIdevice
+from exeapp.models.idevices.pdfidevice import PDFIdevice
+from exeapp.views.blocks.pdfblock import PDFBlock
+from exeapp.views.blocks.readingactblock import ReadingActivityBlock
+from exeapp.models.idevices.readingactidevice import ReadingActivityIdevice
+from exeapp.models.idevices.reflectionidevice import ReflectionIdevice
+from exeapp.views.blocks.reflectionblock import ReflectionBlock
+from exeapp.models.idevices.tocidevice import TOCIdevice
+from exeapp.views.blocks.tocblock import TOCBlock
+from exeapp.models.idevices.wikiidevice import WikipediaIdevice
+from exeapp.views.blocks.wikiblock import WikipediaBlock
 
 idevices = {
           FreeTextIdevice : FreeTextBlock,
@@ -30,6 +32,7 @@ idevices = {
           ReflectionIdevice : ReflectionBlock,
           TOCIdevice : TOCBlock,
           WikipediaIdevice : WikipediaBlock,
+          PDFIdevice : PDFBlock,
           }
     
 block_factory = lambda idevice : idevices[idevice.__class__](idevice)

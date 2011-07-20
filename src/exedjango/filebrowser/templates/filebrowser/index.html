@@ -6,7 +6,6 @@
 <!-- STYLESHEETS -->
 {% block stylesheets %}
     {{ block.super }}
-    {# <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/changelist.css" /> #}
     <link rel="stylesheet" type="text/css" href="{{ settings_var.URL_FILEBROWSER_MEDIA }}css/filebrowser.css" />
 {% endblock %}
 
@@ -25,29 +24,21 @@
     <script language="javascript" type="text/javascript" src="{{ settings_var.URL_FILEBROWSER_MEDIA }}js/FB_CKEditor.js"></script>
     {% endifequal %}
     {{ media }}
-    
-    <script type="text/javascript" src="{% admin_media_prefix %}js/grappelli.change_list.js"></script>
     <script type="text/javascript" charset="utf-8">
         (function($) {
             $(document).ready(function() {
-                {% if is_popup %}
-                    // UGLY HACK: REMOVE ACTIONS and LIST_EDITABLES FOR POPUPS
-                    // shouldn't be there in the first place, see
-                    // http://code.djangoproject.com/ticket/11700
-                    $('div#actions').hide();
-                    $('input.action-select').parent().hide();
-                    $('input#action-toggle').parent().hide();
-                    $('div.changelist-results input').attr('disabled', 'disabled');
-                    $('div.changelist-results select').attr('disabled', 'disabled');
-                    $('div.changelist-results textarea').attr('disabled', 'disabled').addClass("mceNoEditor");
-                    $('div#submit').hide();
-                    $('.related-lookup, .add-another').attr("onClick", "return false;");
-                    $('.vDateField').datepicker("disable");
-                {% endif %}
-                $("a.pulldown-actions-handler").bind("click", function() {
+                grappelli.initSearchbar();
+                grappelli.initFilter();
+            });
+        })(django.jQuery);
+    </script>
+    <script type="text/javascript" charset="utf-8">
+        (function($) {
+            $(document).ready(function() {
+                $("a.pulldown-versions-handler").bind("click", function() {
                     if (!$(this).parent().hasClass("open")) {
                         $("tr").removeClass("selected");
-                        $(".pulldown-actions-container").removeClass("open");
+                        $(".pulldown-versions-container").removeClass("open");
                         $(this).parent().addClass("open");
                         $(this).parent().parent().parent().addClass("selected");
                     } else {
@@ -55,29 +46,18 @@
                         $(this).parent().parent().parent().removeClass("selected");
                     }
                 });
-                $("a.fb_showpreview").bind("click", function() {
-                    $(this).next(".fb_preview_container").toggle();
-                });
-                $('body').grp_change_list();
                 $(document).keypress(function(evt) {
                     if (evt.keyCode == '27') {
-                        $(".pulldown-actions-container:visible").removeClass("open");
-                        $(".pulldown-actions-container").parent().parent().removeClass("selected");
-                        $(".fb_preview_container:visible").hide();
+                        $(".pulldown-versions-container:visible").removeClass("open");
+                        $(".pulldown-versions-container").parent().parent().removeClass("selected");
                     }
                 });
                 $(document).mousedown(function(evt) {
-                    if ($(".pulldown-actions-container").is(":visible")) {
+                    if ($(".pulldown-versions-container").is(":visible")) {
                         var $target = $(evt.target);
-                        if (!$(evt.target).hasClass("pulldown-actions-container") && $target.parents(".pulldown-actions-container").length == 0) {
-                            $(".pulldown-actions-container").removeClass("open");
-                            $(".pulldown-actions-container").parent().parent().removeClass("selected");
-                        }
-                    }
-                    if ($(".fb_preview_container").is(":visible")) {
-                        var $target = $(evt.target);
-                        if (!$(evt.target).is("a.fb_showpreview") &&! $(evt.target).hasClass("fb_preview_container") && $target.parents(".fb_preview_container").length == 0) {
-                            $(".fb_preview_container").hide();
+                        if (!$(evt.target).hasClass("pulldown-versions-container") && $target.parents(".pulldown-versions-container").length == 0) {
+                            $(".pulldown-versions-container").removeClass("open");
+                            $(".pulldown-versions-container").parent().parent().removeClass("selected");
                         }
                     }
                 });
@@ -93,9 +73,10 @@
 <!-- BREADCRUMBS -->
 {% block breadcrumbs %}{% include "filebrowser/include/breadcrumbs.html" %}{% endblock %}
 
+<!-- OBJECT-TOOLS -->
 {% block object-tools %}
 <ul class="tools">
-    <li><a href="{% url fb_mkdir %}{% query_string '' 'p' %}">{% trans "New Folder" %}</a></li>
+    <li><a href="{% url fb_createdir %}{% query_string '' 'p' %}">{% trans "New Folder" %}</a></li>
     <li><a href="{% url fb_upload %}{% query_string '' 'p' %}" class="focus">{% trans "Upload" %}</a></li>
 </ul>
 {% endblock %}
@@ -126,18 +107,17 @@
     </div>
     <div id="changelist" class="container-full">
         <!-- RESULTS -->
-        {% if results_var.results_current %}
-        <div class="module changelist-results">
-            <table cellspacing="0">
-                {% include "filebrowser/include/tableheader.html" %}
-                <tbody>
-                {% include "filebrowser/include/filelisting.html" %}
-                </tbody>
-            </table>
-        </div>
+        {% if filelisting.results_current %}
+            <div class="module changelist-results">
+                <table cellspacing="0">
+                    {% include "filebrowser/include/tableheader.html" %}
+                    <tbody>
+                    {% include "filebrowser/include/filelisting.html" %}
+                    </tbody>
+                </table>
+            </div>
         {% endif %}
         <!-- PAGINATION -->
         {% pagination %}
     </div>
-
 {% endblock %}

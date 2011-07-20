@@ -6,6 +6,7 @@ from django.utils.html import escape
 from django.forms.widgets import TextInput
 from django.template.loader import render_to_string
 from django import forms
+from django.core.urlresolvers import reverse
 
 class FreeTextWidget(TinyMCE):
     
@@ -42,6 +43,11 @@ class FeedbackWidget(FreeTextWidget):
         
     def render_export(self, content):
         return self.render_preview(self._replace_sources(content))
+    
+class FileSelectWidget(TextInput):
+    
+    #media = forms.Media(js=reverse('tinymce-filebrowser'))
+    pass
         
     
     
