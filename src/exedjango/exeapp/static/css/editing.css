@@ -215,6 +215,26 @@ padding: 5px;
 font-size: 0.8em;
 }
 
+span.helptext {
+	text-indent: -9999px;
+	background-image: url("/static/images/help.gif");
+	height: 17px;
+	display: inline-block;
+	width: 22px;
+}
+
+span.helptext:hover {
+	text-indent: 0px;
+	background-image: none;
+	width:15em;
+	border:1px solid #12127D; 
+	background-color:#fc0;
+	color:#000; 
+	text-align: center;
+	padding: 5px;
+	font-size: 0.8em;
+	
+}
 
 
 
