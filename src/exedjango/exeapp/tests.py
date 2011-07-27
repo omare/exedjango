@@ -31,7 +31,7 @@ from exedjango.base.http import Http403
 from exeapp.views.export.websitepage import WebsitePage
 from django.core.urlresolvers import reverse
 from exeapp.views import authoring
-from exeapp.views.blocks.freetextblock import IdeviceForm
+from exeapp.views.blocks.ideviceform import IdeviceForm
 from exeapp.models.idevices.idevice import Idevice
 from exeapp.views.package import PackagePropertiesForm
 from exeapp.views.export.imsexport import IMSExport

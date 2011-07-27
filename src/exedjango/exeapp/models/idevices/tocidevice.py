@@ -2,6 +2,7 @@ from exeapp.models.idevices.genericidevice import GenericIdevice
 from exeapp.models.idevices.idevice import Idevice
 from django.db import models
 from django.template.defaultfilters import unordered_list
+from exeapp.models.idevices import fields
         
 class TOCIdevice(GenericIdevice):
     name = "Table Of Content"
@@ -10,7 +11,7 @@ class TOCIdevice(GenericIdevice):
             
     emphasis = Idevice.SomeEmphasis
     group = Idevice.Content
-    content = models.TextField(blank=True, default="")
+    content = fields.RichTextField(blank=True, default="")
     author = "TU Munich"
     icon = u"icon_inter.gif"
     

@@ -52,9 +52,9 @@ class Page(object):
         self.view_media = forms.Media()
         for idevice in node.idevices.all():
             block = block_factory(idevice.as_child())
-            form = block.form_factory()
-            if hasattr(form, "view_media"):
-                self.view_media += form.view_media
+            form_class = block.form_factory()
+            if hasattr(form_class, "view_media"):
+                self.view_media += form_class.view_media
             
         
     def save(self, outputDir):

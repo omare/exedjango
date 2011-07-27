@@ -26,6 +26,7 @@ from django.contrib.contenttypes import generic
 from django.conf import settings
 
 import logging
+from exeapp.models.idevices import fields
 from exeapp.models.idevices.idevice import Idevice
 from exeapp.models.idevices.genericidevice import GenericIdevice
 
@@ -53,60 +54,8 @@ establishing context, delivering instructions and providing general information.
 This provides the framework within which the learning activities are built and 
 delivered."""
     emphasis = Idevice.NoEmphasis
-    content = models.TextField(blank=True, default="")
+    content = fields.RichTextField(blank=True, default="")
     
-    def getResourcesField(self, this_resource):
-        """
-        implement the specific resource finding mechanism for this iDevice:
-        """
-        # be warned that before upgrading, this iDevice field could not exist:
-        if hasattr(self, 'content') and hasattr(self.content, 'images'):
-            for this_image in self.content.images:
-                if hasattr(this_image, '_imageResource') \
-                and this_resource == this_image._imageResource:
-                    return self.content
-
-        return None
-
-    def getRichTextFields(self):
-        """
-        Like getResourcesField(), a general helper to allow nodes to search 
-        through all of their fields without having to know the specifics of each
-        iDevice type.  
-        """
-        fields_list = []
-        if hasattr(self, 'content'):
-            fields_list.append(self.content)
-        return fields_list
-
-    def burstHTML(self, i):
-        """
-        takes a BeautifulSoup fragment (i) and bursts its contents to 
-        import this idevice from a CommonCartridge export
-        """
-        # Free Text Idevice:
-        #title = i.find(name='span', attrs={'class' : 'iDeviceTitle' })
-        #idevice.title = title.renderContents().decode('utf-8')
-        # no title for this iDevice.
-
-        # FreeText is also a catch-all idevice for any other which
-        # is unable to be burst on its own.
-        if i.attrMap['class']=="FreeTextIdevice":
-            # For a REAL FreeText, just read the inner div with class:
-            inner = i.find(name='div', 
-                attrs={'class' : 'block' , 'style' : 'display:block' })
-        else:
-            # But for all others, read the whole thing:
-            inner = i
-
-        self.content.content_wo_resourcePaths = \
-                inner.renderContents().decode('utf-8')
-        # and add the LOCAL resource paths back in:
-        self.content.content_w_resourcePaths = \
-                self.content.MassageResourceDirsIntoContent( \
-                    self.content.content_wo_resourcePaths)
-        self.content.content = self.content.content_w_resourcePaths
-        
     class Meta:
         app_label = "exeapp"
     

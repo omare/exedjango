@@ -16,15 +16,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ===========================================================================
-from exedjango.exeapp.views.blocks.freetextblock import IdeviceForm,\
-    IdeviceFormFactory
-from exedjango.exeapp.views.blocks.widgets import TitleWidget, FreeTextWidget
-from exedjango.exeapp.models.idevices.glossaryidevice import GlossaryIdevice,\
-    GlossaryTerm
-from exedjango.exeapp.views.blocks.block import Block
+from exedjango.exeapp.models.idevices.glossaryidevice import GlossaryTerm
 from django.forms.models import modelformset_factory
 from django.template.loader import render_to_string
 from django import forms
+from exeapp.views.blocks.genericblock import GenericBlock
 """
 ExternalUrlBlock can render and process ExternalUrlIdevices as XHTML
 """
@@ -38,16 +34,8 @@ class GlossaryTermForm(forms.ModelForm):
     class Meta:
         model = GlossaryTerm
         fields = ['title', 'definition']
-        widgets = {'title' : TitleWidget,
-                   'definition' : FreeTextWidget,
-                   }
         
-class GlossaryBlock(Block):
-    form_factory = IdeviceFormFactory(IdeviceForm,
-                                      GlossaryIdevice,
-                                      ['title'],
-                                      {'title' : TitleWidget},
-                                      )
+class GlossaryBlock(GenericBlock):
     formset_factory = modelformset_factory(GlossaryTerm, GlossaryTermForm,
                                             fields=("title", "definition"),
                                             extra=0,

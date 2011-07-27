@@ -1,5 +1,6 @@
 from django.db import models
 from exeapp.models.idevices.idevice import Idevice
+from exeapp.models.idevices import fields
 
 class GlossaryIdeviceManager(models.Manager):
     def create(self, *args, **kwargs):
@@ -11,7 +12,7 @@ class GlossaryIdeviceManager(models.Manager):
 class GlossaryIdevice(Idevice):
     
     name = "Glossary"
-    title = models.CharField(max_length=100, default=name)
+    title = fields.TitleField(max_length=100, default=name)
     author = "Technical University Munich"
     purpose = "Adds a alphabethicaly sorted glossary"
     emphasis = Idevice.SomeEmphasis
@@ -29,9 +30,9 @@ class GlossaryIdevice(Idevice):
 
 class GlossaryTerm(models.Model):
     
-    title = models.CharField(max_length=100, blank=True, default="",
+    title = fields.RichTextField(max_length=100, blank=True, default="",
                              help_text="Enter term you want to describe")
-    definition = models.TextField(blank=True, default="",
+    definition = fields.RichTextField(blank=True, default="",
                                  help_text="Enter defintion of the term")
     idevice = models.ForeignKey("GlossaryIdevice", related_name="terms")
     

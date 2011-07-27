@@ -1,6 +1,7 @@
 from django.template.loader import render_to_string
 from django.template.base import TemplateDoesNotExist
 from exeapp.views.blocks.block import Block
+from exedjango.exeapp.views.blocks.ideviceform import IdeviceFormFactory
 
 
 class TemplateNotDefined(BaseException):
@@ -16,8 +17,10 @@ class GenericBlock(Block):
     preview_template = "exe/idevices/generic/preview.html"
     view_template = "exe/idevices/generic/export.html"
     
-    def __init__(self, idevice):
+    def __init__(self, idevice, fields=()):
         super(GenericBlock, self).__init__(idevice)
+        self.form_factory = IdeviceFormFactory(model=self.idevice.__class__,
+                                                fields=fields)
         
         if not hasattr(self.idevice,'undo'): 
             self.idevice.undo = True

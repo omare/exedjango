@@ -1,11 +1,12 @@
 from exeapp.models.idevices.genericidevice import GenericIdevice
 from django.db import models
 from exe.engine.idevice import Idevice
+from exeapp.models.idevices import fields
 
 
 class ReflectionIdevice(GenericIdevice):
     name = "Reflection"
-    title = models.CharField(max_length=100, default=name)
+    title = fields.TitleField(max_length=100, default=name)
     author = "University of Auckland"
     purpose = """Reflection is a teaching method often used to 
 connect theory to practice. Reflection tasks often provide learners with an 
@@ -15,10 +16,10 @@ are useful tools for collecting observation data. Rubrics and guides can be
 effective feedback tools."""
     emphasis         = Idevice.SomeEmphasis
     group            = Idevice.Content
-    activity = models.TextField(blank=True, default="",
+    activity = fields.RichTextField(blank=True, default="",
                                       help_text="""Enter a question for learners 
 to reflect upon.""")
-    answer = models.TextField(blank=True, default="",
+    answer = fields.FeedbackField(blank=True, default="",
                                    help_text="""Describe how learners will assess how 
 they have done in the exercise. (Rubrics are useful devices for providing 
 reflective feedback.)""")

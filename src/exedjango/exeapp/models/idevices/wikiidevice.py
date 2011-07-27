@@ -5,6 +5,7 @@ import urllib
 from BeautifulSoup import  BeautifulSoup
 import re
 from exe.engine.path import TempDirPath
+from exeapp.models.idevices import fields
 
 class UrlOpener(urllib.FancyURLopener):
     """
@@ -18,7 +19,7 @@ def _(value):
 
 class WikipediaIdevice(GenericIdevice):
     name = "Wiki Article"
-    title = models.CharField(max_length=100, default=name)
+    title = fields.TitleField(max_length=100, default=name)
     author = "University of Auckland" 
     purpose = """<p>The Wikipedia iDevice allows you to locate 
 existing content from within Wikipedia and download this content into your eXe 
@@ -32,7 +33,7 @@ is covered by the GNU free documentation license.</p>"""
     article_name = models.CharField(max_length=100, blank=True, default="",
                         help_text="""Enter a phrase or term you wish to search 
 within Wikipedia.""")
-    content = models.TextField(blank=True, default="")
+    content = fields.RichTextField(blank=True, default="")
     site = "http://en.wikipedia.org/wiki/"
     icon = u"icon_inter.gif"
     userResources = []

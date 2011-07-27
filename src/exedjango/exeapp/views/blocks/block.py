@@ -57,7 +57,6 @@ class Block(object):
         self.purpose = idevice.purpose
         self.tip     = idevice.tip
         self.package = self.idevice.parent_node.package
-        form = self.form_factory()
 
     def process(self, action, data):
         
