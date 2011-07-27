@@ -23,6 +23,8 @@ from exeapp.models.idevices.tocidevice import TOCIdevice
 from exeapp.views.blocks.tocblock import TOCBlock
 from exeapp.models.idevices.wikiidevice import WikipediaIdevice
 from exeapp.views.blocks.wikiblock import WikipediaBlock
+from exeapp.models.idevices.objectivesidevice import ObjectivesIdevice
+from exeapp.views.blocks.objectivesblock import ObjectivesBlock
 
 idevices = {
           FreeTextIdevice : FreeTextBlock,
@@ -33,6 +35,7 @@ idevices = {
           TOCIdevice : TOCBlock,
           WikipediaIdevice : WikipediaBlock,
           PDFIdevice : PDFBlock,
+          ObjectivesIdevice : ObjectivesBlock,
           }
     
 block_factory = lambda idevice : idevices[idevice.__class__](idevice)

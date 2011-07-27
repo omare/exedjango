@@ -8,6 +8,7 @@ from exeapp.models.idevices.readingactidevice import ReadingActivityIdevice
 from exeapp.models.idevices.reflectionidevice import ReflectionIdevice
 from exeapp.models.idevices.tocidevice import TOCIdevice
 from exeapp.models.idevices.wikiidevice import WikipediaIdevice
+from exeapp.models.idevices.objectivesidevice import ObjectivesIdevice
 
 idevice_list = [FreeTextIdevice,
             ActivityIdevice,
@@ -17,6 +18,7 @@ idevice_list = [FreeTextIdevice,
             TOCIdevice,
             WikipediaIdevice,
             PDFIdevice,
+            ObjectivesIdevice,
             ]
 
 __all__ = ['Idevice', 'idevice_list'] +\

@@ -48,7 +48,7 @@ def _(value):
 class IdeviceForm(forms.ModelForm):
     
     def render_edit(self):
-        return str(self)
+        return self.as_p()
     
     def render_preview(self):
         return self._render_view("preview")
