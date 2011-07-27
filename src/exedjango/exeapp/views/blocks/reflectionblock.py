@@ -14,6 +14,3 @@ class ReflectionBlock(GenericBlock):
                                         'title' : TitleWidget
                                         },
                                       )
-    edit_template = "exe/idevices/freetext/edit.html"
-    preview_template = "exe/idevices/freetext/preview.html"
-    view_template = "exe/idevices/freetext/export.html"

@@ -12,9 +12,9 @@ class GenericBlock(Block):
     Generic class for blocks. Uses the idevice form and templates to render
     the idevice
     """
-    edit_template = ""
-    preview_template = ""
-    view_template = ""
+    edit_template = "exe/idevices/generic/edit.html"
+    preview_template = "exe/idevices/generic/preview.html"
+    view_template = "exe/idevices/generic/export.html"
     
     def __init__(self, idevice):
         super(GenericBlock, self).__init__(idevice)
