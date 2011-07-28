@@ -24,6 +24,6 @@
 {% if self.idevice.purpose %}
 	<a class="info">
 		<img src="{{ STATIC_PREFIX }}images/info.png" alt="Information"/>
-		<span>{{self.idevice.purpose}}</span>
+		<span>{{self.idevice.purpose|safe}}</span>
 	</a> 
 {% endif %}

@@ -20,6 +20,7 @@ from exeapp.models.idevices.tocidevice import TOCIdevice
 from exeapp.models.idevices.wikiidevice import WikipediaIdevice
 from exeapp.views.blocks.wikiblock import WikipediaBlock
 from exeapp.models.idevices.objectivesidevice import ObjectivesIdevice
+from exeapp.models import PreknowledgeIdevice
 
 idevice_map = {
           FreeTextIdevice : GenericBlock,
@@ -31,6 +32,7 @@ idevice_map = {
           WikipediaIdevice : WikipediaBlock,
           PDFIdevice : PDFBlock,
           ObjectivesIdevice : GenericBlock,
+          PreknowledgeIdevice : GenericBlock,
           }
 
 block_map = dict((v, k) for k, v in idevice_map.items())
