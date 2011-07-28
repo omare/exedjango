@@ -111,11 +111,6 @@ jQuery(document).ready(function() {
                 $("#idevice_pane").jstree({"plugins" : ["themes", "html_data", "ui"]})
                 $("#idevice_pane").jstree('open_all', $('#idevice_pane>ul'));
                                    
-                //$("#authoring").attr('src',
-                //    document.location.pathname + "authoring/");
-                $("#propertiesIFrame").attr('src',
-                    document.location.pathname + "properties/");
-                    
                 
                 //bind actions to outline buttons
                 $("#btnAdd").click(add_child_node)
@@ -129,7 +124,7 @@ jQuery(document).ready(function() {
                 $("#btnDown").click(move_current_node_down);
                 
                 // init ajax forms
-                 $(".property_form").ajaxForm(function (responseText, statusText, xhr, $form){
+                $(".property_form").ajaxForm(function (responseText, statusText, xhr, $form){
                  	$(".errorlist").hide();
                  	if (responseText != ""){
                  		$form.find("table").html(responseText);

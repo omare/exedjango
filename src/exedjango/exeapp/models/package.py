@@ -299,10 +299,10 @@ i.e. the "package".
     user = models.ForeignKey(User)
       
     author = models.CharField(max_length=50, blank=True)
-    email = models.EmailField(max_length=30, blank=True)
+    email = models.EmailField(max_length=50, blank=True)
     description = models.CharField(max_length=256, blank=True)
     
-    backgroundImg     = models.ImageField(upload_to='background', 
+    backgroundImg = models.ImageField(upload_to='background', 
                                            blank=True, null=True)
     backgroundImgTile = models.BooleanField(default=False)
     footer = models.CharField(max_length=100, blank=True)

@@ -62,7 +62,7 @@
     <!--Properties pane will be rendered here-->
     <div id="properties">
     	<div id="package_properties" />
-    	<form id="properties_form" class="property_form" method="post" action="#properties">
+    	<form id="properties_form" class="property_form" method="post" action=".#properties">
     	{% if properties_form.errors %}
     		<p>Please correct following error{{ properties_form.errors|pluralize }}</p>
     	{% endif %}
@@ -73,7 +73,7 @@
         </form>
     </div>
     <div id="dublincore">
-    	<form id="dublincore_form" class="property_form" method="post" action="#properties">
+    	<form id="dublincore_form" class="property_form" method="post" action=".#properties">
 		{% if dublincore_form.errors %}
     		<p>Please correct following error{{ dublincore_form.errors|pluralize }}</p>
     	{% endif %}
