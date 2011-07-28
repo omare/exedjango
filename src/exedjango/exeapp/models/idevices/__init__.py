@@ -10,6 +10,7 @@ from exeapp.models.idevices.tocidevice import TOCIdevice
 from exeapp.models.idevices.wikiidevice import WikipediaIdevice
 from exeapp.models.idevices.objectivesidevice import ObjectivesIdevice
 from exeapp.models.idevices.preknowledgeidevice import PreknowledgeIdevice
+from exeapp.models.idevices.commentidevice import CommentIdevice
 
 idevice_list = [FreeTextIdevice,
             ActivityIdevice,
@@ -21,6 +22,7 @@ idevice_list = [FreeTextIdevice,
             PDFIdevice,
             ObjectivesIdevice,
             PreknowledgeIdevice,
+            CommentIdevice
             ]
 
 __all__ = ['Idevice', 'idevice_list'] +\

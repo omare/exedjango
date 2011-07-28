@@ -21,6 +21,8 @@ from exeapp.models.idevices.wikiidevice import WikipediaIdevice
 from exeapp.views.blocks.wikiblock import WikipediaBlock
 from exeapp.models.idevices.objectivesidevice import ObjectivesIdevice
 from exeapp.models import PreknowledgeIdevice
+from exeapp.models import CommentIdevice
+from exeapp.views.blocks.commentblock import CommentBlock
 
 idevice_map = {
           FreeTextIdevice : GenericBlock,
@@ -33,6 +35,7 @@ idevice_map = {
           PDFIdevice : PDFBlock,
           ObjectivesIdevice : GenericBlock,
           PreknowledgeIdevice : GenericBlock,
+          CommentIdevice : CommentBlock,
           }
 
 block_map = dict((v, k) for k, v in idevice_map.items())
