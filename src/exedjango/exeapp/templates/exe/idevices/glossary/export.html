@@ -1,7 +1,4 @@
 {% extends 'exe/idevices/export_base.html' %}
 {% block idevice %}
-<p>{{idevice.title}}</p>
-{% for term in ordered_terms.all %}
-<p><em>{{term.title}}</em>: {{term.definition|safe}}</p>
-{% endfor %}
+{% include "exe/idevices/glossary/content.html" %}
 {% endblock %}

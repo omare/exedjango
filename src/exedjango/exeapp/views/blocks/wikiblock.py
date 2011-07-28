@@ -16,6 +16,7 @@ class WikipediaBlock(GenericBlock):
         if action == "Load Article":
             self.idevice.load_article(data['article_name'])
             self.idevice.save()
+            return self.render()
         else:
-            super(WikipediaBlock, self).process(action, data)
+            return super(WikipediaBlock, self).process(action, data)
     

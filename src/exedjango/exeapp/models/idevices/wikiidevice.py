@@ -28,8 +28,8 @@ content. Changes in Wikipedia will not automatically update individual snapshot
 copies in eXe, a fresh copy of the article will need to be taken. Likewise, 
 changes made in eXe will not be updated in Wikipedia. </p> <p>Wikipedia content 
 is covered by the GNU free documentation license.</p>""" 
-    emphasis = Idevice.NoEmphasis
-    group = Idevice.Content
+    emphasis = Idevice.NOEMPHASIS
+    group = Idevice.CONTENT
     article_name = models.CharField(max_length=100, blank=True, default="",
                         help_text="""Enter a phrase or term you wish to search 
 within Wikipedia.""")

@@ -18,8 +18,8 @@ class PDFIdevice(Idevice):
     #height = models.PositiveIntegerField()
     page_list = models.CharField(max_length=50, blank=True, default="",
                         help_text="Input coma-separated pages or page ranges to import. For example: 1,2,3-8. Leave empty to import all pages")
-    group = Idevice.Content
-    emphasis = Idevice.NoEmphasis
+    group = Idevice.CONTENT
+    emphasis = Idevice.NOEMPHASIS
     
     def _resources(self):
         user = self.parent_node.package.user.username

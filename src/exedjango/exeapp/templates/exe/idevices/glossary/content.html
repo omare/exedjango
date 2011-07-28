@@ -1,0 +1,4 @@
+<p>{{idevice.title}}</p>
+{% for term in ordered_terms.all %}
+<div class="term"><p><em>{{term.title|safe}}</em> {{term.definition|safe}}</p></div>
+{% endfor %}

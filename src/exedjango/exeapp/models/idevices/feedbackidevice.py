@@ -7,9 +7,9 @@ class FeedbackIdevice(Idevice):
     title = "Feedback"
     author = "Dimitri Vorona"
     purpose = "Use it to put a feedback link to your documents"
-    emphasis = Idevice.SomeEmphasis
+    emphasis = Idevice.SOMEEMPHASIS
     icon = "icon_question.gif"
-    group = Idevice.Communication
+    group = Idevice.COMMUNICATION
     
     email = models.EmailField(max_length=50, blank=True, default="")
     subject = models.CharField(max_length=200, blank=True, default="")

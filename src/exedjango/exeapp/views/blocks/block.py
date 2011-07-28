@@ -70,22 +70,11 @@ class Block(object):
             self.idevice.edit_mode()
             return self.render()
         elif action == 'apply_changes':
-            if self.form_factory:
-                form = self.form_factory(data, instance=self.idevice)
-                if form.is_valid():
-                    form.save(commit=False)
-                    self.idevice.apply_changes(form.cleaned_data)
-                
-            if self.formset_factory:
-                formset = self.formset_factory(data)
-                if formset.is_valid():
-                    formset.save()
-                    
+            form = self.form_factory(data, instance=self.idevice)
+            if form.is_valid():
+                form.save(commit=False)
+                self.idevice.apply_changes(form.cleaned_data)
             return self.render(form=form)
-            
-            
-                
-                
         else:
             raise IdeviceActionNotFound("Action %s not found" % action)
         
@@ -97,15 +86,14 @@ class Block(object):
         else:
             return self.form_factory().view_media
     
-    def render(self, form=None):
+    def render(self, **kwargs):
         """
         Returns the appropriate XHTML string for whatever mode this block is in.
         Descendants should not override it.
         """
         html = '<input type="hidden" name="idevice_id" value="%s" />' % self.id
-        broken = '<p><span style="font-weight: bold">%s:</span> %%s</p>' % _('IDevice broken')
         if self.idevice.edit == True:
-            html += self.renderEdit(form=form)
+            html += self.renderEdit(**kwargs)
         else:
             html += self.renderPreview()
         return mark_safe(html)

@@ -75,7 +75,7 @@ def render_idevicepane(idevices):
         if idevice.group:
             groups[idevice.group].append(idevice)
         else:
-            groups[Idevice.Unknown] += idevice
+            groups[Idevice.UNKNOWN] += idevice
     
     group_order = (group for group in Idevice.GROUP_ORDER \
                    if group in groups)    

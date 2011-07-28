@@ -51,17 +51,30 @@ class GlossaryBlock(GenericBlock):
             super(GlossaryBlock, self).process("apply_changes", data)
             self.idevice.edit = True
             self.idevice.add_term()
+            return self.render()
         elif action == "Delete Selected":
             super(GlossaryBlock, self).process("apply_changes", data)
             self.idevice.edit = True
+            return self.render()
+        elif action == "apply_changes":
+            form = self.form_factory(data, instance=self.idevice)
+            formset = self.formset_factory(data)
+            if formset.is_valid() and form.is_valid():
+                form.save(commit=False)
+                self.idevice.apply_changes(form.cleaned_data)
+                formset.save()
+            
+            return self.render(form=form, formset=formset)
+                
+            
         else:
-            super(GlossaryBlock, self).process(action, data)
+            return super(GlossaryBlock, self).process(action, data)
     
     
-    def renderEdit(self):
-        form = self.form_factory(instance=self.idevice, auto_id=True)
-        formset = self. formset_factory(queryset=GlossaryTerm.objects.\
-                                    filter(idevice=self.idevice))
+    def renderEdit(self, form=None, formset=None):
+        form = form or self.form_factory(instance=self.idevice, auto_id=True)
+        formset = formset or self.formset_factory(queryset=GlossaryTerm.\
+                            objects.filter(idevice=self.idevice))
         return render_to_string(self.edit_template, locals())
     
     def renderPreview(self):
