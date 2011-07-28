@@ -410,9 +410,9 @@ with it'''
             idevice.delete()
             return ""
         else:
-            block.process(action, data)
+            response = block.process(action, data)
             block.idevice.save()
-            return block.render()
+            return response
 
 
     def create_child(self):

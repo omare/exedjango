@@ -25,11 +25,11 @@ class GenericBlock(Block):
         if not hasattr(self.idevice,'undo'): 
             self.idevice.undo = True
 
-    def renderEdit(self):
+    def renderEdit(self, form=None):
         """
         Returns an XHTML string with the form element for editing this block
         """
-        return self._render_view(self.edit_template)
+        return self._render_view(self.edit_template, form=form)
 
     def renderPreview(self):
         """
@@ -43,13 +43,13 @@ class GenericBlock(Block):
         """
         return self._render_view(self.view_template)
         
-    def _render_view(self, template):
+    def _render_view(self, template, form=None):
         """
         Code reuse function for rendering the correct template
         """
         idevice = self.idevice
-        form = self.form_factory(instance=self.idevice, auto_id="%s_field_" \
-                                 % self.idevice.id + "%s")
+        form = form or self.form_factory(instance=self.idevice,
+                             auto_id="%s_field_" % self.idevice.id + "%s")
         try:
             html = render_to_string(template, {"idevice" : idevice,
                                                "form" : form,

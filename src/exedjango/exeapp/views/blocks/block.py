@@ -68,17 +68,22 @@ class Block(object):
             return ""
         elif action == 'edit_mode':
             self.idevice.edit_mode()
+            return self.render()
         elif action == 'apply_changes':
             if self.form_factory:
                 form = self.form_factory(data, instance=self.idevice)
-                form.save(commit=False)
-                self.idevice.apply_changes(form.cleaned_data)
+                if form.is_valid():
+                    form.save(commit=False)
+                    self.idevice.apply_changes(form.cleaned_data)
                 
             if self.formset_factory:
-                print data
                 formset = self.formset_factory(data)
-                formset.save()
-                print
+                if formset.is_valid():
+                    formset.save()
+                    
+            return self.render(form=form)
+            
+            
                 
                 
         else:
@@ -92,7 +97,7 @@ class Block(object):
         else:
             return self.form_factory().view_media
     
-    def render(self):
+    def render(self, form=None):
         """
         Returns the appropriate XHTML string for whatever mode this block is in.
         Descendants should not override it.
@@ -100,13 +105,13 @@ class Block(object):
         html = '<input type="hidden" name="idevice_id" value="%s" />' % self.id
         broken = '<p><span style="font-weight: bold">%s:</span> %%s</p>' % _('IDevice broken')
         if self.idevice.edit == True:
-            html += self.renderEdit()
+            html += self.renderEdit(form=form)
         else:
             html += self.renderPreview()
         return mark_safe(html)
 
 
-    def renderEdit(self):
+    def renderEdit(self, form=None):
         """
         Returns an XHTML string with the form_factory element for editing this block
         """

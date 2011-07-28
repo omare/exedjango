@@ -119,10 +119,8 @@ finding. Returns a list of (name, url) tuples'''
     def delete(self):
         super(Idevice, self).delete()
         
-    def apply_changes(self, agruments, commit=True):
+    def apply_changes(self, agruments):
         self.edit = False
-        if commit:
-            self.save()
         
 
     def is_first(self):
