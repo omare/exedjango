@@ -7,7 +7,7 @@ from exeapp.models.idevices import fields
 
 class ActivityIdevice(GenericIdevice):
 
-    group = Idevice.Content
+    group = Idevice.CONTENT
     name = "Activity"
     title = fields.TitleField(max_length=100, default=name) 
     author = "University of Auckland"
@@ -16,7 +16,7 @@ learner must complete. Provide a clear statement of the task and consider
 any conditions that may help or hinder the learner in the performance of 
 the task."""
     icon = "icon_activity.gif"
-    emphasis = Idevice.SomeEmphasis
+    emphasis = Idevice.SOMEEMPHASIS
     content = fields.RichTextField(blank=True, default="",
                 help_text="Describe the tasks the learners should complete.")
     

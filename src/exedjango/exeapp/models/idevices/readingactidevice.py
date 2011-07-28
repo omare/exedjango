@@ -6,7 +6,7 @@ from exeapp.models.idevices import fields
 
 
 class ReadingActivityIdevice(GenericIdevice):
-    group = Idevice.Content
+    group = Idevice.CONTENT
     name = "Reading Activity"
     title = fields.TitleField(max_length=100, default=name)
     author = "University of Auckland"
@@ -16,7 +16,7 @@ by asking the learner to reflect on the reading and respond to questions about
 the reading, or by having them complete some other possibly more physical task 
 based on the reading.</p>"""
     icon = "icon_reading.gif"
-    emphasis = Idevice.SomeEmphasis
+    emphasis = Idevice.SOMEEMPHASIS
     to_read = fields.RichTextField(blank=True, default="",
                                help_text="""Enter the details of the reading including reference details. The 
 referencing style used will depend on the preference of your faculty or 

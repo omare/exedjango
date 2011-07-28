@@ -12,10 +12,10 @@ class ObjectivesIdevice(GenericIdevice):
     purpose = """Objectives describe the expected outcomes of the learning and should
 define what the learners will be able to do when they have completed the
 learning tasks."""
-    emphasis = Idevice.SomeEmphasis
+    emphasis = Idevice.SOMEEMPHASIS
     content = fields.RichTextField(blank=True, default="", 
                   help_text="Type the learning objectives for this resource.")
-    group = Idevice.Didactics
+    group = Idevice.DIDACTICS
     
     class Meta:
         app_label = "exeapp"

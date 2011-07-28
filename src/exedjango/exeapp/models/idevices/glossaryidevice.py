@@ -15,8 +15,8 @@ class GlossaryIdevice(Idevice):
     title = fields.TitleField(max_length=100, default=name)
     author = "Technical University Munich"
     purpose = "Adds a alphabethicaly sorted glossary"
-    emphasis = Idevice.SomeEmphasis
-    group    = Idevice.Content
+    emphasis = Idevice.SOMEEMPHASIS
+    group    = Idevice.CONTENT
     icon = "icon_summary.gif"
     
     objects = GlossaryIdeviceManager()

@@ -9,8 +9,8 @@ class TOCIdevice(GenericIdevice):
     title = name
     
             
-    emphasis = Idevice.SomeEmphasis
-    group = Idevice.Content
+    emphasis = Idevice.SOMEEMPHASIS
+    group = Idevice.CONTENT
     content = fields.RichTextField(blank=True, default="")
     author = "TU Munich"
     icon = u"icon_inter.gif"

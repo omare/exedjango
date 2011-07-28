@@ -8,9 +8,9 @@ class CommentIdevice(GenericIdevice):
     title = fields.TitleField(max_length=100, default=name)
     author = "TU Munich"
     purpose =  "Leave a commentary for others who work on this package."
-    emphasis = Idevice.SomeEmphasis
+    emphasis = Idevice.SOMEEMPHASIS
     icon = "icon_summary.gif"
-    group = Idevice.Didactics
+    group = Idevice.DIDACTICS
     content = fields.RichTextField(blank=True, default="",
                         help_text="""Use this field to leave a
 comment for people who works on this package with you. 

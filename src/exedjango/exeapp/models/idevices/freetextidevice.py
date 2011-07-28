@@ -45,7 +45,7 @@ class FreeTextIdevice(GenericIdevice):
     """
     FreeTextIdevice: just has a block of text
     """
-    group = Idevice.Content
+    group = Idevice.CONTENT
     name = "Free Text"
     title = "Free Text"
     author = "University of Auckland"
@@ -53,7 +53,7 @@ class FreeTextIdevice(GenericIdevice):
 establishing context, delivering instructions and providing general information.
 This provides the framework within which the learning activities are built and 
 delivered."""
-    emphasis = Idevice.NoEmphasis
+    emphasis = Idevice.NOEMPHASIS
     content = fields.RichTextField(blank=True, default="")
     
     class Meta:
