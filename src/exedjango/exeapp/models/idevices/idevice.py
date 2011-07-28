@@ -43,9 +43,10 @@ package
     # Class attributes
     # see derieved classes for persistenceVersion 
     NoEmphasis, SomeEmphasis, StrongEmphasis = range(3)
-    Didactics, Content, Media, Test, Communication, Unknown = \
-             "Didactics", "Content", "Media", "Test",\
-             "Communication", "Unknown"
+    Content, Didactics, Communication,  Test, Media, Unknown = \
+            "Content", "Didactics", "Communication", "Media", "Test", "Unknown"
+    
+    GROUP_ORDER = [Content, Didactics, Communication,  Test, Media, Unknown]
              
     # should be overwritten by child classes
     title = ""

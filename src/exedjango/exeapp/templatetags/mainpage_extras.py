@@ -76,8 +76,9 @@ def render_idevicepane(idevices):
             groups[idevice.group].append(idevice)
         else:
             groups[Idevice.Unknown] += idevice
-    # used to perserve the group order
-    group_order = sorted(groups.keys())
+    
+    group_order = (group for group in Idevice.GROUP_ORDER \
+                   if group in groups)    
     return locals()
 
 @register.inclusion_tag("exe/styles.html")
