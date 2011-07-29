@@ -12,6 +12,7 @@ from exeapp.models.idevices.objectivesidevice import ObjectivesIdevice
 from exeapp.models.idevices.preknowledgeidevice import PreknowledgeIdevice
 from exeapp.models.idevices.commentidevice import CommentIdevice
 from exeapp.models.idevices.feedbackidevice import FeedbackIdevice
+from exeapp.models.idevices.rssidevice import RSSIdevice
 
 idevice_list = [FreeTextIdevice,
             ActivityIdevice,
@@ -25,6 +26,7 @@ idevice_list = [FreeTextIdevice,
             PreknowledgeIdevice,
             CommentIdevice,
             FeedbackIdevice,
+            RSSIdevice,
             ]
 
 __all__ = ['Idevice', 'idevice_list'] +\

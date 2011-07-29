@@ -23,7 +23,7 @@ class IdeviceForm(forms.ModelForm):
                 html += renderer(self.initial[name])
             else:
                 # dumb widget, shouldn't be exported
-                return ""
+                html += ""
         
         return mark_safe(html) 
     
