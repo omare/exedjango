@@ -83,14 +83,13 @@ $('html').ajaxSend(function(event, xhr, settings) {
     }
 });
 
-
 jQuery(document).ready(function() {
 	$.jsonRPC.setup({
            endPoint: '/exeapp/json/',
            namespace: 'package',
         });
     initialize_authoring();
-    node_id = $("#node_id").text()
+    node_id = $("#node_id").text();
     //window.parent.get_outline_pane().jstree("select_node", $("#node" + nodeid), true);
 })
 

@@ -18,6 +18,11 @@
 	</head>
 	<body>
 {% endif %}
+			<script>
+				while (tinyMCE.activeEditor && tinyMCE.activeEditor != "undefined"){
+					tinyMCE.activeEditor.remove();
+				}
+			</script>
 			<div id="package_id" style="display: none">{{package.id}}</div>
 			<div id="node_id" style="display: none">{{current_node.id}}</div>
 				<p>Authoring for Package {{package.id}}</p>
