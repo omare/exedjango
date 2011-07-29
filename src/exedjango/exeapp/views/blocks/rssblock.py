@@ -2,7 +2,6 @@ from exeapp.views.blocks.genericblock import GenericBlock
 
 
 class RSSBlock(GenericBlock):
-    #edit_template = "exe/idevices/rss/edit.html"
     
     def process(self, action, data):
         if action == "Load":

@@ -1,2 +1,8 @@
 <p>Send feedback on {{idevice.parent_node.package.title}} - {{idevice.parent_node.title}}</p>
-<a href="mailto:{{ idevice.email }}?subject:{{ idevice.subject|urlencode }}" rel="external">Feedback to {{idevice.parent_node.package.author}}</a>
+<a href="mailto:{{ idevice.email }}?subject:{{ idevice.subject|urlencode }}" rel="external">Send feedback to 
+	{% if idevice.parent_node.package.author %}
+		{{idevice.parent_node.package.author}}.
+	{% else %}
+		the author.
+{% endif %}
+</a>

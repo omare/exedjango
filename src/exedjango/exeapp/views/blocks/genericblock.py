@@ -17,6 +17,14 @@ class GenericBlock(Block):
     preview_template = "exe/idevices/generic/preview.html"
     view_template = "exe/idevices/generic/export.html"
     
+    # Use these templates if the export and preview version of
+    # an iDevice has the same content 
+    use_common_content = False
+    COMMON_PREVIEW = "exe/idevices/generic/common/preview.html"
+    COMMON_EXPORT = "exe/idevices/generic/common/preview.html"
+    content_template = ""
+    
+    
     def __init__(self, idevice, fields=()):
         super(GenericBlock, self).__init__(idevice)
         self.form_factory = IdeviceFormFactory(model=self.idevice.__class__,
@@ -35,13 +43,17 @@ class GenericBlock(Block):
         """
         Returns an XHTML string for previewing this block
         """
-        return self._render_view(self.preview_template)
+        template = self.COMMON_PREVIEW if self.use_common_content else\
+                    self.preview_template
+        return self._render_view(template)
 
     def renderView(self):
         """
         Returns an XHTML string for viewing this block
         """
-        return self._render_view(self.view_template)
+        template = self.COMMON_EXPORT if self.use_common_content else\
+                    self.view_template
+        return self._render_view(template)
         
     def _render_view(self, template, form=None):
         """
@@ -53,7 +65,10 @@ class GenericBlock(Block):
         try:
             html = render_to_string(template, {"idevice" : idevice,
                                                "form" : form,
-                                               "self" : self},)
+                                               "content" : self.content_template,
+                                               "self" : self,
+                                               }
+                                    )
         except TemplateDoesNotExist, e:
             if template:
                 raise e
