@@ -6,14 +6,9 @@ from exeapp.views.blocks.widgets import FreeTextWidget
 
 
 class WikipediaBlock(GenericBlock):
-    """
-    FreeTextBlock can render and process FreeTextIdevices as XHTML
-    GenericBlock will replace it..... one day
-    """
-    edit_template = "exe/idevices/wikipedia/edit.html"
     
     def process(self, action, data):
-        if action == "Load Article":
+        if action == "Load":
             self.idevice.load_article(data['article_name'])
             self.idevice.save()
             return self.render()

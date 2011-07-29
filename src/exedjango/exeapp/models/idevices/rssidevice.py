@@ -8,7 +8,7 @@ from exeapp.models.idevices.genericidevice import GenericIdevice
 class RSSIdevice(GenericIdevice):
     
     name = "RSS"
-    title = fields.TitleField(max_length=100, default=name)
+    title = models.CharField(max_length=100, default=name)
     author = "Auchland University of Technology"
     purpose = """The RSS iDevice is used 
 to provide new content to an individual users machine. Using this
@@ -16,10 +16,10 @@ iDevice you can provide links from a feed you select for learners to view."""
     emphasis = Idevice.NOEMPHASIS
     group = Idevice.COMMUNICATION
     icon = "icon_inter.gif"
-    rss_url = models.CharField(max_length=200, blank=True, default="",
+    rss_url = fields.URLField(max_length=200, blank=True, default="",
                 help_text="""Enter an RSS URL for the RSS feed you 
 want to attach to your content. Feeds are often identified by a small graphic
- icon (often like this <img src="/images/feed-icon.png" />) or the text "RSS". Clicking on the 
+ icon (often like this <img src="/static/images/feed-icon.png" />) or the text "RSS". Clicking on the 
  icon or text label will display an RSS feed right in your browser. You can copy and paste the
 URL into this field. Alternately, right clicking on the link or graphic will open a menu box;
 click on COPY LINK LOCATION or Copy Shortcut. Back in eXe open the RSS bookmark iDevice and Paste the URL 

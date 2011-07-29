@@ -6,7 +6,7 @@ from exeapp.models.idevices.idevice import Idevice
 
 class ReflectionIdevice(GenericIdevice):
     name = "Reflection"
-    title = fields.TitleField(max_length=100, default=name)
+    title = models.CharField(max_length=100, default=name)
     author = "University of Auckland"
     purpose = """Reflection is a teaching method often used to 
 connect theory to practice. Reflection tasks often provide learners with an 

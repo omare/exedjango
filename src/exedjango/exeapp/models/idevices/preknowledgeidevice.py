@@ -1,3 +1,4 @@
+from django.db import models
 from exeapp.models.idevices.idevice import Idevice
 from exeapp.models.idevices import fields
 from exeapp.models.idevices.genericidevice import GenericIdevice
@@ -5,7 +6,7 @@ from exeapp.models.idevices.genericidevice import GenericIdevice
 
 class PreknowledgeIdevice(GenericIdevice):
     name = "Preknowledge" 
-    title = fields.TitleField(max_length=100, default=name)
+    title = models.CharField(max_length=100, default=name)
     purpose = """Prerequisite knowledge refers to the knowledge learners should already
 have in order to be able to effectively complete the learning. Examples of 
 pre-nowledge can be: <ul>

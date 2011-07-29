@@ -24,8 +24,8 @@ class IdeviceForm(forms.ModelForm):
             else:
                 # dumb widget, shouldn't be exported
                 html += ""
-        
         return mark_safe(html) 
+        
     
     @property
     def view_media(self):

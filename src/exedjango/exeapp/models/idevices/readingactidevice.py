@@ -8,7 +8,7 @@ from exeapp.models.idevices import fields
 class ReadingActivityIdevice(GenericIdevice):
     group = Idevice.CONTENT
     name = "Reading Activity"
-    title = fields.TitleField(max_length=100, default=name)
+    title = models.CharField(max_length=100, default=name)
     author = "University of Auckland"
     purpose = """<p>The Reading Activity will primarily 
 be used to check a learner's comprehension of a given text. This can be done 

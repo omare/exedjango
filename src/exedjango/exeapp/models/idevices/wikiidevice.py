@@ -19,7 +19,7 @@ def _(value):
 
 class WikipediaIdevice(GenericIdevice):
     name = "Wiki Article"
-    title = fields.TitleField(max_length=100, default=name)
+    title = models.CharField(max_length=100, default=name)
     author = "University of Auckland" 
     purpose = """<p>The Wikipedia iDevice allows you to locate 
 existing content from within Wikipedia and download this content into your eXe 
@@ -30,7 +30,7 @@ changes made in eXe will not be updated in Wikipedia. </p> <p>Wikipedia content
 is covered by the GNU free documentation license.</p>""" 
     emphasis = Idevice.NOEMPHASIS
     group = Idevice.CONTENT
-    article_name = models.CharField(max_length=100, blank=True, default="",
+    article_name = fields.URLField(max_length=100, blank=True, default="",
                         help_text="""Enter a phrase or term you wish to search 
 within Wikipedia.""")
     content = fields.RichTextField(blank=True, default="")
@@ -59,8 +59,6 @@ within Wikipedia.""")
             net.close()
         except IOError, error:
             self.content = _(u"Unable to download from %s <br/>Please check the spelling and connection and try again.") % url
-            self.content_w_resourcePaths = self.content
-            self.content_wo_resourcePaths = self.content
             return
 
         page = unicode(page, "utf8")

@@ -1,3 +1,4 @@
+from django.db import models
 from exeapp.models.idevices import fields
 from exeapp.models.idevices.idevice import Idevice
 from exeapp.models.idevices.genericidevice import GenericIdevice
@@ -5,7 +6,7 @@ from exeapp.models.idevices.genericidevice import GenericIdevice
 
 class CommentIdevice(GenericIdevice):
     name = "Remark"
-    title = fields.TitleField(max_length=100, default=name)
+    title = models.CharField(max_length=100, default=name)
     author = "TU Munich"
     purpose =  "Leave a commentary for others who work on this package."
     emphasis = Idevice.SOMEEMPHASIS

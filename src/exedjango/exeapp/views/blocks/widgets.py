@@ -49,13 +49,9 @@ class FileSelectWidget(TextInput):
     #media = forms.Media(js=reverse('tinymce-filebrowser'))
     pass
         
-    
-    
-    
-class TitleWidget(TextInput):
-    
-    def render_preview(self, content):
-        return ""
-    
-    def render_export(self, content):
-        return ""
+class URLWidget(TextInput):
+    def render(self, *args, **kwargs):
+        html = super(URLWidget, self).render(*args, **kwargs)
+        html += '<input type="submit" name="idevice_action" value="Load" />'
+        return html
+        

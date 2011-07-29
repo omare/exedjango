@@ -12,7 +12,7 @@ class GlossaryIdeviceManager(models.Manager):
 class GlossaryIdevice(Idevice):
     
     name = "Glossary"
-    title = fields.TitleField(max_length=100, default=name)
+    title = models.CharField(max_length=100, default=name)
     author = "Technical University Munich"
     purpose = "Adds a alphabethicaly sorted glossary"
     emphasis = Idevice.SOMEEMPHASIS

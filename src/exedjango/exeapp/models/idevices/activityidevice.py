@@ -9,7 +9,7 @@ class ActivityIdevice(GenericIdevice):
 
     group = Idevice.CONTENT
     name = "Activity"
-    title = fields.TitleField(max_length=100, default=name) 
+    title = models.CharField(max_length=100, default=name) 
     author = "University of Auckland"
     purpose = """An activity can be defined as a task or set of tasks a 
 learner must complete. Provide a clear statement of the task and consider

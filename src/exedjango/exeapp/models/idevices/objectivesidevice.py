@@ -7,7 +7,7 @@ from exeapp.models.idevices import fields
 class ObjectivesIdevice(GenericIdevice):
     
     name = "Objectives"
-    title = fields.TitleField(max_length=100, default=name)
+    title = models.CharField(max_length=100, default=name)
     author = "University of Auckland"
     purpose = """Objectives describe the expected outcomes of the learning and should
 define what the learners will be able to do when they have completed the
