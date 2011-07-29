@@ -133,6 +133,9 @@ function initialize_authoring() {
  //$(".action_button").bind("click", handle_action_button)
  $(".idevice_form").ajaxForm({success: function(responseText, statusText, xhr, $form){
  	var idevice_id = $form.attr("idevice_id");
+ 		$form.find("textarea").each(function() {
+ 			tinyMCE.execCommand("mceRemoveControl", true, $(this).attr("id"));
+ 		});
  		if (responseText){
  			get_media("./?idevice_id=" + idevice_id + "&media=true");
 	 		$form.html(responseText);
@@ -143,12 +146,7 @@ function initialize_authoring() {
  	},
  	beforeSerialize: function() {
  		 tinyMCE.triggerSave(true, true);},
- 	beforeSubmit: function(form_data, $form, opts){
- 		$form.find("textarea").each(function() {
- 			tinyMCE.execCommand("mceRemoveControl", true, $(this).attr("id"));
- 		});
- 	}}
- 	);
+ 	});
 }
 
 function reload_authoring() {

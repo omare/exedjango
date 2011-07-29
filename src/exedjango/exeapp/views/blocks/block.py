@@ -61,22 +61,29 @@ class Block(object):
     def process(self, action, data):
         
         if action == 'move_up':
+            self.save_form(data)
             self.idevice.move_up()
             return ""
         elif action == 'move_down':
+            self.save_form(data)
             self.idevice.move_down()
             return ""
         elif action == 'edit_mode':
             self.idevice.edit_mode()
             return self.render()
         elif action == 'apply_changes':
-            form = self.form_factory(data, instance=self.idevice)
-            if form.is_valid():
-                form.save(commit=False)
-                self.idevice.apply_changes(form.cleaned_data)
+            form = self.save_form(data)
+            self.idevice.apply_changes(form.cleaned_data)
             return self.render(form=form)
         else:
             raise IdeviceActionNotFound("Action %s not found" % action)
+        
+    def save_form(self, data):
+        form = self.form_factory(data, instance=self.idevice)
+        if form.is_valid():
+            form.save(commit=False)
+                
+        return form
         
     @property
     def media(self):
