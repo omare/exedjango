@@ -3,7 +3,7 @@
 {% block idevice_block %}
 <div class="iDevice emphasis{{idevice.emphasis}}" 
 	{% include 'exe/idevices/idevice_id.html' %}>
-{% if idevice.emphasis != idevice.NoEmphasis %}
+{% if idevice.emphasis != idevice.NOEMPHASIS %}
 	{% if idevice.icon %}
 		<img alt="Idevice Icon" class="iDevice_icon" src="{% block icon_url %}{{idevice.icon}}{% endblock %}" />
 	{% endif %}
@@ -11,6 +11,6 @@
 <div class="iDevice_inner">
 {% endif %}
 {% block idevice %}{% endblock idevice %}
-{% if idevice.emphasis != idevice.NoEmphasis %}</div>{% endif %}
+{% if idevice.emphasis != idevice.NOEMPHASIS %}</div>{% endif %}
 {% endblock %}
 </div>
