@@ -44,7 +44,7 @@ package
     # see derieved classes for persistenceVersion 
     NOEMPHASIS, SOMEEMPHASIS, STRONGEMPHASIS = range(3)
     CONTENT, DIDACTICS, COMMUNICATION,  TEST, MEDIA, UNKNOWN = \
-            "Content", "Didactics", "Communication", "Media", "Test", "Unknown"
+            "Content", "Didactics", "Communication", "Test", "Media", "Unknown"
     
     GROUP_ORDER = [CONTENT, DIDACTICS, COMMUNICATION,  TEST, MEDIA, UNKNOWN]
              

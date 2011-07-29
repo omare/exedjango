@@ -27,6 +27,8 @@ from exeapp.models import FeedbackIdevice
 from exeapp.views.blocks.feedbackblock import FeedbackBlock
 from exeapp.models import RSSIdevice
 from exeapp.views.blocks.rssblock import RSSBlock
+from exeapp.models import ExternalURLIdevice
+from exeapp.views.blocks.externalurlblock import ExternalURLBlock
 
 idevice_map = {
           FreeTextIdevice : GenericBlock,
@@ -42,6 +44,7 @@ idevice_map = {
           CommentIdevice : CommentBlock,
           FeedbackIdevice : FeedbackBlock,
           RSSIdevice : RSSBlock,
+          ExternalURLIdevice : ExternalURLBlock,
           }
 
 block_map = dict((v, k) for k, v in idevice_map.items())
