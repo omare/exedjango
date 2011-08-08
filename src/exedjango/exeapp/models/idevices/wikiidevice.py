@@ -4,7 +4,6 @@ from exeapp.models.idevices.idevice import Idevice
 import urllib
 from BeautifulSoup import  BeautifulSoup
 import re
-from exe.engine.path import TempDirPath
 from exeapp.models.idevices import fields
 
 class UrlOpener(urllib.FancyURLopener):
